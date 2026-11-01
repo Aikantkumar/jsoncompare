@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import JsonToTypeScriptApp from '../../components/tools/JsonToTypeScriptApp';
+---
+
+<Layout
+  title="JSON to TypeScript Converter — Generate Clean Types & Interfaces"
+  description="Convert JSON payloads or API responses into clean TypeScript interfaces and type definitions instantly in your browser."
+  activeTab="tools"
+  canonicalPath="/tools/json-to-typescript"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+        Developer Generator
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
+        JSON TO TYPESCRIPT CONVERTER
+      </h1>
+      <p class="mt-2 text-sm text-[#4b4b4d] max-w-2xl">
+        Generate idiomatic TypeScript interfaces and types from nested JSON payloads. Handles arrays, union types, and nested objects with automatic naming.
+      </p>
+    </div>
+
+    <JsonToTypeScriptApp client:load />
+  </div>
+</Layout>
+

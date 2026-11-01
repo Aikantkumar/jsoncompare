@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import JsonEscapeUnescapeApp from '../../components/tools/JsonEscapeUnescapeApp';
+---
+
+<Layout
+  title="JSON Escape & Unescape Online — Fix Stringified JSON & Log Traces"
+  description="Escape and unescape JSON strings online. Cleans up stringified payloads, backslashes, and escaped quotes from server logs and database records."
+  activeTab="tools"
+  canonicalPath="/tools/json-escape-unescape"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+        String Utility
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
+        JSON ESCAPE & UNESCAPE
+      </h1>
+      <p class="mt-2 text-sm text-[#4b4b4d] max-w-2xl">
+        Quickly strip backslashes and quotes from stringified JSON found in application logs, or escape clean JSON to safely embed inside JSON properties or environment variables.
+      </p>
+    </div>
+
+    <JsonEscapeUnescapeApp client:load />
+  </div>
+</Layout>
+

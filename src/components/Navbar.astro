@@ -1,0 +1,140 @@
+---
+interface Props {
+  activeTab?: string;
+}
+
+const { activeTab = '' } = Astro.props;
+---
+
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#e5e5e5]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+    <!-- Brand -->
+    <div class="flex items-center gap-6">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <span class="w-8 h-8 rounded-full bg-[#111111] text-white flex items-center justify-center font-mono font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform">
+          {"{ }"}
+        </span>
+        <div class="flex flex-col">
+          <span class="font-bold text-base tracking-tight text-[#111111] leading-none">
+            jsoncompare<span class="text-[#707072] font-normal">online</span>
+          </span>
+          <span class="text-[10px] text-[#707072] tracking-wider uppercase font-mono mt-0.5">
+            Client-Side Diff
+          </span>
+        </div>
+      </a>
+
+      <!-- Quick Trust Pill -->
+      <div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] border border-[#e5e5e5]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] animate-pulse"></span>
+        Zero Server Uploads
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-[#39393b]">
+      <a
+        href="/"
+        class={`px-3 py-1.5 rounded-full transition-colors ${activeTab === 'compare' ? 'bg-[#111111] text-white' : 'hover:bg-[#f5f5f5] hover:text-[#111111]'}`}
+      >
+        Compare
+      </a>
+
+      <!-- Tools Dropdown Menu -->
+      <div class="relative group">
+        <button class="px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[#f5f5f5] hover:text-[#111111] transition-colors cursor-pointer">
+          Tools
+          <svg class="w-3.5 h-3.5 text-[#707072] transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="absolute left-0 top-full pt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150">
+          <div class="w-64 bg-white rounded-2xl shadow-xl border border-[#e5e5e5] p-2 space-y-0.5">
+            <a href="/tools/json-formatter" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">JSON Formatter</span>
+              <span class="text-[#707072] text-[11px]">Beautify, indent & tidy JSON</span>
+            </a>
+            <a href="/tools/json-validator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">JSON Validator</span>
+              <span class="text-[#707072] text-[11px]">Pinpoint syntax error inspector</span>
+            </a>
+            <a href="/tools/json-minifier" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">JSON Minifier</span>
+              <span class="text-[#707072] text-[11px]">Compress & strip whitespace</span>
+            </a>
+            <a href="/tools/json-patch-generator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">JSON Patch (RFC 6902)</span>
+              <span class="text-[#707072] text-[11px]">Generate operational patch diffs</span>
+            </a>
+            <a href="/tools/json-to-typescript" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">JSON to TypeScript</span>
+              <span class="text-[#707072] text-[11px]">Generate types & interfaces</span>
+            </a>
+            <a href="/tools/json-escape-unescape" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">Escape / Unescape</span>
+              <span class="text-[#707072] text-[11px]">Clean escaped stringified JSON</span>
+            </a>
+            <a href="/tools/json-schema-validator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">JSON Schema Validator</span>
+              <span class="text-[#707072] text-[11px]">Draft-07 & 2020-12 schema check</span>
+            </a>
+            <a href="/tools/json-sorter" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
+              <span class="font-semibold text-[#111111] block">JSON Key Sorter</span>
+              <span class="text-[#707072] text-[11px]">Deep alphabetical key ordering</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Converters Dropdown Menu -->
+      <div class="relative group">
+        <button class="px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[#f5f5f5] hover:text-[#111111] transition-colors cursor-pointer">
+          Converters
+          <svg class="w-3.5 h-3.5 text-[#707072] transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="absolute left-0 top-full pt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150">
+          <div class="w-56 bg-white rounded-2xl shadow-xl border border-[#e5e5e5] p-2 space-y-0.5">
+            <a href="/convert/yaml-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+              YAML to JSON
+            </a>
+            <a href="/convert/json-to-yaml" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+              JSON to YAML
+            </a>
+            <a href="/convert/xml-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+              XML to JSON
+            </a>
+            <a href="/convert/json-to-xml" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+              JSON to XML
+            </a>
+            <a href="/convert/csv-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+              CSV to JSON
+            </a>
+            <a href="/convert/json-to-csv" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+              JSON to CSV
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <a
+        href="/privacy"
+        class={`px-3 py-1.5 rounded-full transition-colors ${activeTab === 'privacy' ? 'bg-[#111111] text-white' : 'hover:bg-[#f5f5f5] hover:text-[#111111]'}`}
+      >
+        Privacy & Security
+      </a>
+    </nav>
+
+    <!-- Right Action CTAs -->
+    <div class="flex items-center gap-3">
+      <a
+        href="/"
+        class="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] transition-colors shadow-xs"
+      >
+        Diff Two JSONs
+      </a>
+    </div>
+  </div>
+</header>
+

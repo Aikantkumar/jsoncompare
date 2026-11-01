@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import JsonMinifierApp from '../../components/tools/JsonMinifierApp';
+---
+
+<Layout
+  title="Online JSON Minifier — Compress JSON & Reduce Payload Size"
+  description="Minify and compress JSON strings online. Strips whitespaces, tabs, and newlines with exact byte savings and compression ratio statistics."
+  activeTab="tools"
+  canonicalPath="/tools/json-minifier"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+        Payload Optimization
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
+        JSON MINIFIER & COMPRESSOR
+      </h1>
+      <p class="mt-2 text-sm text-[#4b4b4d] max-w-2xl">
+        Strip unnecessary whitespaces, line breaks, and indentation while preserving payload integrity. Calculates real-time size reduction metrics.
+      </p>
+    </div>
+
+    <JsonMinifierApp client:load />
+  </div>
+</Layout>
+

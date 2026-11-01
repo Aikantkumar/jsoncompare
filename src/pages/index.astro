@@ -1,11 +1,215 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import JsonCompareApp from '../components/diff/JsonCompareApp';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const features = [
+  {
+    title: "Semantic & Key-Order Agnostic",
+    desc: "Automatically normalizes object key order and whitespace. Compare meaning, not indentation.",
+    badge: "Semantic"
+  },
+  {
+    title: "Array Alignment by ID",
+    desc: "Align array items by unique identifiers (`id`, `uuid`, `key`) so inserted rows don't shift the entire list.",
+    badge: "Smart Match"
+  },
+  {
+    title: "RFC 6902 JSON Patch",
+    desc: "Export standard operational patches (add, remove, replace, move) with 1 click to sync databases or API mocks.",
+    badge: "RFC 6902"
+  },
+  {
+    title: "1-Click Smart Syntax Repair",
+    desc: "Auto-remedies trailing commas, single quotes, unquoted keys, and Python `True/False/None` instantly.",
+    badge: "Auto-Fix"
+  },
+  {
+    title: "JSONPath Sub-Query Diff",
+    desc: "Filter down massive 100k-line responses to just the target node (`$.items[*].sku`) before comparing.",
+    badge: "JSONPath"
+  },
+  {
+    title: "100% Client-Side Privacy",
+    desc: "All calculations execute inside your browser. No tokens, credentials, or customer data ever touch a server.",
+    badge: "Private"
+  }
+];
+
+const faqs = [
+  {
+    q: "How does semantic JSON diff differ from standard text diff?",
+    a: "Standard text diffs compare lines character-by-character. If two JSON objects have identical data but different key order (e.g. {\"a\":1, \"b\":2} vs {\"b\":2, \"a\":1}) or different indentation, standard diff tools show false-positive discrepancies. Our semantic diff normalizes structures before diffing, highlighting only genuine data mutations."
+  },
+  {
+    q: "Is my JSON data uploaded or saved to external servers?",
+    a: "No. All parsing, repairing, diffing, and patch generation happens 100% locally on your machine using client-side JavaScript. You can verify this by inspecting your browser Network tab — zero HTTP requests are sent containing your data."
+  },
+  {
+    q: "What is RFC 6902 JSON Patch and why is it useful?",
+    a: "RFC 6902 is an IETF standard defining a JSON document format for expressing a sequence of operations to transform one JSON document into another. It is widely used by REST APIs (HTTP PATCH), Kubernetes controllers, and database replication."
+  },
+  {
+    q: "Can I compare broken or malformed JSON payloads?",
+    a: "Yes. Use our 'Smart Fix' button. It automatically cleans up common syntax errors such as trailing commas, Python booleans (True/False/None), single quotes, and stripped comments."
+  }
+];
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title="JSON Compare Online — Free, Semantic & Private JSON Diff Tool"
+  description="Compare two JSON objects or files online with semantic diffing, key-order independence, RFC 6902 patch generation, and zero server upload privacy."
+  activeTab="compare"
+  canonicalPath="/"
+>
+  <!-- Hero Section -->
+  <section class="border-b border-[#e5e5e5] bg-white pt-8 pb-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+            Next-Generation Developer Diff Engine
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#111111] uppercase leading-none">
+            SEMANTIC JSON COMPARE
+          </h1>
+          <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] max-w-2xl leading-relaxed">
+            Side-by-side and unified JSON difference analyzer. Ignores key order, matches arrays by ID, generates RFC 6902 patches, and keeps all sensitive data strictly in your browser.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a
+            href="/tools/json-formatter"
+            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] text-[#111111] border border-[#cacacb] hover:bg-[#111111] hover:text-white transition-colors"
+          >
+            Formatter
+          </a>
+          <a
+            href="/tools/json-validator"
+            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] text-[#111111] border border-[#cacacb] hover:bg-[#111111] hover:text-white transition-colors"
+          >
+            Validator
+          </a>
+          <a
+            href="/tools/json-to-typescript"
+            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] transition-colors"
+          >
+            JSON to TS
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Diff Island -->
+  <section class="bg-white">
+    <JsonCompareApp client:load />
+  </section>
+
+  <!-- Differentiator Features Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-10 text-center max-w-2xl mx-auto">
+      <span class="text-xs font-mono uppercase tracking-widest text-[#707072]">Engineered for Modern Engineers</span>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] mt-1">
+        Built to Outperform Generic Diff Tools
+      </h2>
+      <p class="text-sm text-[#4b4b4d] mt-2">
+        Compare configuration files, debug microservice responses, and generate RFC compliant patches without false positives.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {features.map((feat) => (
+        <div class="p-6 rounded-2xl bg-[#f5f5f5] border border-[#e5e5e5] hover:border-[#cacacb] transition-all flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white border border-[#cacacb] text-[#111111] font-medium">
+                {feat.badge}
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-[#111111] tracking-tight mb-2">
+              {feat.title}
+            </h3>
+            <p class="text-xs text-[#4b4b4d] leading-relaxed">
+              {feat.desc}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Quick Access Tool Matrix -->
+  <section class="bg-[#f5f5f5] border-y border-[#e5e5e5] py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-[#111111]">
+            Comprehensive Data Transformation Suite
+          </h2>
+          <p class="text-xs text-[#707072] mt-0.5">
+            Switch between developer utilities without leaving your browser tab.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <a href="/tools/json-formatter" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
+          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON Formatter</span>
+          <span class="text-[11px] text-[#707072] mt-1 block">Indent & beautify</span>
+        </a>
+        <a href="/tools/json-validator" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
+          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON Validator</span>
+          <span class="text-[11px] text-[#707072] mt-1 block">Line diagnostics</span>
+        </a>
+        <a href="/tools/json-minifier" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
+          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON Minifier</span>
+          <span class="text-[11px] text-[#707072] mt-1 block">Whitespace stripper</span>
+        </a>
+        <a href="/tools/json-patch-generator" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
+          <span class="text-xs font-bold text-[#111111] block group-hover:underline">RFC 6902 Patch</span>
+          <span class="text-[11px] text-[#707072] mt-1 block">Operational diffs</span>
+        </a>
+        <a href="/tools/json-to-typescript" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
+          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON to TS</span>
+          <span class="text-[11px] text-[#707072] mt-1 block">Type generator</span>
+        </a>
+        <a href="/convert/yaml-to-json" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
+          <span class="text-xs font-bold text-[#111111] block group-hover:underline">YAML ⇄ JSON</span>
+          <span class="text-[11px] text-[#707072] mt-1 block">Config converter</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section with Schema Markup -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-10 text-center">
+      <h2 class="text-2xl font-bold tracking-tight text-[#111111]">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-xs text-[#707072] mt-1">
+        Everything you need to know about our semantic diff algorithms and security architecture.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      {faqs.map((faq) => (
+        <details class="group bg-white rounded-2xl border border-[#e5e5e5] p-5 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+          <summary class="flex items-center justify-between font-semibold text-sm text-[#111111]">
+            <span>{faq.q}</span>
+            <span class="ml-4 text-[#707072] group-open:rotate-180 transition-transform">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </summary>
+          <p class="mt-3 text-xs text-[#4b4b4d] leading-relaxed border-t border-[#f5f5f5] pt-3">
+            {faq.a}
+          </p>
+        </details>
+      ))}
+    </div>
+  </section>
 </Layout>
