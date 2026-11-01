@@ -4,26 +4,25 @@ import ConverterApp from '../../components/tools/ConverterApp';
 ---
 
 <Layout
-  title="YAML to JSON Converter Online — Fast, Accurate & Private"
-  description="Convert YAML configurations to JSON online. Preserves nested structures, arrays, and data types with 100% client-side privacy."
+  title="YAML to JSON Converter Online — Fast, Nested Parser & Validator"
+  description="Convert YAML strings and files to structured JSON online with syntax validation, indent handling, and instant clipboard copy."
   activeTab="converters"
   canonicalPath="/convert/yaml-to-json"
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
-        Format Converter
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
+        DevOps & Config
       </div>
-      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
         YAML TO JSON CONVERTER
       </h1>
-      <p class="mt-2 text-sm text-[#4b4b4d] max-w-2xl">
-        Translate YAML files and Kubernetes manifests into clean, formatted JSON. 100% browser-based with zero server latency.
+      <p class="mt-2 text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl">
+        Transform YAML configurations, Helm charts, and CI/CD pipelines into valid JSON payloads without sending data over the network.
       </p>
     </div>
 
     <ConverterApp client:load initialMode="yaml-to-json" />
   </div>
 </Layout>
-

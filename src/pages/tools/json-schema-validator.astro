@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import JsonSchemaValidatorApp from '../../components/tools/JsonSchemaValidatorApp';
+
+const schemaFaqs = [
+  {
+    q: "What is JSON Schema?",
+    a: "JSON Schema is a declarative specification for validating the structure, format, types, and constraints of JSON data. It acts as an automated contract between frontend clients, APIs, and microservices."
+  },
+  {
+    q: "Which JSON Schema drafts are supported?",
+    a: "Our client-side validator supports the core keywords of Draft-07 and Draft 2020-12, including type checking, required fields, regular expression patterns, min/max values, string formats, enums, array items, and additionalProperties."
+  },
+  {
+    q: "Does this validate data confidentially?",
+    a: "Yes. All validation logic executes locally in your browser. Neither your JSON Schema nor your payload data is transmitted over the internet."
+  }
+];
+---
+
+<Layout
+  title="Online JSON Schema Validator — Test & Verify JSON Against Schemas"
+  description="Validate JSON data against JSON Schema (Draft-07 & 2020-12) online. Instant violation diagnostics with exact property path indicators."
+  activeTab="tools"
+  canonicalPath="/tools/json-schema-validator"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
+        Contract Testing
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
+        JSON SCHEMA VALIDATOR
+      </h1>
+      <p class="mt-2 text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl">
+        Verify that your JSON documents adhere to your JSON Schema specification. Catch missing required properties, invalid data types, pattern mismatches, and boundary violations in real time.
+      </p>
+    </div>
+
+    <JsonSchemaValidatorApp client:load />
+
+    <!-- FAQ Section -->
+    <div class="mt-16 max-w-3xl">
+      <h2 class="text-xl font-bold tracking-tight text-[#111111] dark:text-[#f0f0f2] mb-6">
+        JSON Schema Reference & FAQs
+      </h2>
+      <div class="space-y-4">
+        {schemaFaqs.map((faq) => (
+          <div class="p-5 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-2">{faq.q}</h3>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">{faq.a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>

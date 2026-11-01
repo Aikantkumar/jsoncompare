@@ -62,18 +62,18 @@ const faqs = [
   canonicalPath="/"
 >
   <!-- Hero Section -->
-  <section class="border-b border-[#e5e5e5] bg-white pt-8 pb-6">
+  <section class="border-b border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#0c0d0e] pt-8 pb-6 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
             Next-Generation Developer Diff Engine
           </div>
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#111111] uppercase leading-none">
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase leading-none">
             SEMANTIC JSON COMPARE
           </h1>
-          <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] max-w-2xl leading-relaxed">
+          <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl leading-relaxed">
             Side-by-side and unified JSON difference analyzer. Ignores key order, matches arrays by ID, generates RFC 6902 patches, and keeps all sensitive data strictly in your browser.
           </p>
         </div>
@@ -81,19 +81,19 @@ const faqs = [
         <div class="flex items-center gap-2">
           <a
             href="/tools/json-formatter"
-            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] text-[#111111] border border-[#cacacb] hover:bg-[#111111] hover:text-white transition-colors"
+            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors"
           >
             Formatter
           </a>
           <a
             href="/tools/json-validator"
-            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] text-[#111111] border border-[#cacacb] hover:bg-[#111111] hover:text-white transition-colors"
+            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors"
           >
             Validator
           </a>
           <a
             href="/tools/json-to-typescript"
-            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] transition-colors"
+            class="px-4 py-2 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors"
           >
             JSON to TS
           </a>
@@ -103,35 +103,35 @@ const faqs = [
   </section>
 
   <!-- Interactive Diff Island -->
-  <section class="bg-white">
+  <section class="bg-white dark:bg-[#0c0d0e] transition-colors">
     <JsonCompareApp client:load />
   </section>
 
   <!-- Differentiator Features Grid -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="mb-10 text-center max-w-2xl mx-auto">
-      <span class="text-xs font-mono uppercase tracking-widest text-[#707072]">Engineered for Modern Engineers</span>
-      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] mt-1">
+      <span class="text-xs font-mono uppercase tracking-widest text-[#707072] dark:text-[#8e8e93]">Engineered for Modern Engineers</span>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] dark:text-[#f0f0f2] mt-1">
         Built to Outperform Generic Diff Tools
       </h2>
-      <p class="text-sm text-[#4b4b4d] mt-2">
+      <p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] mt-2">
         Compare configuration files, debug microservice responses, and generate RFC compliant patches without false positives.
       </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {features.map((feat) => (
-        <div class="p-6 rounded-2xl bg-[#f5f5f5] border border-[#e5e5e5] hover:border-[#cacacb] transition-all flex flex-col justify-between">
+        <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#cacacb] dark:hover:border-[#383d47] transition-all flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-3">
-              <span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white border border-[#cacacb] text-[#111111] font-medium">
+              <span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1c1f26] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-medium">
                 {feat.badge}
               </span>
             </div>
-            <h3 class="text-base font-bold text-[#111111] tracking-tight mb-2">
+            <h3 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] tracking-tight mb-2">
               {feat.title}
             </h3>
-            <p class="text-xs text-[#4b4b4d] leading-relaxed">
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
               {feat.desc}
             </p>
           </div>
@@ -141,43 +141,43 @@ const faqs = [
   </section>
 
   <!-- Quick Access Tool Matrix -->
-  <section class="bg-[#f5f5f5] border-y border-[#e5e5e5] py-14">
+  <section class="bg-[#f5f5f5] dark:bg-[#111215] border-y border-[#e5e5e5] dark:border-[#22242a] py-14 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h2 class="text-xl font-bold tracking-tight text-[#111111]">
+          <h2 class="text-xl font-bold tracking-tight text-[#111111] dark:text-[#f0f0f2]">
             Comprehensive Data Transformation Suite
           </h2>
-          <p class="text-xs text-[#707072] mt-0.5">
+          <p class="text-xs text-[#707072] dark:text-[#8e8e93] mt-0.5">
             Switch between developer utilities without leaving your browser tab.
           </p>
         </div>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <a href="/tools/json-formatter" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
-          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON Formatter</span>
-          <span class="text-[11px] text-[#707072] mt-1 block">Indent & beautify</span>
+        <a href="/tools/json-formatter" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group">
+          <span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON Formatter</span>
+          <span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">Indent & beautify</span>
         </a>
-        <a href="/tools/json-validator" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
-          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON Validator</span>
-          <span class="text-[11px] text-[#707072] mt-1 block">Line diagnostics</span>
+        <a href="/tools/json-validator" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group">
+          <span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON Validator</span>
+          <span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">Line diagnostics</span>
         </a>
-        <a href="/tools/json-minifier" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
-          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON Minifier</span>
-          <span class="text-[11px] text-[#707072] mt-1 block">Whitespace stripper</span>
+        <a href="/tools/json-minifier" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group">
+          <span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON Minifier</span>
+          <span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">Whitespace stripper</span>
         </a>
-        <a href="/tools/json-patch-generator" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
-          <span class="text-xs font-bold text-[#111111] block group-hover:underline">RFC 6902 Patch</span>
-          <span class="text-[11px] text-[#707072] mt-1 block">Operational diffs</span>
+        <a href="/tools/json-patch-generator" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group">
+          <span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">RFC 6902 Patch</span>
+          <span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">Operational diffs</span>
         </a>
-        <a href="/tools/json-to-typescript" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
-          <span class="text-xs font-bold text-[#111111] block group-hover:underline">JSON to TS</span>
-          <span class="text-[11px] text-[#707072] mt-1 block">Type generator</span>
+        <a href="/tools/json-to-typescript" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group">
+          <span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON to TS</span>
+          <span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">Type generator</span>
         </a>
-        <a href="/convert/yaml-to-json" class="p-4 rounded-xl bg-white border border-[#e5e5e5] hover:border-[#111111] transition-all group">
-          <span class="text-xs font-bold text-[#111111] block group-hover:underline">YAML ⇄ JSON</span>
-          <span class="text-[11px] text-[#707072] mt-1 block">Config converter</span>
+        <a href="/convert/yaml-to-json" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group">
+          <span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">YAML ⇄ JSON</span>
+          <span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">Config converter</span>
         </a>
       </div>
     </div>
@@ -186,26 +186,26 @@ const faqs = [
   <!-- FAQ Section with Schema Markup -->
   <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="mb-10 text-center">
-      <h2 class="text-2xl font-bold tracking-tight text-[#111111]">
+      <h2 class="text-2xl font-bold tracking-tight text-[#111111] dark:text-[#f0f0f2]">
         Frequently Asked Questions
       </h2>
-      <p class="text-xs text-[#707072] mt-1">
+      <p class="text-xs text-[#707072] dark:text-[#8e8e93] mt-1">
         Everything you need to know about our semantic diff algorithms and security architecture.
       </p>
     </div>
 
     <div class="space-y-4">
       {faqs.map((faq) => (
-        <details class="group bg-white rounded-2xl border border-[#e5e5e5] p-5 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
-          <summary class="flex items-center justify-between font-semibold text-sm text-[#111111]">
+        <details class="group bg-white dark:bg-[#14161b] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] p-5 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+          <summary class="flex items-center justify-between font-semibold text-sm text-[#111111] dark:text-[#f0f0f2]">
             <span>{faq.q}</span>
-            <span class="ml-4 text-[#707072] group-open:rotate-180 transition-transform">
+            <span class="ml-4 text-[#707072] dark:text-[#8e8e93] group-open:rotate-180 transition-transform">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </span>
           </summary>
-          <p class="mt-3 text-xs text-[#4b4b4d] leading-relaxed border-t border-[#f5f5f5] pt-3">
+          <p class="mt-3 text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed border-t border-[#f5f5f5] dark:border-[#202228] pt-3">
             {faq.a}
           </p>
         </details>

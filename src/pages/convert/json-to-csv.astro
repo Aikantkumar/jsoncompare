@@ -4,26 +4,25 @@ import ConverterApp from '../../components/tools/ConverterApp';
 ---
 
 <Layout
-  title="JSON to CSV Converter Online — Export JSON to Spreadsheet Matrix"
-  description="Convert JSON arrays or objects into flat CSV spreadsheets online. Handles quotes, commas, and custom delimiters."
+  title="JSON to CSV Converter Online — Export JSON Arrays to Tabular CSV"
+  description="Convert JSON arrays or nested objects to standard CSV spreadsheets. Flatten nested records with automatic header detection."
   activeTab="converters"
   canonicalPath="/convert/json-to-csv"
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
-        Format Converter
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
+        Spreadsheet Export
       </div>
-      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
         JSON TO CSV CONVERTER
       </h1>
-      <p class="mt-2 text-sm text-[#4b4b4d] max-w-2xl">
-        Export JSON API responses and arrays of objects directly to CSV format for Excel, Google Sheets, or data pipelines.
+      <p class="mt-2 text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl">
+        Export JSON lists, API datasets, or database exports into spreadsheet-ready CSV format. Safely handles nested fields and delimiter escaping.
       </p>
     </div>
 
     <ConverterApp client:load initialMode="json-to-csv" />
   </div>
 </Layout>
-

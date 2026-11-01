@@ -6,81 +6,85 @@ interface Props {
 const { activeTab = '' } = Astro.props;
 ---
 
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#e5e5e5]">
+<header class="sticky top-0 z-50 bg-white/95 dark:bg-[#0c0d0e]/95 backdrop-blur-md border-b border-[#e5e5e5] dark:border-[#22242a] transition-colors">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
     <!-- Brand -->
     <div class="flex items-center gap-6">
       <a href="/" class="flex items-center gap-2.5 group">
-        <span class="w-8 h-8 rounded-full bg-[#111111] text-white flex items-center justify-center font-mono font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform">
+        <span class="w-8 h-8 rounded-full bg-[#111111] dark:bg-[#f0f0f2] text-white dark:text-[#111111] flex items-center justify-center font-mono font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-all">
           {"{ }"}
         </span>
         <div class="flex flex-col">
-          <span class="font-bold text-base tracking-tight text-[#111111] leading-none">
-            jsoncompare<span class="text-[#707072] font-normal">online</span>
+          <span class="font-bold text-base tracking-tight text-[#111111] dark:text-[#f0f0f2] leading-none">
+            jsoncompare<span class="text-[#707072] dark:text-[#8e8e93] font-normal">online</span>
           </span>
-          <span class="text-[10px] text-[#707072] tracking-wider uppercase font-mono mt-0.5">
+          <span class="text-[10px] text-[#707072] dark:text-[#8e8e93] tracking-wider uppercase font-mono mt-0.5">
             Client-Side Diff
           </span>
         </div>
       </a>
 
       <!-- Quick Trust Pill -->
-      <div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] border border-[#e5e5e5]">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] animate-pulse"></span>
+      <div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] border border-[#e5e5e5] dark:border-[#22242a]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#1eaa52] animate-pulse"></span>
         Zero Server Uploads
       </div>
     </div>
 
     <!-- Navigation Links -->
-    <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-[#39393b]">
+    <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-[#39393b] dark:text-[#b5b5b8]">
       <a
         href="/"
-        class={`px-3 py-1.5 rounded-full transition-colors ${activeTab === 'compare' ? 'bg-[#111111] text-white' : 'hover:bg-[#f5f5f5] hover:text-[#111111]'}`}
+        class={`px-3 py-1.5 rounded-full transition-colors ${
+          activeTab === 'compare'
+            ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]'
+            : 'hover:bg-[#f5f5f5] hover:text-[#111111] dark:hover:bg-[#18191d] dark:hover:text-[#f0f0f2]'
+        }`}
       >
         Compare
       </a>
 
       <!-- Tools Dropdown Menu -->
       <div class="relative group">
-        <button class="px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[#f5f5f5] hover:text-[#111111] transition-colors cursor-pointer">
+        <button class="px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[#f5f5f5] hover:text-[#111111] dark:hover:bg-[#18191d] dark:hover:text-[#f0f0f2] transition-colors cursor-pointer">
           Tools
-          <svg class="w-3.5 h-3.5 text-[#707072] transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-3.5 h-3.5 text-[#707072] dark:text-[#8e8e93] transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
         <div class="absolute left-0 top-full pt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150">
-          <div class="w-64 bg-white rounded-2xl shadow-xl border border-[#e5e5e5] p-2 space-y-0.5">
-            <a href="/tools/json-formatter" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">JSON Formatter</span>
-              <span class="text-[#707072] text-[11px]">Beautify, indent & tidy JSON</span>
+          <div class="w-64 bg-white dark:bg-[#14161b] rounded-2xl shadow-xl border border-[#e5e5e5] dark:border-[#272a30] p-2 space-y-0.5">
+            <a href="/tools/json-formatter" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">JSON Formatter</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Beautify, indent & tidy JSON</span>
             </a>
-            <a href="/tools/json-validator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">JSON Validator</span>
-              <span class="text-[#707072] text-[11px]">Pinpoint syntax error inspector</span>
+            <a href="/tools/json-validator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">JSON Validator</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Pinpoint syntax error inspector</span>
             </a>
-            <a href="/tools/json-minifier" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">JSON Minifier</span>
-              <span class="text-[#707072] text-[11px]">Compress & strip whitespace</span>
+            <a href="/tools/json-minifier" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">JSON Minifier</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Compress & strip whitespace</span>
             </a>
-            <a href="/tools/json-patch-generator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">JSON Patch (RFC 6902)</span>
-              <span class="text-[#707072] text-[11px]">Generate operational patch diffs</span>
+            <a href="/tools/json-patch-generator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">JSON Patch (RFC 6902)</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Generate operational patch diffs</span>
             </a>
-            <a href="/tools/json-to-typescript" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">JSON to TypeScript</span>
-              <span class="text-[#707072] text-[11px]">Generate types & interfaces</span>
+            <a href="/tools/json-to-typescript" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">JSON to TypeScript</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Generate types & interfaces</span>
             </a>
-            <a href="/tools/json-escape-unescape" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">Escape / Unescape</span>
-              <span class="text-[#707072] text-[11px]">Clean escaped stringified JSON</span>
+            <a href="/tools/json-escape-unescape" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">Escape / Unescape</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Clean escaped stringified JSON</span>
             </a>
-            <a href="/tools/json-schema-validator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">JSON Schema Validator</span>
-              <span class="text-[#707072] text-[11px]">Draft-07 & 2020-12 schema check</span>
+            <a href="/tools/json-schema-validator" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">JSON Schema Validator</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Draft-07 & 2020-12 schema check</span>
             </a>
-            <a href="/tools/json-sorter" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] transition-colors">
-              <span class="font-semibold text-[#111111] block">JSON Key Sorter</span>
-              <span class="text-[#707072] text-[11px]">Deep alphabetical key ordering</span>
+            <a href="/tools/json-sorter" class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors">
+              <span class="font-semibold text-[#111111] dark:text-[#f0f0f2] block">JSON Key Sorter</span>
+              <span class="text-[#707072] dark:text-[#8e8e93] text-[11px]">Deep alphabetical key ordering</span>
             </a>
           </div>
         </div>
@@ -88,30 +92,30 @@ const { activeTab = '' } = Astro.props;
 
       <!-- Converters Dropdown Menu -->
       <div class="relative group">
-        <button class="px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[#f5f5f5] hover:text-[#111111] transition-colors cursor-pointer">
+        <button class="px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[#f5f5f5] hover:text-[#111111] dark:hover:bg-[#18191d] dark:hover:text-[#f0f0f2] transition-colors cursor-pointer">
           Converters
-          <svg class="w-3.5 h-3.5 text-[#707072] transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-3.5 h-3.5 text-[#707072] dark:text-[#8e8e93] transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
         <div class="absolute left-0 top-full pt-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150">
-          <div class="w-56 bg-white rounded-2xl shadow-xl border border-[#e5e5e5] p-2 space-y-0.5">
-            <a href="/convert/yaml-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+          <div class="w-56 bg-white dark:bg-[#14161b] rounded-2xl shadow-xl border border-[#e5e5e5] dark:border-[#272a30] p-2 space-y-0.5">
+            <a href="/convert/yaml-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors">
               YAML to JSON
             </a>
-            <a href="/convert/json-to-yaml" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+            <a href="/convert/json-to-yaml" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors">
               JSON to YAML
             </a>
-            <a href="/convert/xml-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+            <a href="/convert/xml-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors">
               XML to JSON
             </a>
-            <a href="/convert/json-to-xml" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+            <a href="/convert/json-to-xml" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors">
               JSON to XML
             </a>
-            <a href="/convert/csv-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+            <a href="/convert/csv-to-json" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors">
               CSV to JSON
             </a>
-            <a href="/convert/json-to-csv" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] text-[#111111] transition-colors">
+            <a href="/convert/json-to-csv" class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors">
               JSON to CSV
             </a>
           </div>
@@ -120,17 +124,39 @@ const { activeTab = '' } = Astro.props;
 
       <a
         href="/privacy"
-        class={`px-3 py-1.5 rounded-full transition-colors ${activeTab === 'privacy' ? 'bg-[#111111] text-white' : 'hover:bg-[#f5f5f5] hover:text-[#111111]'}`}
+        class={`px-3 py-1.5 rounded-full transition-colors ${
+          activeTab === 'privacy'
+            ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]'
+            : 'hover:bg-[#f5f5f5] hover:text-[#111111] dark:hover:bg-[#18191d] dark:hover:text-[#f0f0f2]'
+        }`}
       >
         Privacy & Security
       </a>
     </nav>
 
-    <!-- Right Action CTAs -->
-    <div class="flex items-center gap-3">
+    <!-- Right Action CTAs & Theme Toggle -->
+    <div class="flex items-center gap-2.5">
+      <!-- Dark / Light Mode Toggle Button -->
+      <button
+        id="theme-toggle"
+        type="button"
+        aria-label="Toggle light and dark mode"
+        title="Toggle light / dark mode"
+        class="w-8 h-8 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-[#f5f5f5] dark:bg-[#18191d] text-[#39393b] dark:text-[#f0f0f2] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors cursor-pointer flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2]"
+      >
+        <!-- Sun icon: shown when dark (to switch to light) -->
+        <svg class="w-4 h-4 hidden dark:block text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <!-- Moon icon: shown when light (to switch to dark) -->
+        <svg class="w-4 h-4 block dark:hidden text-[#39393b]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
+
       <a
         href="/"
-        class="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] transition-colors shadow-xs"
+        class="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shadow-xs"
       >
         Diff Two JSONs
       </a>
@@ -138,3 +164,23 @@ const { activeTab = '' } = Astro.props;
   </div>
 </header>
 
+<script is:inline>
+  function setupThemeToggle() {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+
+    toggle.onclick = function() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+    };
+  }
+
+  setupThemeToggle();
+  document.addEventListener('astro:after-swap', setupThemeToggle);
+</script>

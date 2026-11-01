@@ -72,21 +72,21 @@ export default function ConverterApp({ initialMode }: Props) {
   };
 
   return (
-    <div class="w-full bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden shadow-xs">
+    <div class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
       {toastMessage && (
-        <div class="fixed bottom-6 right-6 z-50 bg-[#111111] text-white text-xs px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2">
+        <div class="fixed bottom-6 right-6 z-50 bg-[#111111] dark:bg-[#f0f0f2] text-white dark:text-[#111111] text-xs px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-[#1eaa52]"></span>
           {toastMessage}
         </div>
       )}
 
       {/* Toolbar */}
-      <div class="p-3 sm:px-6 bg-[#f5f5f5] border-b border-[#e5e5e5] flex flex-wrap items-center justify-between gap-3">
+      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <select
             value={mode}
             onChange={(e) => setMode((e.target as HTMLSelectElement).value as any)}
-            class="px-3 py-1.5 rounded-full border border-[#cacacb] bg-white text-xs font-semibold text-[#111111] outline-none"
+            class="px-3 py-1.5 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-white dark:bg-[#18191d] text-xs font-semibold text-[#111111] dark:text-[#f0f0f2] outline-none"
           >
             <option value="yaml-to-json">YAML to JSON</option>
             <option value="json-to-yaml">JSON to YAML</option>
@@ -100,13 +100,13 @@ export default function ConverterApp({ initialMode }: Props) {
         <div class="flex items-center gap-2">
           <button
             onClick={handleConvert}
-            class="px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] transition-colors cursor-pointer"
+            class="px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
           >
             Convert Now
           </button>
           <button
             onClick={handleCopy}
-            class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white border border-[#cacacb] hover:bg-[#111111] hover:text-white transition-colors cursor-pointer"
+            class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
           >
             Copy Result
           </button>
@@ -114,32 +114,32 @@ export default function ConverterApp({ initialMode }: Props) {
       </div>
 
       {error && (
-        <div class="bg-[#fde8e8] text-[#d30005] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5]">
+        <div class="bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a]">
           Conversion Error: {error}
         </div>
       )}
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5]">
-        <div class="p-4">
-          <div class="text-[11px] font-semibold text-[#707072] uppercase tracking-wide mb-2">Input Source Data</div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a]">
+        <div class="p-4 bg-white dark:bg-[#0c0d0e]">
+          <div class="text-[11px] font-semibold text-[#707072] dark:text-[#8e8e93] uppercase tracking-wide mb-2">Input Source Data</div>
           <textarea
             value={input}
             onInput={(e) => setInput((e.target as HTMLTextAreaElement).value)}
             rows={16}
             spellCheck={false}
-            class="w-full font-mono text-xs leading-relaxed text-[#111111] p-3 rounded-xl border border-[#e5e5e5] bg-white resize-y focus:outline-none focus:border-[#111111]"
+            class="w-full font-mono text-xs leading-relaxed text-[#111111] dark:text-[#f0f0f2] p-3 rounded-xl border border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#121316] resize-y focus:outline-none focus:border-[#111111] dark:focus:border-white"
           />
         </div>
 
-        <div class="p-4 bg-[#fafafa]">
-          <div class="text-[11px] font-semibold text-[#707072] uppercase tracking-wide mb-2">Converted Target Data</div>
+        <div class="p-4 bg-[#fafafa] dark:bg-[#111215]">
+          <div class="text-[11px] font-semibold text-[#707072] dark:text-[#8e8e93] uppercase tracking-wide mb-2">Converted Target Data</div>
           <textarea
             value={output}
             readOnly
             placeholder="Converted output will appear here..."
             rows={16}
             spellCheck={false}
-            class="w-full font-mono text-xs leading-relaxed text-[#111111] p-3 rounded-xl border border-[#e5e5e5] bg-white resize-y focus:outline-none"
+            class="w-full font-mono text-xs leading-relaxed text-[#111111] dark:text-[#f0f0f2] p-3 rounded-xl border border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#121316] resize-y focus:outline-none"
           />
         </div>
       </div>

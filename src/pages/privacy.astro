@@ -10,39 +10,39 @@ import Layout from '../layouts/Layout.astro';
 >
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="mb-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#007d48] mb-3 border border-[#cacacb]/40">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48]"></span>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#007d48] dark:text-[#34d399] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>
         Client-Side Privacy Architecture
       </div>
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] uppercase">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
         PRIVACY & SECURITY GUARANTEE
       </h1>
-      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d]">
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
         Why you can safely compare production API credentials, JWTs, user records, and sensitive JSON on JSONCompareOnline.
       </p>
     </div>
 
-    <div class="space-y-8 text-sm text-[#39393b] leading-relaxed">
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
       <!-- Section 1 -->
-      <div class="p-6 rounded-2xl bg-[#f5f5f5] border border-[#e5e5e5]">
-        <h2 class="text-base font-bold text-[#111111] mb-2">
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
           1. 100% In-Browser Execution (Zero Remote Processing)
         </h2>
-        <p class="text-xs text-[#4b4b4d] leading-relaxed">
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
           Unlike legacy diff tools that send your text to an API server or third-party cloud container to compute differences, JSONCompareOnline runs the entire parser, Myers LCS algorithm, and RFC 6902 patch generator inside your browser session using JavaScript Web Workers.
         </p>
       </div>
 
       <!-- Section 2 -->
-      <div class="p-6 rounded-2xl bg-[#f5f5f5] border border-[#e5e5e5]">
-        <h2 class="text-base font-bold text-[#111111] mb-2">
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
           2. How You Can Verify This Yourself
         </h2>
-        <p class="text-xs text-[#4b4b4d] leading-relaxed mb-3">
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-3">
           We encourage every security team and engineer to verify our privacy architecture independently:
         </p>
-        <ol class="list-decimal list-inside text-xs text-[#4b4b4d] space-y-1.5">
-          <li>Open your browser Developer Tools (<kbd class="px-1.5 py-0.5 rounded bg-white border border-[#cacacb] text-[10px] font-mono">F12</kbd> or <kbd class="px-1.5 py-0.5 rounded bg-white border border-[#cacacb] text-[10px] font-mono">Cmd+Option+I</kbd>).</li>
+        <ol class="list-decimal list-inside text-xs text-[#4b4b4d] dark:text-[#9ca3af] space-y-1.5">
+          <li>Open your browser Developer Tools (<kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]">F12</kbd> or <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]">Cmd+Option+I</kbd>).</li>
           <li>Navigate to the <strong>Network</strong> tab.</li>
           <li>Paste any JSON payload into the left and right comparison panels and run a diff.</li>
           <li>Observe that <strong>zero HTTP POST/PUT requests</strong> are dispatched.</li>
@@ -50,15 +50,14 @@ import Layout from '../layouts/Layout.astro';
       </div>
 
       <!-- Section 3 -->
-      <div class="p-6 rounded-2xl bg-[#f5f5f5] border border-[#e5e5e5]">
-        <h2 class="text-base font-bold text-[#111111] mb-2">
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
           3. No Cookies, No Trackers, No Fingerprinting
         </h2>
-        <p class="text-xs text-[#4b4b4d] leading-relaxed">
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
           We do not store cookies on your device, use third-party behavioral trackers, or save state to remote databases. When you close or refresh the tab, your JSON data is completely wiped from browser memory.
         </p>
       </div>
     </div>
   </div>
 </Layout>
-

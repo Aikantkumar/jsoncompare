@@ -11,14 +11,14 @@ import JsonEscapeUnescapeApp from '../../components/tools/JsonEscapeUnescapeApp'
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] text-[11px] font-mono text-[#39393b] mb-3 border border-[#e5e5e5]">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#111111]"></span>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
         String Utility
       </div>
-      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] uppercase">
+      <h1 class="text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
         JSON ESCAPE & UNESCAPE
       </h1>
-      <p class="mt-2 text-sm text-[#4b4b4d] max-w-2xl">
+      <p class="mt-2 text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl">
         Quickly strip backslashes and quotes from stringified JSON found in application logs, or escape clean JSON to safely embed inside JSON properties or environment variables.
       </p>
     </div>
@@ -26,4 +26,3 @@ import JsonEscapeUnescapeApp from '../../components/tools/JsonEscapeUnescapeApp'
     <JsonEscapeUnescapeApp client:load />
   </div>
 </Layout>
-
