@@ -141,7 +141,7 @@ export default function JsonFormatterApp() {
           onInput={(e) => setInput((e.target as HTMLTextAreaElement).value)}
           placeholder="Paste JSON here..."
           rows={18}
-          spellCheck={false}
+          spellcheck={false}
           class="w-full font-mono text-xs leading-relaxed text-[#111111] dark:text-[#f0f0f2] p-4 rounded-xl border border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#121316] resize-y focus:outline-none focus:border-[#111111] dark:focus:border-white focus:ring-1 focus:ring-[#111111] dark:focus:ring-white"
         />
       </div>

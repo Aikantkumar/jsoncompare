@@ -76,7 +76,7 @@ export default function JsonPatchGeneratorApp() {
             value={sourceJson}
             onInput={(e) => setSourceJson((e.target as HTMLTextAreaElement).value)}
             rows={10}
-            spellCheck={false}
+            spellcheck={false}
             class="w-full font-mono text-xs leading-relaxed text-[#111111] p-3 rounded-xl border border-[#e5e5e5] bg-white resize-y focus:outline-none focus:border-[#111111]"
           />
         </div>
@@ -87,7 +87,7 @@ export default function JsonPatchGeneratorApp() {
             value={targetJson}
             onInput={(e) => setTargetJson((e.target as HTMLTextAreaElement).value)}
             rows={10}
-            spellCheck={false}
+            spellcheck={false}
             class="w-full font-mono text-xs leading-relaxed text-[#111111] p-3 rounded-xl border border-[#e5e5e5] bg-white resize-y focus:outline-none focus:border-[#111111]"
           />
         </div>

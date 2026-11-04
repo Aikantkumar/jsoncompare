@@ -358,7 +358,7 @@ export default function JsonSchemaValidatorApp() {
             value={schemaInput}
             onInput={(e) => setSchemaInput((e.target as HTMLTextAreaElement).value)}
             rows={18}
-            spellCheck={false}
+            spellcheck={false}
             class="w-full font-mono text-xs leading-relaxed text-[#111111] p-3 rounded-xl border border-[#e5e5e5] bg-white resize-y focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111]"
           />
         </div>
@@ -376,7 +376,7 @@ export default function JsonSchemaValidatorApp() {
             value={dataInput}
             onInput={(e) => setDataInput((e.target as HTMLTextAreaElement).value)}
             rows={18}
-            spellCheck={false}
+            spellcheck={false}
             class="w-full font-mono text-xs leading-relaxed text-[#111111] p-3 rounded-xl border border-[#e5e5e5] bg-white resize-y focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111]"
           />
         </div>

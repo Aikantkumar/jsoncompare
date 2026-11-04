@@ -248,146 +248,216 @@ function escapeJsonPointer(str: string): string {
   return str.replace(/~/g, '~0').replace(/\//g, '~1');
 }
 
+export interface DiffResult {
+  lines: DiffLine[];
+  stats: DiffStats;
+  degraded: boolean;
+}
+
+export const DEFAULT_MAX_EDIT_DISTANCE = 4000;
+export const DEFAULT_MEMORY_BUDGET_ENTRIES = 2_000_000; // bounds Myers trace memory
+
+interface DiffOptionsInternal {
+  maxEditDistance: number;
+  memoryBudgetEntries: number;
+}
+
 /**
- * Standard Myers Diff / LCS for text lines
+ * Myers O(ND) diff for text lines, after trimming the common prefix and suffix.
+ * Returns an edit script as { type, x1, x2, y1, y2 } ops in core coordinates,
+ * or null if the safe edit-distance cap is hit (caller should degrade).
  */
-export function computeLineDiff(leftText: string, rightText: string): { lines: DiffLine[]; stats: DiffStats } {
-  const leftLines = leftText ? leftText.split('\n') : [];
-  const rightLines = rightText ? rightText.split('\n') : [];
+function myersCore(
+  a: string[],
+  b: string[],
+  opts: DiffOptionsInternal
+): { ops: Op[]; d: number } | null {
+  const n = a.length;
+  const m = b.length;
 
-  const lLen = leftLines.length;
-  const rLen = rightLines.length;
-
-  // Build simple LCS matrix
-  // For small-medium lengths (standard in online diffs)
-  const maxLines = 1500;
-  if (lLen > maxLines || rLen > maxLines) {
-    // Fast fallback line-by-line alignment to avoid 1500x1500 memory explosion
-    return fastLineAlign(leftLines, rightLines);
+  if (n === 0 && m === 0) return { ops: [], d: 0 };
+  if (n === 0) {
+    const ops: Op[] = [{ type: 'added', x1: 0, x2: 0, y1: 0, y2: m }];
+    return { ops, d: m };
+  }
+  if (m === 0) {
+    const ops: Op[] = [{ type: 'removed', x1: 0, x2: n, y1: 0, y2: 0 }];
+    return { ops, d: n };
   }
 
-  const matrix: number[][] = Array.from({ length: lLen + 1 }, () => new Array(rLen + 1).fill(0));
+  const max = n + m;
+  const offset = max;
+  const V = new Int32Array(2 * max + 1);
+  for (let i = 0; i < V.length; i++) V[i] = -1;
+  V[1 + offset] = 0;
 
-  for (let i = 0; i < lLen; i++) {
-    for (let j = 0; j < rLen; j++) {
-      if (leftLines[i] === rightLines[j]) {
-        matrix[i + 1][j + 1] = matrix[i][j] + 1;
+  const maxD = Math.min(
+    opts.maxEditDistance,
+    Math.max(1, Math.floor(opts.memoryBudgetEntries / (2 * max + 1)))
+  );
+
+  const trace: Int32Array[] = [];
+  let foundD = -1;
+
+  outer: for (let d = 0; d <= maxD; d++) {
+    trace.push(V.slice());
+    for (let k = -d; k <= d; k += 2) {
+      let x: number;
+      if (k === -d) {
+        x = V[k + 1 + offset];
+      } else if (k === d) {
+        x = V[k - 1 + offset] + 1;
+      } else if (V[k - 1 + offset] < V[k + 1 + offset]) {
+        x = V[k + 1 + offset]; // down: advance y (B added)
       } else {
-        matrix[i + 1][j + 1] = Math.max(matrix[i + 1][j], matrix[i][j + 1]);
+        x = V[k - 1 + offset] + 1; // right: advance x (A removed)
+      }
+      let y = x - k;
+      while (x < n && y < m && a[x] === b[y]) {
+        x++;
+        y++;
+      }
+      V[k + offset] = x;
+      if (x >= n && y >= m) {
+        foundD = d;
+        break outer;
       }
     }
   }
 
-  let i = lLen;
-  let j = rLen;
-  const rawDiff: DiffLine[] = [];
+  if (foundD === -1) return null;
 
-  while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && leftLines[i - 1] === rightLines[j - 1]) {
-      rawDiff.push({
-        type: 'unchanged',
-        leftLineNumber: i,
-        rightLineNumber: j,
-        leftText: leftLines[i - 1],
-        rightText: rightLines[j - 1],
-      });
-      i--;
-      j--;
-    } else if (j > 0 && (i === 0 || matrix[i][j - 1] >= matrix[i - 1][j])) {
-      rawDiff.push({
-        type: 'added',
-        rightLineNumber: j,
-        rightText: rightLines[j - 1],
-        leftText: '',
-      });
-      j--;
-    } else if (i > 0 && (j === 0 || matrix[i][j - 1] < matrix[i - 1][j])) {
-      rawDiff.push({
-        type: 'removed',
-        leftLineNumber: i,
-        leftText: leftLines[i - 1],
-        rightText: '',
-      });
-      i--;
+  // Backtrack the edit script (reverse), then reverse to forward order.
+  const revOps: Op[] = [];
+  let x = n;
+  let y = m;
+  for (let d = trace.length - 1; d > 0; d--) {
+    const k = x - y;
+    const prev = trace[d];
+    const down =
+      k === -d ||
+      (k !== d && prev[k + 1 + offset] > prev[k - 1 + offset]);
+
+    if (down) {
+      // move advanced y: B element added, then snake (equal run) to (x, y)
+      const x0 = prev[k + 1 + offset];
+      const y0 = x0 - (k + 1);
+      if (x0 < x || y0 + 1 < y) {
+        revOps.push({ type: 'equal', x1: x0, x2: x, y1: y0 + 1, y2: y });
+      }
+      revOps.push({ type: 'added', x1: x0, x2: x0, y1: y0, y2: y0 + 1 });
+      x = x0;
+      y = y0;
+    } else {
+      // move advanced x: A element removed, then snake (equal run) to (x, y)
+      const x0 = prev[k - 1 + offset];
+      const y0 = x0 - (k - 1);
+      if (x0 + 1 < x || y0 < y) {
+        revOps.push({ type: 'equal', x1: x0 + 1, x2: x, y1: y0, y2: y });
+      }
+      revOps.push({ type: 'removed', x1: x0, x2: x0 + 1, y1: y0, y2: y0 });
+      x = x0;
+      y = y0;
     }
   }
 
-  rawDiff.reverse();
+  const ops: Op[] = [];
+  for (let i = revOps.length - 1; i >= 0; i--) ops.push(revOps[i]);
+  return { ops, d: foundD };
+}
 
-  // Combine adjacent removed + added into modified
-  const pairedLines: DiffLine[] = [];
+interface Op {
+  type: 'equal' | 'added' | 'removed';
+  x1: number;
+  x2: number;
+  y1: number;
+  y2: number;
+}
+
+function buildRawLines(
+  leftLines: string[],
+  rightLines: string[],
+  pre: number,
+  ops: Op[]
+): DiffLine[] {
+  const raw: DiffLine[] = [];
+  for (const op of ops) {
+    if (op.type === 'equal') {
+      for (let i = 0; i < op.x2 - op.x1; i++) {
+        const x = op.x1 + i;
+        const y = op.y1 + i;
+        raw.push({
+          type: 'unchanged',
+          leftLineNumber: pre + x + 1,
+          rightLineNumber: pre + y + 1,
+          leftText: leftLines[pre + x],
+          rightText: rightLines[pre + y],
+        });
+      }
+    } else if (op.type === 'removed') {
+      for (let x = op.x1; x < op.x2; x++) {
+        raw.push({
+          type: 'removed',
+          leftLineNumber: pre + x + 1,
+          leftText: leftLines[pre + x],
+          rightText: '',
+        });
+      }
+    } else if (op.type === 'added') {
+      for (let y = op.y1; y < op.y2; y++) {
+        raw.push({
+          type: 'added',
+          rightLineNumber: pre + y + 1,
+          leftText: '',
+          rightText: rightLines[pre + y],
+        });
+      }
+    }
+  }
+  return raw;
+}
+
+function pairAdjacent(raw: DiffLine[]): { lines: DiffLine[]; stats: DiffStats } {
+  const paired: DiffLine[] = [];
+  let added = 0;
+  let removed = 0;
+  let modified = 0;
+  let unchanged = 0;
   let k = 0;
-  let addedCount = 0;
-  let removedCount = 0;
-  let modifiedCount = 0;
-  let unchangedCount = 0;
 
-  while (k < rawDiff.length) {
-    const curr = rawDiff[k];
-    const next = rawDiff[k + 1];
+  while (k < raw.length) {
+    const curr = raw[k];
+    const next = raw[k + 1];
 
-    if (curr.type === 'removed' && next && next.type === 'added') {
-      pairedLines.push({
+    const isRemovedThenAdded =
+      curr.type === 'removed' && next && next.type === 'added';
+    const isAddedThenRemoved =
+      curr.type === 'added' && next && next.type === 'removed';
+
+    if (isRemovedThenAdded || isAddedThenRemoved) {
+      const rem = isRemovedThenAdded ? curr : next!;
+      const add = isRemovedThenAdded ? next! : curr;
+      paired.push({
         type: 'modified',
-        leftLineNumber: curr.leftLineNumber,
-        rightLineNumber: next.rightLineNumber,
-        leftText: curr.leftText,
-        rightText: next.rightText,
+        leftLineNumber: rem.leftLineNumber,
+        rightLineNumber: add.rightLineNumber,
+        leftText: rem.leftText,
+        rightText: add.rightText,
       });
-      modifiedCount++;
+      modified++;
       k += 2;
     } else {
-      pairedLines.push(curr);
-      if (curr.type === 'added') addedCount++;
-      else if (curr.type === 'removed') removedCount++;
-      else unchangedCount++;
+      paired.push(curr);
+      if (curr.type === 'added') added++;
+      else if (curr.type === 'removed') removed++;
+      else if (curr.type === 'modified') modified++;
+      else unchanged++;
       k++;
     }
   }
 
   return {
-    lines: pairedLines,
-    stats: {
-      added: addedCount,
-      removed: removedCount,
-      modified: modifiedCount,
-      unchanged: unchangedCount,
-      totalChanges: addedCount + removedCount + modifiedCount,
-    },
-  };
-}
-
-function fastLineAlign(leftLines: string[], rightLines: string[]): { lines: DiffLine[]; stats: DiffStats } {
-  const max = Math.max(leftLines.length, rightLines.length);
-  const lines: DiffLine[] = [];
-  let added = 0;
-  let removed = 0;
-  let modified = 0;
-  let unchanged = 0;
-
-  for (let i = 0; i < max; i++) {
-    const l = leftLines[i];
-    const r = rightLines[i];
-
-    if (l !== undefined && r !== undefined) {
-      if (l === r) {
-        lines.push({ type: 'unchanged', leftLineNumber: i + 1, rightLineNumber: i + 1, leftText: l, rightText: r });
-        unchanged++;
-      } else {
-        lines.push({ type: 'modified', leftLineNumber: i + 1, rightLineNumber: i + 1, leftText: l, rightText: r });
-        modified++;
-      }
-    } else if (l !== undefined) {
-      lines.push({ type: 'removed', leftLineNumber: i + 1, leftText: l, rightText: '' });
-      removed++;
-    } else if (r !== undefined) {
-      lines.push({ type: 'added', rightLineNumber: i + 1, leftText: '', rightText: r });
-      added++;
-    }
-  }
-
-  return {
-    lines,
+    lines: paired,
     stats: {
       added,
       removed,
@@ -396,5 +466,116 @@ function fastLineAlign(leftLines: string[], rightLines: string[]): { lines: Diff
       totalChanges: added + removed + modified,
     },
   };
+}
+
+/**
+ * Myers O(ND) line diff with common-prefix/suffix trimming and a safe
+ * edit-distance cap. Keeps the exported DiffLine/DiffStats shapes and the
+ * "adjacent removed+added = modified" pairing so existing UI keeps working.
+ *
+ * When the cap is hit, `degraded` is true and the caller should surface a
+ * visible notice instead of silently falling back to positional alignment.
+ */
+export function computeLineDiff(
+  leftText: string,
+  rightText: string,
+  options?: { maxEditDistance?: number; memoryBudgetEntries?: number }
+): DiffResult {
+  const leftLines = leftText ? leftText.split('\n') : [];
+  const rightLines = rightText ? rightText.split('\n') : [];
+
+  const lLen = leftLines.length;
+  const rLen = rightLines.length;
+
+  const opts: DiffOptionsInternal = {
+    maxEditDistance: options?.maxEditDistance ?? DEFAULT_MAX_EDIT_DISTANCE,
+    memoryBudgetEntries: options?.memoryBudgetEntries ?? DEFAULT_MEMORY_BUDGET_ENTRIES,
+  };
+
+  // Trim common prefix.
+  let pre = 0;
+  while (pre < lLen && pre < rLen && leftLines[pre] === rightLines[pre]) pre++;
+
+  // Trim common suffix (without overlapping the prefix).
+  let post = 0;
+  while (
+    post < lLen - pre &&
+    post < rLen - pre &&
+    leftLines[lLen - 1 - post] === rightLines[rLen - 1 - post]
+  )
+    post++;
+
+  const coreA = leftLines.slice(pre, lLen - post);
+  const coreB = rightLines.slice(pre, rLen - post);
+
+  const myers = myersCore(coreA, coreB, opts);
+
+  let degraded = false;
+  let lines: DiffLine[];
+
+  if (myers) {
+    // Myers covers the core; reattach the trimmed prefix/suffix as unchanged.
+    const raw = buildRawLines(leftLines, rightLines, pre, myers.ops);
+    lines = [];
+    for (let i = 0; i < pre; i++) {
+      lines.push({
+        type: 'unchanged',
+        leftLineNumber: i + 1,
+        rightLineNumber: i + 1,
+        leftText: leftLines[i],
+        rightText: rightLines[i],
+      });
+    }
+    lines.push(...raw);
+    // All core lines on both sides are consumed by the Myers path, so the
+    // suffix right-side index is shifted by (rLen - lLen).
+    const suffixOffset = rLen - lLen;
+    const sufStart = lLen - post;
+    for (let i = sufStart; i < lLen; i++) {
+      lines.push({
+        type: 'unchanged',
+        leftLineNumber: i + 1,
+        rightLineNumber: i + 1 + suffixOffset,
+        leftText: leftLines[i],
+        rightText: rightLines[i + suffixOffset],
+      });
+    }
+  } else {
+    // Cap hit: degrade gracefully with a visible notice (positional fallback,
+    // flagged as degraded so it is never silent).
+    degraded = true;
+    lines = fastLineAlign(leftLines, rightLines);
+  }
+
+  const { lines: pairedLines, stats } = pairAdjacent(lines);
+  return { lines: pairedLines, stats, degraded };
+}
+
+/**
+ * Positional line-by-line fallback. Used only as a safe degradation when the
+ * Myers edit-distance cap is hit (flagged as degraded, never silent).
+ */
+function fastLineAlign(leftLines: string[], rightLines: string[]): DiffLine[] {
+  const max = Math.max(leftLines.length, rightLines.length);
+  const lines: DiffLine[] = [];
+
+  for (let i = 0; i < max; i++) {
+    const l = leftLines[i];
+    const r = rightLines[i];
+
+    if (l !== undefined && r !== undefined) {
+      if (l === r) {
+        lines.push({ type: 'unchanged', leftLineNumber: i + 1, rightLineNumber: i + 1, leftText: l, rightText: r });
+      } else {
+        lines.push({ type: 'modified', leftLineNumber: i + 1, rightLineNumber: i + 1, leftText: l, rightText: r });
+      }
+    } else if (l !== undefined) {
+      lines.push({ type: 'removed', leftLineNumber: i + 1, leftText: l, rightText: '' });
+    } else if (r !== undefined) {
+      lines.push({ type: 'added', rightLineNumber: i + 1, leftText: '', rightText: r });
+    }
+  }
+
+  return lines;
 }
 

@@ -117,7 +117,7 @@ export default function JsonValidatorApp() {
           onInput={(e) => setInput((e.target as HTMLTextAreaElement).value)}
           placeholder="Paste JSON payload to validate..."
           rows={18}
-          spellCheck={false}
+          spellcheck={false}
           class="w-full font-mono text-xs leading-relaxed text-[#111111] p-4 rounded-xl border border-[#e5e5e5] bg-white resize-y focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111]"
         />
       </div>

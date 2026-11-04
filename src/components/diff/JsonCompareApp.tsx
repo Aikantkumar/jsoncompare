@@ -1,4 +1,5 @@
-import { useState, useMemo, useRef } from 'preact/hooks';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'preact/hooks';
+import type { JSX } from 'preact';
 import {
   computeLineDiff,
   sortKeysDeep,
@@ -10,8 +11,14 @@ import {
   type DiffStats,
   type JsonPatchOperation,
 } from '../../utils/jsonDiff';
+import { useToast } from '../../hooks/useToast';
+import { readTextFile } from '../../utils/fileIO';
+import Toast from '../../components/shared/Toast';
+import Panel from '../../components/shared/Panel';
+import FileButton from '../../components/shared/FileButton';
+import { useFileDrop } from '../../hooks/useFileDrop';
+import { usePanelFullscreen } from '../../components/shared/Panel';
 
-// Sample datasets for quick testing
 const SAMPLES = {
   apiResponse: {
     left: JSON.stringify(
@@ -53,76 +60,383 @@ const SAMPLES = {
   }
 };
 
+const ACCEPT_JSON_TXT = ['.json', '.txt'];
+const LARGE_FILE_MODE_BANNER = 'Large file mode: live comparison disabled. Click “Compare” to diff.';
+const DIFF_ROW_CAP = 3000;
+const FOLD_THRESHOLD = 6;
+
+function formatBytes(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+  return `${bytes} B`;
+}
+
+function escHtml(str: string): string {
+  return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+}
+
+type AppView = 'split' | 'unified' | 'patch';
+
+interface DiffRowItem {
+  kind: 'line' | 'fold' | 'showmore';
+  line?: DiffLine;
+  foldId?: number;
+  foldCount?: number;
+  foldLines?: DiffLine[];
+  remaining?: number;
+}
+
+function buildDiffDisplay(lines: DiffLine[], rowCap: number): { items: DiffRowItem[]; remaining: number } {
+  const items: DiffRowItem[] = [];
+  let foldId = 0;
+  let i = 0;
+  while (i < lines.length) {
+    if (lines[i].type === 'unchanged') {
+      let j = i;
+      while (j < lines.length && lines[j].type === 'unchanged') j++;
+      const run = lines.slice(i, j);
+      if (run.length > FOLD_THRESHOLD) {
+        items.push({ kind: 'fold', foldId, foldCount: run.length, foldLines: run });
+        foldId++;
+      } else {
+        for (const line of run) items.push({ kind: 'line', line });
+      }
+      i = j;
+    } else {
+      items.push({ kind: 'line', line: lines[i] });
+      i++;
+    }
+  }
+
+  let remaining = 0;
+  if (items.length > DIFF_ROW_CAP) {
+    remaining = items.length - DIFF_ROW_CAP;
+    items.length = DIFF_ROW_CAP;
+  }
+  return { items, remaining };
+}
+
+// DiffTable is a top-level component so its fold/cap state (and the textarea-less
+// DOM) survives across parent re-renders.
+function DiffTable(props: {
+  lines: DiffLine[];
+  view: AppView;
+}) {
+  const { lines, view } = props;
+  const { isFullscreen } = usePanelFullscreen();
+  const [expandedFolds, setExpandedFolds] = useState<Set<number>>(new Set());
+  const [rowCap, setRowCap] = useState<number>(DIFF_ROW_CAP);
+
+  const { items, remaining } = useMemo(() => buildDiffDisplay(lines, rowCap), [lines, rowCap]);
+
+  const toggleFold = (id: number) => {
+    setExpandedFolds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleShowMore = () => {
+    setRowCap((prev) => prev + DIFF_ROW_CAP);
+  };
+
+  const rowClasses = (type: string) => {
+    if (type === 'removed') return 'bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5]';
+    if (type === 'added') return 'bg-[#e8f7ee] dark:bg-[#06331e]/50 text-[#007d48] dark:text-[#6ee7b7]';
+    if (type === 'modified') return 'bg-[#fff4e5] dark:bg-[#3d2305]/50';
+    return '';
+  };
+
+  return (
+    <>
+      <div class={isFullscreen ? 'h-full overflow-auto' : 'overflow-x-auto max-h-[600px] overflow-y-auto'}>
+        <table class="w-full border-collapse font-mono text-xs text-left">
+          <thead class={isFullscreen ? 'sticky top-0 z-10 bg-[#fafafa] dark:bg-[#16181d]' : ''}>
+            <tr class="bg-[#fafafa] dark:bg-[#16181d] border-b border-[#e5e5e5] dark:border-[#22242a] text-[11px] text-[#707072] dark:text-[#8e8e93]">
+              {view === 'split' && (
+                <>
+                  <th class="w-12 px-2 py-1.5 text-right font-normal">#</th>
+                  <th class="w-1/2 px-3 py-1.5 font-normal border-r border-[#e5e5e5] dark:border-[#22242a]">Original Value</th>
+                  <th class="w-12 px-2 py-1.5 text-right font-normal">#</th>
+                  <th class="w-1/2 px-3 py-1.5 font-normal">Modified Value</th>
+                </>
+              )}
+              {view === 'unified' && (
+                <>
+                  <th class="w-12 px-2 py-1.5 text-right font-normal">L</th>
+                  <th class="w-12 px-2 py-1.5 text-right font-normal">R</th>
+                  <th class="w-8 px-2 py-1.5 text-center font-normal">Op</th>
+                  <th class="px-3 py-1.5 font-normal">Content</th>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#f0f0f0] dark:divide-[#1c1f26]">
+            {items.map((item, idx) => {
+              if (item.kind === 'fold') {
+                return (
+                  <tr
+                    key={`fold-${item.foldId}`}
+                    class="cursor-pointer hover:bg-[#fcfcfc] dark:hover:bg-[#16181d] transition-colors"
+                    onClick={() => toggleFold(item.foldId!)}
+                  >
+                    <td colSpan={4} class="px-3 py-1.5 text-[11px] text-[#707072] dark:text-[#8e8e93] border-l border-[#e5e5e5] dark:border-[#22242a]">
+                      {item.foldCount} unchanged lines{' '}
+                      <span class="ml-2 text-[#1151ff] dark:text-[#60a5fa] hover:underline cursor-pointer">
+                        {expandedFolds.has(item.foldId!) ? 'show less' : 'show'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              }
+              if (item.kind === 'showmore') {
+                return (
+                  <tr key="showmore">
+                    <td colSpan={4} class="px-3 py-1.5 text-center text-[11px] text-[#1151ff] dark:text-[#60a5fa] cursor-pointer hover:underline" onClick={handleShowMore}>
+                      Show more (+{item.remaining} rows)
+                    </td>
+                  </tr>
+                );
+              }
+              const line = item.line!;
+              const isModified = line.type === 'modified';
+
+              if (view === 'unified' && isModified) {
+                return (
+                  <>
+                    <tr key={`u-remove-${idx}`} class={`${rowClasses('removed')} hover:bg-[#fcfcfc] dark:hover:bg-[#16181d] transition-colors`}>
+                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none">{line.leftLineNumber ?? ''}</td>
+                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none"></td>
+                      <td class="w-8 px-2 py-0.5 text-center select-none font-bold">-</td>
+                      <td class="px-3 py-0.5 whitespace-pre font-mono break-all">{line.leftText}</td>
+                    </tr>
+                    <tr key={`u-add-${idx}`} class={`${rowClasses('added')} hover:bg-[#fcfcfc] dark:hover:bg-[#16181d] transition-colors`}>
+                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none"></td>
+                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none">{line.rightLineNumber ?? ''}</td>
+                      <td class="w-8 px-2 py-0.5 text-center select-none font-bold">+</td>
+                      <td class="px-3 py-0.5 whitespace-pre font-mono break-all">{line.rightText}</td>
+                    </tr>
+                  </>
+                );
+              }
+
+              const isRemoved = line.type === 'removed';
+              const isAdded = line.type === 'added';
+
+              return (
+                <tr key={`line-${idx}`} class={`hover:bg-[#fcfcfc] dark:hover:bg-[#16181d] transition-colors leading-5 ${rowClasses(line.type)}`}>
+                  {view === 'split' && (
+                    <>
+                      <td class={`w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none ${(isRemoved || isModified) ? rowClasses(line.type).split(' ')[0] : ''}`}>
+                        {line.leftLineNumber ?? ''}
+                      </td>
+                      <td class={`w-1/2 px-3 py-0.5 border-r border-[#e5e5e5] dark:border-[#22242a] whitespace-pre font-mono break-all ${rowClasses(line.type)}`}>
+                        {line.leftText !== undefined ? line.leftText : ''}
+                      </td>
+                      <td class={`w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none ${(isAdded || isModified) ? rowClasses(line.type).split(' ')[0] : ''}`}>
+                        {line.rightLineNumber ?? ''}
+                      </td>
+                      <td class={`w-1/2 px-3 py-0.5 whitespace-pre font-mono break-all ${rowClasses(line.type)}`}>
+                        {line.rightText !== undefined ? line.rightText : ''}
+                      </td>
+                    </>
+                  )}
+                  {view === 'unified' && !isModified && (
+                    <>
+                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none">
+                        {line.leftLineNumber ?? ''}
+                      </td>
+                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none">
+                        {line.rightLineNumber ?? ''}
+                      </td>
+                      <td class="w-8 px-2 py-0.5 text-center select-none font-bold">
+                        {line.type === 'added' ? '+' : line.type === 'removed' ? '-' : ' '}
+                      </td>
+                      <td class="px-3 py-0.5 whitespace-pre font-mono break-all">
+                        {line.type === 'added' ? line.rightText : line.leftText}
+                      </td>
+                    </>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+        {remaining > 0 && (
+          <button type="button" onClick={handleShowMore} class="px-3 py-1.5 text-[11px] text-[#1151ff] dark:text-[#60a5fa] hover:underline cursor-pointer mt-2">
+            Show more (+{remaining} rows)
+          </button>
+        )}
+      </>
+    );
+  }
+
 export default function JsonCompareApp() {
   const [leftInput, setLeftInput] = useState<string>(SAMPLES.apiResponse.left);
   const [rightInput, setRightInput] = useState<string>(SAMPLES.apiResponse.right);
-  const [activeView, setActiveView] = useState<'split' | 'unified' | 'patch'>('split');
-  
-  // Toggles
+  const [activeView, setActiveView] = useState<AppView>('split');
+
   const [ignoreKeyOrder, setIgnoreKeyOrder] = useState<boolean>(true);
   const [ignoreArrayOrder, setIgnoreArrayOrder] = useState<boolean>(false);
   const [matchArrayById, setMatchArrayById] = useState<boolean>(true);
   const [arrayIdKey, setArrayIdKey] = useState<string>('id');
   const [jsonPathFilter, setJsonPathFilter] = useState<string>('');
-  const [toastMessage, setToastMessage] = useState<string>('');
+
+  const [leftFilename, setLeftFilename] = useState<string | null>(null);
+  const [rightFilename, setRightFilename] = useState<string | null>(null);
+  const [leftEdited, setLeftEdited] = useState<boolean>(false);
+  const [rightEdited, setRightEdited] = useState<boolean>(false);
+  const [leftLarge, setLeftLarge] = useState<boolean>(false);
+  const [rightLarge, setRightLarge] = useState<boolean>(false);
+
+  const [diffResult, setDiffResult] = useState<{ lines: DiffLine[]; stats: DiffStats; degraded: boolean } | null>(null);
+  const [patchResult, setPatchResult] = useState<JsonPatchOperation[]>([]);
+  const [largeComparePending, setLargeComparePending] = useState<boolean>(false);
+
+  const { message: toastMessage, show: showToast } = useToast(3000);
 
   const leftEditorRef = useRef<HTMLTextAreaElement>(null);
   const rightEditorRef = useRef<HTMLTextAreaElement>(null);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
-  };
+  const leftLineCount = useMemo(() => (leftInput ? leftInput.split('\n').length : 0), [leftInput]);
+  const rightLineCount = useMemo(() => (rightInput ? rightInput.split('\n').length : 0), [rightInput]);
 
-  // Diff computation
-  const { diffResult, patchResult, leftParsed, rightParsed, leftError, rightError } = useMemo(() => {
+  const isLargeMode = leftLarge || rightLarge;
+
+  // ---- File handling ----
+  const applyLeftFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
+    setLeftInput(result.text);
+    setLeftFilename(result.name);
+    setLeftEdited(false);
+    setLeftLarge(result.large);
+    showToast(`Loaded ${escHtml(result.name)} (${formatBytes(result.size)})`);
+  }, [showToast]);
+
+  const applyRightFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
+    setRightInput(result.text);
+    setRightFilename(result.name);
+    setRightEdited(false);
+    setRightLarge(result.large);
+    showToast(`Loaded ${escHtml(result.name)} (${formatBytes(result.size)})`);
+  }, [showToast]);
+
+  const handleFileError = useCallback((msg: string) => {
+    showToast(msg);
+  }, [showToast]);
+
+  const handleDropFiles = useCallback((files: FileList, preferredSide: 'left' | 'right') => {
+    const arr = Array.from(files);
+    if (arr.length >= 2) {
+      readTextFile(arr[0], { accept: ACCEPT_JSON_TXT }).then(applyLeftFile).catch(handleFileError);
+      readTextFile(arr[1], { accept: ACCEPT_JSON_TXT }).then(applyRightFile).catch(handleFileError);
+      return;
+    }
+    const file = arr[0];
+    if (!file) return;
+    if (preferredSide === 'left') {
+      readTextFile(file, { accept: ACCEPT_JSON_TXT }).then(applyLeftFile).catch(handleFileError);
+    } else {
+      readTextFile(file, { accept: ACCEPT_JSON_TXT }).then(applyRightFile).catch(handleFileError);
+    }
+  }, [applyLeftFile, applyRightFile, handleFileError]);
+
+  const leftDrop = useFileDrop((files) => handleDropFiles(files, 'left'), { multiple: true });
+  const rightDrop = useFileDrop((files) => handleDropFiles(files, 'right'), { multiple: true });
+
+  // ---- Diff computation (debounced) ----
+  const diffTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const recomputeDiff = useCallback(() => {
     const leftRes = safeParseJson(leftInput, false);
     const rightRes = safeParseJson(rightInput, false);
 
     let leftData = leftRes.data;
     let rightData = rightRes.data;
 
-    // Apply JSONPath filter if requested
     if (jsonPathFilter.trim()) {
       if (leftData) leftData = evaluateSimpleJsonPath(leftData, jsonPathFilter);
       if (rightData) rightData = evaluateSimpleJsonPath(rightData, jsonPathFilter);
     }
 
-    // Apply Semantic sorting if requested
     if (ignoreKeyOrder && leftData && rightData) {
       leftData = sortKeysDeep(leftData, { ignoreArrayOrder, matchArrayById, idKey: arrayIdKey });
       rightData = sortKeysDeep(rightData, { ignoreArrayOrder, matchArrayById, idKey: arrayIdKey });
     }
 
-    // Format normalized text for diff
     const leftText = leftData !== undefined && leftData !== null ? JSON.stringify(leftData, null, 2) : leftInput;
     const rightText = rightData !== undefined && rightData !== null ? JSON.stringify(rightData, null, 2) : rightInput;
 
-    const diff = computeLineDiff(leftText, rightText);
+    const diff = computeLineDiff(leftText, rightText, {
+      maxEditDistance: 4000,
+      memoryBudgetEntries: 2_000_000,
+    });
     const patch = leftData && rightData ? generateJsonPatch(leftData, rightData) : [];
 
-    return {
-      diffResult: diff,
-      patchResult: patch,
-      leftParsed: leftData,
-      rightParsed: rightData,
-      leftError: leftRes.error,
-      rightError: rightRes.error,
-    };
+    setDiffResult({ lines: diff.lines, stats: diff.stats, degraded: diff.degraded });
+    setPatchResult(patch);
+    setLargeComparePending(false);
   }, [leftInput, rightInput, ignoreKeyOrder, ignoreArrayOrder, matchArrayById, arrayIdKey, jsonPathFilter]);
 
-  // Actions
+  useEffect(() => {
+    if (isLargeMode) return;
+    if (diffTimeoutRef.current) clearTimeout(diffTimeoutRef.current);
+    diffTimeoutRef.current = setTimeout(() => {
+      recomputeDiff();
+    }, 250);
+    return () => {
+      if (diffTimeoutRef.current) clearTimeout(diffTimeoutRef.current);
+    };
+  }, [leftInput, rightInput, ignoreKeyOrder, ignoreArrayOrder, matchArrayById, arrayIdKey, jsonPathFilter, isLargeMode, recomputeDiff]);
+
+  const handleCompare = () => {
+    setLargeComparePending(true);
+    recomputeDiff();
+  };
+
+  // ---- Actions ----
   const handleSwap = () => {
     const tmp = leftInput;
     setLeftInput(rightInput);
     setRightInput(tmp);
+    setLeftFilename(rightFilename);
+    setRightFilename(leftFilename);
+    setLeftEdited(rightEdited);
+    setRightEdited(leftEdited);
     showToast("Swapped left and right JSON");
   };
 
-  const handleClear = () => {
+  const handleClearLeft = () => {
     setLeftInput('');
+    setLeftFilename(null);
+    setLeftEdited(false);
+    setLeftLarge(false);
+    showToast("Cleared left side");
+  };
+  const handleClearRight = () => {
     setRightInput('');
-    showToast("Cleared both sides");
+    setRightFilename(null);
+    setRightEdited(false);
+    setRightLarge(false);
+    showToast("Cleared right side");
+  };
+
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    showToast(`Copied ${label}!`);
+  };
+
+  const handleDownload = (text: string, name: string) => {
+    const blob = new Blob([text], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`Downloaded ${name}`);
   };
 
   const handleFormatBoth = () => {
@@ -130,10 +444,12 @@ export default function JsonCompareApp() {
       if (leftInput.trim()) {
         const lp = JSON.parse(leftInput);
         setLeftInput(JSON.stringify(lp, null, 2));
+        setLeftEdited(true);
       }
       if (rightInput.trim()) {
         const rp = JSON.parse(rightInput);
         setRightInput(JSON.stringify(rp, null, 2));
+        setRightEdited(true);
       }
       showToast("Formatted both JSONs");
     } catch {
@@ -146,83 +462,66 @@ export default function JsonCompareApp() {
     const repairedRight = repairJsonString(rightInput);
     setLeftInput(repairedLeft);
     setRightInput(repairedRight);
+    setLeftEdited(true);
+    setRightEdited(true);
     showToast("Smart repair applied to both inputs");
   };
 
   const handleCopyDiffReport = () => {
     const report = {
       timestamp: new Date().toISOString(),
-      stats: diffResult.stats,
-      rfc6902Patches: patchResult,
+      stats: diffResult?.stats,
+      patches: patchResult,
     };
     navigator.clipboard.writeText(JSON.stringify(report, null, 2));
     showToast("Copied diff summary & patch to clipboard!");
   };
 
+  const stats = diffResult ? diffResult.stats : { added: 0, removed: 0, modified: 0, unchanged: 0, totalChanges: 0 };
+  const lines = diffResult ? diffResult.lines : [];
+
+  const viewPills = (active: AppView) => (
+    <div class="flex items-center gap-1 bg-white dark:bg-[#18191d] p-1 rounded-full border border-[#cacacb]/60 dark:border-[#2b2d35] shadow-xs">
+      <button
+        onClick={() => setActiveView('split')}
+        class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+          active === 'split'
+            ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
+            : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
+        }`}
+      >
+        Split View
+      </button>
+      <button
+        onClick={() => setActiveView('unified')}
+        class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+          active === 'unified'
+            ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
+            : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
+        }`}
+      >
+        Unified Diff
+      </button>
+      <button
+        onClick={() => setActiveView('patch')}
+        class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+          active === 'patch'
+            ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
+            : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
+        }`}
+      >
+        RFC 6902 Patch ({patchResult.length})
+      </button>
+    </div>
+  );
+
   return (
     <div class="w-full bg-white dark:bg-[#0c0d0e] transition-colors">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div class="fixed bottom-6 right-6 z-50 bg-[#111111] dark:bg-[#f0f0f2] text-white dark:text-[#111111] text-xs px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 animate-bounce">
-          <span class="w-2 h-2 rounded-full bg-[#1eaa52]"></span>
-          {toastMessage}
-        </div>
-      )}
+      <Toast message={toastMessage} />
 
       {/* Main Control Toolbar */}
       <div class="border-b border-[#e5e5e5] dark:border-[#22242a] bg-[#f5f5f5]/80 dark:bg-[#14161b] px-4 sm:px-6 py-3 transition-colors">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          {/* Left: View Mode Pills */}
-          <div class="flex items-center gap-1 bg-white dark:bg-[#18191d] p-1 rounded-full border border-[#cacacb]/60 dark:border-[#2b2d35] shadow-xs">
-            <button
-              onClick={() => setActiveView('split')}
-              class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
-                activeView === 'split'
-                  ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
-                  : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
-              }`}
-            >
-              Split View
-            </button>
-            <button
-              onClick={() => setActiveView('unified')}
-              class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
-                activeView === 'unified'
-                  ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
-                  : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
-              }`}
-            >
-              Unified Diff
-            </button>
-            <button
-              onClick={() => setActiveView('patch')}
-              class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
-                activeView === 'patch'
-                  ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
-                  : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
-              }`}
-            >
-              RFC 6902 Patch ({patchResult.length})
-            </button>
-          </div>
-
-          {/* Center: Diff Stats Badges */}
-          <div class="flex items-center gap-2 text-xs font-mono">
-            <span class="px-2.5 py-0.5 rounded-full bg-white dark:bg-[#18191d] border border-[#e5e5e5] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-semibold">
-              {diffResult.stats.totalChanges === 0 ? "Identical" : `${diffResult.stats.totalChanges} changes`}
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-[#007d48]/10 text-[#007d48] dark:bg-[#1eaa52]/20 dark:text-[#34d399] font-medium">
-              +{diffResult.stats.added}
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-[#d30005]/10 text-[#d30005] dark:bg-[#f87171]/20 dark:text-[#f87171] font-medium">
-              -{diffResult.stats.removed}
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-[#1151ff]/10 text-[#1151ff] dark:bg-[#60a5fa]/20 dark:text-[#60a5fa] font-medium">
-              ~{diffResult.stats.modified}
-            </span>
-          </div>
-
-          {/* Right: Quick Action Buttons */}
           <div class="flex items-center gap-1.5">
             <button
               onClick={handleSwap}
@@ -252,57 +551,69 @@ export default function JsonCompareApp() {
               Copy Report
             </button>
           </div>
+
+          <div class="flex items-center gap-2 text-xs font-mono">
+            <span class="px-2.5 py-0.5 rounded-full bg-white dark:bg-[#18191d] border border-[#e5e5e5] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-semibold">
+              {stats.totalChanges === 0 ? "Identical" : `${stats.totalChanges} changes`}
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-[#007d48]/10 text-[#007d48] dark:bg-[#1eaa52]/20 dark:text-[#34d399] font-medium">
+              +{stats.added}
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-[#d30005]/10 text-[#d30005] dark:bg-[#f87171]/20 dark:text-[#f87171] font-medium">
+              -{stats.removed}
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-[#1151ff]/10 text-[#1151ff] dark:bg-[#60a5fa]/20 dark:text-[#60a5fa] font-medium">
+              ~{stats.modified}
+            </span>
+          </div>
+
+          {viewPills(activeView)}
         </div>
 
-        {/* Secondary Bar: Semantic Settings & JSONPath Filter */}
         <div class="mt-2.5 pt-2 border-t border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 text-xs text-[#39393b] dark:text-[#b5b5b8]">
-          {/* Options Toggles */}
           <div class="flex flex-wrap items-center gap-4">
             <label class="flex items-center gap-1.5 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={ignoreKeyOrder}
-                onChange={(e) => setIgnoreKeyOrder((e.target as HTMLInputElement).checked)}
+                onChange={(e: any) => setIgnoreKeyOrder((e.target as HTMLInputElement).checked)}
                 class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
               />
               <span class="font-medium">Ignore Key Order</span>
             </label>
-
             <label class="flex items-center gap-1.5 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={ignoreArrayOrder}
-                onChange={(e) => setIgnoreArrayOrder((e.target as HTMLInputElement).checked)}
+                onChange={(e: any) => setIgnoreArrayOrder((e.target as HTMLInputElement).checked)}
                 class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
               />
               <span class="font-medium">Ignore Array Order</span>
             </label>
-
             <label class="flex items-center gap-1.5 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={matchArrayById}
-                onChange={(e) => setMatchArrayById((e.target as HTMLInputElement).checked)}
+                onChange={(e: any) => setMatchArrayById((e.target as HTMLInputElement).checked)}
                 class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
               />
               <span class="font-medium">Align Array by Key:</span>
               <input
                 type="text"
                 value={arrayIdKey}
-                onChange={(e) => setArrayIdKey((e.target as HTMLInputElement).value)}
+                onInput={(e: any) => setArrayIdKey((e.target as HTMLInputElement).value)}
                 class="w-12 px-1.5 py-0.5 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-white dark:bg-[#18191d] text-[11px] font-mono text-center text-[#111111] dark:text-[#f0f0f2]"
               />
             </label>
           </div>
 
-          {/* JSONPath Filter & Samples */}
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-1.5 bg-white dark:bg-[#18191d] px-2.5 py-1 rounded-full border border-[#cacacb]/80 dark:border-[#2b2d35]">
               <span class="font-mono text-[11px] text-[#707072] dark:text-[#8e8e93]">Filter:</span>
               <input
                 type="text"
                 value={jsonPathFilter}
-                onChange={(e) => setJsonPathFilter((e.target as HTMLInputElement).value)}
+                onInput={(e: any) => setJsonPathFilter((e.target as HTMLInputElement).value)}
                 placeholder="$.users[*] (Optional)"
                 class="font-mono text-xs text-[#111111] dark:text-[#f0f0f2] outline-none w-36 bg-transparent"
               />
@@ -322,6 +633,12 @@ export default function JsonCompareApp() {
                 onClick={() => {
                   setLeftInput(SAMPLES.apiResponse.left);
                   setRightInput(SAMPLES.apiResponse.right);
+                  setLeftFilename(null);
+                  setRightFilename(null);
+                  setLeftEdited(false);
+                  setRightEdited(false);
+                  setLeftLarge(false);
+                  setRightLarge(false);
                   showToast("Loaded Sample API Response");
                 }}
                 class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
@@ -333,6 +650,12 @@ export default function JsonCompareApp() {
                 onClick={() => {
                   setLeftInput(SAMPLES.keyOrder.left);
                   setRightInput(SAMPLES.keyOrder.right);
+                  setLeftFilename(null);
+                  setRightFilename(null);
+                  setLeftEdited(false);
+                  setRightEdited(false);
+                  setLeftLarge(false);
+                  setRightLarge(false);
                   showToast("Loaded Key Order Sample");
                 }}
                 class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
@@ -341,7 +664,17 @@ export default function JsonCompareApp() {
               </button>
               <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
               <button
-                onClick={handleClear}
+                onClick={() => {
+                  setLeftInput('');
+                  setRightInput('');
+                  setLeftFilename(null);
+                  setRightFilename(null);
+                  setLeftEdited(false);
+                  setRightEdited(false);
+                  setLeftLarge(false);
+                  setRightLarge(false);
+                  showToast("Cleared both sides");
+                }}
                 class="hover:underline text-[#d30005] dark:text-[#f87171] cursor-pointer"
               >
                 Clear
@@ -349,232 +682,141 @@ export default function JsonCompareApp() {
             </div>
           </div>
         </div>
+
+        {isLargeMode && (
+          <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
+            <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
+              {LARGE_FILE_MODE_BANNER}
+            </div>
+            <button
+              onClick={handleCompare}
+              disabled={largeComparePending}
+              class="ml-auto px-3 py-1 rounded-full text-xs font-semibold border border-[#b45309] dark:border-[#fde047] text-[#b45309] dark:text-[#fde047] hover:bg-[#b45309] dark:hover:bg-[#fde047] hover:text-white dark:hover:text-[#111111] transition-colors cursor-pointer"
+            >
+              {largeComparePending ? 'Comparing…' : 'Compare'}
+            </button>
+          </div>
+        )}
+
+        {diffResult?.degraded && (
+          <div class="px-4 sm:px-6 py-2 bg-[#fde8e8] dark:bg-[#451010]/40 border border-[#e5e5e5] dark:border-[#7a1f1f]">
+            <div class="flex items-center gap-2 text-[11px] font-medium text-[#d30005] dark:text-[#fca5a5]">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#d30005] dark:bg-[#fca5a5]"></span>
+              Diff simplified: files are very large or very different. Showing approximate alignment.
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Editor & Diff Stage */}
       <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] border-b border-[#e5e5e5] dark:border-[#22242a]">
-        {/* Left Column: Original / Before */}
-        <div class="flex flex-col bg-white dark:bg-[#0c0d0e]">
-          <div class="flex items-center justify-between px-4 py-2 border-b border-[#e5e5e5] dark:border-[#22242a] bg-[#fafafa] dark:bg-[#14161b]">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#cacacb] dark:bg-[#383d47]"></span>
-              <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wide">
-                Original JSON (Left / Base)
-              </span>
-            </div>
-            {leftError ? (
-              <span class="text-[11px] font-mono text-[#d30005] dark:text-[#f87171] bg-[#d30005]/10 dark:bg-[#f87171]/20 px-2 py-0.5 rounded-full">
-                Syntax Error
-              </span>
-            ) : (
-              <span class="text-[11px] font-mono text-[#707072] dark:text-[#8e8e93]">
-                {leftInput.split('\n').length} lines
-              </span>
-            )}
-          </div>
-          <div class="p-2">
+        <div {...leftDrop.getDropProps()} class="relative flex flex-col bg-white dark:bg-[#0c0d0e]">
+          {leftDrop.isDragging && (
+            <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
+          )}
+          <Panel
+            title="Original JSON (Left / Base)"
+            filename={leftFilename}
+            lineCount={leftLineCount}
+            edited={leftEdited}
+            accept={ACCEPT_JSON_TXT}
+            onFile={applyLeftFile}
+            onError={handleFileError}
+            fileLabel="Choose file"
+            onClear={handleClearLeft}
+            onCopy={() => handleCopy(leftInput, 'left JSON')}
+            onDownload={() => handleDownload(leftInput, (leftFilename ?? 'left') + '.json')}
+            fullscreenable
+          >
             <textarea
               ref={leftEditorRef}
               value={leftInput}
-              onInput={(e) => setLeftInput((e.target as HTMLTextAreaElement).value)}
+              onInput={(e: any) => {
+                setLeftInput((e.target as HTMLTextAreaElement).value);
+                setLeftEdited(true);
+              }}
               placeholder="Paste original JSON here..."
               rows={12}
-              spellCheck={false}
+              spellcheck={false}
               class="w-full font-mono text-xs leading-relaxed text-[#111111] dark:text-[#f0f0f2] p-3 rounded-lg border border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#121316] resize-y focus:outline-none focus:border-[#111111] dark:focus:border-white focus:ring-1 focus:ring-[#111111] dark:focus:ring-white"
             />
-          </div>
+          </Panel>
         </div>
 
-        {/* Right Column: Modified / After */}
-        <div class="flex flex-col bg-white dark:bg-[#0c0d0e]">
-          <div class="flex items-center justify-between px-4 py-2 border-b border-[#e5e5e5] dark:border-[#22242a] bg-[#fafafa] dark:bg-[#14161b]">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
-              <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wide">
-                Modified JSON (Right / Target)
-              </span>
-            </div>
-            {rightError ? (
-              <span class="text-[11px] font-mono text-[#d30005] dark:text-[#f87171] bg-[#d30005]/10 dark:bg-[#f87171]/20 px-2 py-0.5 rounded-full">
-                Syntax Error
-              </span>
-            ) : (
-              <span class="text-[11px] font-mono text-[#707072] dark:text-[#8e8e93]">
-                {rightInput.split('\n').length} lines
-              </span>
-            )}
-          </div>
-          <div class="p-2">
+        <div {...rightDrop.getDropProps()} class="relative flex flex-col bg-white dark:bg-[#0c0d0e]">
+          {rightDrop.isDragging && (
+            <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
+          )}
+          <Panel
+            title="Modified JSON (Right / Target)"
+            filename={rightFilename}
+            lineCount={rightLineCount}
+            edited={rightEdited}
+            accept={ACCEPT_JSON_TXT}
+            onFile={applyRightFile}
+            onError={handleFileError}
+            fileLabel="Choose file"
+            onClear={handleClearRight}
+            onCopy={() => handleCopy(rightInput, 'right JSON')}
+            onDownload={() => handleDownload(rightInput, (rightFilename ?? 'right') + '.json')}
+            fullscreenable
+          >
             <textarea
               ref={rightEditorRef}
               value={rightInput}
-              onInput={(e) => setRightInput((e.target as HTMLTextAreaElement).value)}
+              onInput={(e: any) => {
+                setRightInput((e.target as HTMLTextAreaElement).value);
+                setRightEdited(true);
+              }}
               placeholder="Paste modified JSON here..."
               rows={12}
-              spellCheck={false}
+              spellcheck={false}
               class="w-full font-mono text-xs leading-relaxed text-[#111111] dark:text-[#f0f0f2] p-3 rounded-lg border border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#121316] resize-y focus:outline-none focus:border-[#111111] dark:focus:border-white focus:ring-1 focus:ring-[#111111] dark:focus:ring-white"
             />
-          </div>
+          </Panel>
         </div>
       </div>
 
       {/* Visual Diff Output Viewport */}
-      <div class="bg-white dark:bg-[#0c0d0e] transition-colors">
-        <div class="flex items-center justify-between px-4 sm:px-6 py-2.5 border-b border-[#e5e5e5] dark:border-[#22242a] bg-[#f5f5f5] dark:bg-[#14161b]">
-          <span class="text-xs font-semibold uppercase tracking-wider text-[#111111] dark:text-[#f0f0f2]">
-            Difference Inspector &nbsp;
-            <span class="font-normal font-mono text-[#707072] dark:text-[#8e8e93]">
-              ({activeView === 'split' ? 'Side-by-Side Comparison' : activeView === 'unified' ? 'Unified Stream' : 'RFC 6902 Patch Output'})
-            </span>
-          </span>
-
-          <span class="text-[11px] font-mono text-[#707072] dark:text-[#8e8e93]">
-            {diffResult.lines.length} lines rendered
-          </span>
-        </div>
-
-        {/* View 1: Split View */}
-        {activeView === 'split' && (
-          <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-            <table class="w-full border-collapse font-mono text-xs text-left">
-              <thead>
-                <tr class="bg-[#fafafa] dark:bg-[#16181d] border-b border-[#e5e5e5] dark:border-[#22242a] text-[11px] text-[#707072] dark:text-[#8e8e93]">
-                  <th class="w-12 px-2 py-1.5 text-right font-normal">#</th>
-                  <th class="w-1/2 px-3 py-1.5 font-normal border-r border-[#e5e5e5] dark:border-[#22242a]">Original Value</th>
-                  <th class="w-12 px-2 py-1.5 text-right font-normal">#</th>
-                  <th class="w-1/2 px-3 py-1.5 font-normal">Modified Value</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#f0f0f0] dark:divide-[#1c1f26]">
-                {diffResult.lines.map((line, idx) => {
-                  let leftBg = '';
-                  let rightBg = '';
-
-                  if (line.type === 'removed') {
-                    leftBg = 'bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5]';
-                  } else if (line.type === 'added') {
-                    rightBg = 'bg-[#e8f7ee] dark:bg-[#06331e]/50 text-[#007d48] dark:text-[#6ee7b7]';
-                  } else if (line.type === 'modified') {
-                    leftBg = 'bg-[#fff4e5] dark:bg-[#3d2305]/50 text-[#b45309] dark:text-[#fde047]';
-                    rightBg = 'bg-[#eff6ff] dark:bg-[#11264e]/50 text-[#1d4ed8] dark:text-[#93c5fd]';
-                  }
-
-                  return (
-                    <tr key={idx} class="hover:bg-[#fcfcfc] dark:hover:bg-[#16181d] transition-colors leading-5">
-                      {/* Left Side */}
-                      <td class={`w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none ${leftBg ? leftBg.split(' ')[0] : ''}`}>
-                        {line.leftLineNumber ?? ''}
-                      </td>
-                      <td class={`w-1/2 px-3 py-0.5 border-r border-[#e5e5e5] dark:border-[#22242a] whitespace-pre font-mono break-all ${leftBg}`}>
-                        {line.leftText !== undefined ? line.leftText : ''}
-                      </td>
-
-                      {/* Right Side */}
-                      <td class={`w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none ${rightBg ? rightBg.split(' ')[0] : ''}`}>
-                        {line.rightLineNumber ?? ''}
-                      </td>
-                      <td class={`w-1/2 px-3 py-0.5 whitespace-pre font-mono break-all ${rightBg}`}>
-                        {line.rightText !== undefined ? line.rightText : ''}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* View 2: Unified Diff */}
-        {activeView === 'unified' && (
-          <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-            <table class="w-full border-collapse font-mono text-xs text-left">
-              <thead>
-                <tr class="bg-[#fafafa] dark:bg-[#16181d] border-b border-[#e5e5e5] dark:border-[#22242a] text-[11px] text-[#707072] dark:text-[#8e8e93]">
-                  <th class="w-12 px-2 py-1.5 text-right font-normal">L</th>
-                  <th class="w-12 px-2 py-1.5 text-right font-normal">R</th>
-                  <th class="w-8 px-2 py-1.5 text-center font-normal">Op</th>
-                  <th class="px-3 py-1.5 font-normal">Content</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#f0f0f0] dark:divide-[#1c1f26]">
-                {diffResult.lines.map((line, idx) => {
-                  if (line.type === 'modified') {
-                    return (
-                      <div key={idx} style={{ display: 'contents' }}>
-                        <tr class="bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5]">
-                          <td class="w-12 px-2 py-0.5 text-right text-[11px] select-none">{line.leftLineNumber}</td>
-                          <td class="w-12 px-2 py-0.5 text-right text-[11px] select-none"></td>
-                          <td class="w-8 px-2 py-0.5 text-center select-none font-bold">-</td>
-                          <td class="px-3 py-0.5 whitespace-pre font-mono break-all">{line.leftText}</td>
-                        </tr>
-                        <tr class="bg-[#e8f7ee] dark:bg-[#06331e]/50 text-[#007d48] dark:text-[#6ee7b7]">
-                          <td class="w-12 px-2 py-0.5 text-right text-[11px] select-none"></td>
-                          <td class="w-12 px-2 py-0.5 text-right text-[11px] select-none">{line.rightLineNumber}</td>
-                          <td class="w-8 px-2 py-0.5 text-center select-none font-bold">+</td>
-                          <td class="px-3 py-0.5 whitespace-pre font-mono break-all">{line.rightText}</td>
-                        </tr>
-                      </div>
-                    );
-                  }
-
-                  let rowBg = '';
-                  let sign = ' ';
-                  if (line.type === 'added') {
-                    rowBg = 'bg-[#e8f7ee] dark:bg-[#06331e]/50 text-[#007d48] dark:text-[#6ee7b7]';
-                    sign = '+';
-                  } else if (line.type === 'removed') {
-                    rowBg = 'bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5]';
-                    sign = '-';
-                  }
-
-                  return (
-                    <tr key={idx} class={`${rowBg} hover:opacity-95 transition-opacity`}>
-                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none">
-                        {line.leftLineNumber ?? ''}
-                      </td>
-                      <td class="w-12 px-2 py-0.5 text-right text-[11px] text-[#9e9ea0] dark:text-[#636366] select-none">
-                        {line.rightLineNumber ?? ''}
-                      </td>
-                      <td class="w-8 px-2 py-0.5 text-center select-none font-bold">
-                        {sign}
-                      </td>
-                      <td class="px-3 py-0.5 whitespace-pre font-mono break-all">
-                        {line.type === 'added' ? line.rightText : line.leftText}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* View 3: RFC 6902 Patch Output */}
-        {activeView === 'patch' && (
-          <div class="p-4 sm:p-6 bg-[#fafafa] dark:bg-[#111215] transition-colors">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2]">
-                RFC 6902 Compliant JSON Patch Document ({patchResult.length} operations)
-              </span>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(JSON.stringify(patchResult, null, 2));
-                  showToast("Patch operations copied!");
-                }}
-                class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
-              >
-                Copy Patch JSON
-              </button>
+      <Panel
+        title="Difference Inspector"
+        lineCount={lines.length}
+        actions={viewPills(activeView)}
+        onCopy={handleCopyDiffReport}
+        onDownload={() => {
+          const report = { timestamp: new Date().toISOString(), stats, patches: patchResult };
+          handleDownload(JSON.stringify(report, null, 2), 'diff-report.json');
+        }}
+        fullscreenable
+      >
+        <>
+          {activeView !== 'patch' && <DiffTable lines={lines} view={activeView} />}
+          {activeView === 'patch' && (
+            <div class="p-4 sm:p-6 bg-[#fafafa] dark:bg-[#111215] transition-colors">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2]">
+                  RFC 6902 Compliant JSON Patch Document ({patchResult.length} operations)
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(patchResult, null, 2));
+                    showToast("Patch operations copied!");
+                  }}
+                  class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
+                >
+                  Copy Patch JSON
+                </button>
+              </div>
+              <pre class="p-4 rounded-xl bg-white dark:bg-[#121316] border border-[#e5e5e5] dark:border-[#22242a] font-mono text-xs overflow-x-auto text-[#111111] dark:text-[#f0f0f2] max-h-[500px]">
+                {patchResult.length > 0
+                  ? JSON.stringify(patchResult, null, 2)
+                  : '// Both JSON documents are semantically identical. No patch required.'}
+              </pre>
             </div>
-            <pre class="p-4 rounded-xl bg-white dark:bg-[#121316] border border-[#e5e5e5] dark:border-[#22242a] font-mono text-xs overflow-x-auto text-[#111111] dark:text-[#f0f0f2] max-h-[500px]">
-              {patchResult.length > 0
-                ? JSON.stringify(patchResult, null, 2)
-                : '// Both JSON documents are semantically identical. No patch required.'}
-            </pre>
-          </div>
-        )}
-      </div>
+          )}
+        </>
+      </Panel>
     </div>
   );
 }
-
