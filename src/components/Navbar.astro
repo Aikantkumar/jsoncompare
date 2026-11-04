@@ -6,7 +6,7 @@ interface Props {
 const { activeTab = '' } = Astro.props;
 ---
 
-<header class="sticky top-0 z-50 bg-white/95 dark:bg-[#0c0d0e]/95 backdrop-blur-md border-b border-[#e5e5e5] dark:border-[#22242a] transition-colors">
+<header id="site-header" class="sticky top-0 z-50 bg-white/95 dark:bg-[#000000]/95 backdrop-blur-md border-b border-[#e5e5e5] dark:border-[#22242a] transition-colors transition-transform duration-300 ease-in-out">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
     <!-- Brand -->
     <div class="flex items-center gap-6">
@@ -160,6 +160,18 @@ const { activeTab = '' } = Astro.props;
       >
         Diff Two JSONs
       </a>
+
+      <!-- Full Screen Toggle -->
+      <button
+        id="fullscreen-toggle"
+        type="button"
+        title="Toggle Full Screen (hides header & footer)"
+        class="w-8 h-8 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-[#f5f5f5] dark:bg-[#18191d] text-[#39393b] dark:text-[#f0f0f2] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors cursor-pointer flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2]"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4M4 20l5-5m11 1l-5 5m5 5v-4m0 4h-4" />
+        </svg>
+      </button>
     </div>
   </div>
 </header>
@@ -183,4 +195,54 @@ const { activeTab = '' } = Astro.props;
 
   setupThemeToggle();
   document.addEventListener('astro:after-swap', setupThemeToggle);
+
+  // Full Screen toggle (hides header & footer, expands main to viewport)
+  (function() {
+    const btn = document.getElementById('fullscreen-toggle');
+    const html = document.documentElement;
+    if (!btn) return;
+
+    function updateLabel() {
+      const isFull = !!document.fullscreenElement;
+      btn.setAttribute('aria-pressed', String(isFull));
+      html.classList.toggle('fullscreen-mode', isFull);
+    }
+
+    btn.onclick = function() {
+      if (!document.fullscreenElement) {
+        html.requestFullscreen?.catch(() => {});
+      } else {
+        document.exitFullscreen?.catch(() => {});
+      }
+    };
+
+    document.addEventListener('fullscreenchange', updateLabel);
+    updateLabel();
+  })();
+
+  // Auto-hide header on scroll down, show on scroll up
+  (function() {
+    const header = document.getElementById('site-header');
+    if (!header) return;
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    function onScroll() {
+      const scrollY = window.scrollY;
+      if (scrollY > lastScrollY && scrollY > 60) {
+        header.classList.add('-translate-y-full');
+      } else if (scrollY < lastScrollY || scrollY <= 60) {
+        header.classList.remove('-translate-y-full');
+      }
+      lastScrollY = scrollY;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    }, { passive: true });
+  })();
 </script>
