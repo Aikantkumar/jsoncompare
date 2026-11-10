@@ -2,7 +2,6 @@
  * Toast.tsx - Single shared toast component.
  * Sits above the fullscreen overlay (z-[110]) and announces via aria-live.
  */
-import { useEffect } from 'preact/hooks';
 
 interface Props {
   message: string;
@@ -10,15 +9,6 @@ interface Props {
 }
 
 export default function Toast({ message, duration = 3000 }: Props) {
-  if (!message) return null;
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // Toast is controlled by the parent (useToast.clear); this is a safety net.
-    }, duration);
-    return () => clearTimeout(timer);
-  }, [duration]);
-
   return (
     <div role="status" aria-live="polite" class="fixed top-6 right-6 z-[110] flex flex-col gap-2 pointer-events-none">
       <div

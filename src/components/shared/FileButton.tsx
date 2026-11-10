@@ -11,9 +11,10 @@ interface Props {
   onFile: (result: { name: string; size: number; text: string; large: boolean }) => void;
   onError: (message: string) => void;
   label?: string;
+  ariaLabel?: string;
 }
 
-export default function FileButton({ accept, onFile, onError, label = 'Choose file' }: Props) {
+export default function FileButton({ accept, onFile, onError, label = 'Choose file', ariaLabel }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const open = useCallback(() => {
@@ -44,6 +45,7 @@ export default function FileButton({ accept, onFile, onError, label = 'Choose fi
       <button
         type="button"
         onClick={open}
+        aria-label={ariaLabel ?? label}
         class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
       >
         {label}

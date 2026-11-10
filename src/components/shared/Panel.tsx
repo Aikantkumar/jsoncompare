@@ -9,15 +9,13 @@
  * same-height spacer left in the page flow so layout does not jump. Esc closes,
  * body scroll is locked/restored, focus moves into the overlay and back to the
  * trigger, only one panel can be fullscreen at a time, and the Esc listener
- * exists only while open. If an ancestor breaks position:fixed, a portal to
- * document.body is used instead.
+ * exists only while open. The panel always renders inline in page flow; it is
+ * never portaled.
  */
 import { useState, useRef, useEffect, useCallback, useContext } from 'preact/hooks';
-import { createContext, createPortal } from 'preact';
+import { createContext } from 'preact';
 import type { JSX } from 'preact';
 import FileButton from './FileButton';
-
-const FIXED_BREAKING_STYLES = ['transform', 'filter', 'backdropFilter', 'contain'];
 
 // Only one panel may be fullscreen at a time.
 let fullscreenOwner: { id: string; close: () => void } | null = null;
@@ -34,26 +32,6 @@ export function usePanelFullscreen(): PanelFullscreenContextValue {
   return useContext(PanelFullscreenContext);
 }
 
-function breaksFixed(cs: CSSStyleDeclaration): boolean {
-  return Boolean(
-    (cs.transform && cs.transform !== 'none' && cs.transform !== '') ||
-    (cs.filter && cs.filter !== 'none' && cs.filter !== '') ||
-    (cs.backdropFilter && cs.backdropFilter !== 'none' && cs.backdropFilter !== '') ||
-    (cs.contain && cs.contain !== '')
-  );
-}
-
-function hasFixedBreakingAncestor(el: HTMLElement | null): boolean {
-  let node = el?.parentElement;
-  while (node && node !== document.body && node !== document.documentElement) {
-    if (breaksFixed(window.getComputedStyle(node))) {
-      return true;
-    }
-    node = node.parentElement;
-  }
-  return false;
-}
-
 interface Props {
   title: string;
   filename?: string | null;
@@ -63,6 +41,7 @@ interface Props {
   onFile?: (result: { name: string; size: number; text: string; large: boolean }) => void;
   onError?: (message: string) => void;
   fileLabel?: string;
+  fileAriaLabel?: string;
   onClear?: () => void;
   onCopy?: () => void;
   onDownload?: () => void;
@@ -81,6 +60,7 @@ export default function Panel({
   onFile,
   onError,
   fileLabel = 'Choose file',
+  fileAriaLabel,
   onClear,
   onCopy,
   onDownload,
@@ -96,8 +76,6 @@ export default function Panel({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const bodyOverflowRef = useRef<string | null>(null);
   const id = useRef(Math.random().toString(36).slice(2, 8)).current;
-
-  const shouldUsePortal = useCallback(() => hasFixedBreakingAncestor(panelRef.current), []);
 
   const exitFullscreen = useCallback(() => {
     setIsFullscreen(false);
@@ -126,6 +104,26 @@ export default function Panel({
     setIsFullscreen(true);
     bodyOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    if (import.meta.env.DEV) {
+      let node: HTMLElement | null = panel.parentElement;
+      while (node && node !== document.body && node !== document.documentElement) {
+        const cs = window.getComputedStyle(node);
+        const breaking =
+          (cs.transform && cs.transform !== 'none' && cs.transform !== '') ||
+          (cs.filter && cs.filter !== 'none' && cs.filter !== '') ||
+          (cs.backdropFilter && cs.backdropFilter !== 'none' && cs.backdropFilter !== '') ||
+          (cs.perspective && cs.perspective !== 'none' && cs.perspective !== '') ||
+          (cs.contain && cs.contain !== 'none' && cs.contain !== 'auto' && cs.contain !== '') ||
+          (cs.willChange && cs.willChange !== 'none' && cs.willChange !== 'auto' && cs.willChange !== '');
+        if (breaking) {
+          console.warn(
+            `[Panel:${id}] ancestor ${node.tagName.toLowerCase()} may break position:fixed overlay:`,
+            { transform: cs.transform, filter: cs.filter, backdropFilter: cs.backdropFilter, perspective: cs.perspective, contain: cs.contain, willChange: cs.willChange }
+          );
+        }
+        node = node.parentElement;
+      }
+    }
     requestAnimationFrame(() => {
       const panelEl = panelRef.current;
       if (!panelEl) return;
@@ -161,8 +159,6 @@ export default function Panel({
       }
     };
   }, [isFullscreen, id]);
-
-  const usePortal = shouldUsePortal();
 
   const baseClasses =
     'flex flex-col border border-[#e5e5e5] dark:border-[#22242a] rounded-xl bg-white dark:bg-[#0c0d0e] transition-colors overflow-hidden';
@@ -218,7 +214,7 @@ export default function Panel({
         <div class={controlsClasses}>
           {actions}
           {accept && onFile && (
-            <FileButton accept={accept} onFile={onFile} onError={onError!} label={fileLabel} />
+            <FileButton accept={accept} onFile={onFile} onError={onError!} label={fileLabel} ariaLabel={fileAriaLabel} />
           )}
           {onClear && (
             <button type="button" onClick={onClear} class={pillSecondary}>
@@ -262,8 +258,5 @@ export default function Panel({
     <div ref={spacerRef} class="w-full" style={{ height: `${spacerHeight}px` }} />
   );
 
-  if (usePortal) {
-    return createPortal(<>{spacer}{panelEl}</>, document.body);
-  }
-  return <>{spacer}{panelEl}</>;
+  return <>{isFullscreen && spacer}{panelEl}</>;
 }

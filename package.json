@@ -9,7 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node --experimental-strip-types --test src/utils/__tests__/jsonDiff.test.ts src/utils/__tests__/fileIO.test.ts",
+    "test": "node --experimental-strip-types --test src/utils/__tests__/jsonDiff.test.ts src/utils/__tests__/fileIO.test.ts src/utils/__tests__/pureFunctions.test.ts",
     "astro": "astro"
   },
   "dependencies": {

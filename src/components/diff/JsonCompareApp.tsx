@@ -1,5 +1,4 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'preact/hooks';
-import type { JSX } from 'preact';
 import {
   computeLineDiff,
   sortKeysDeep,
@@ -12,11 +11,14 @@ import {
   type JsonPatchOperation,
 } from '../../utils/jsonDiff';
 import { useToast } from '../../hooks/useToast';
-import { readTextFile } from '../../utils/fileIO';
+import { formatBytes, readTextFile } from '../../utils/fileIO';
+import { copyText, downloadText, deriveDownloadName } from '../../utils/download';
+import { yieldToPaint } from '../../utils/async';
+import { useTextDoc } from '../../hooks/useTextDoc';
+import { useFileDrop } from '../../hooks/useFileDrop';
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
-import FileButton from '../../components/shared/FileButton';
-import { useFileDrop } from '../../hooks/useFileDrop';
+import EditorTextarea from '../../components/shared/EditorTextarea';
 import { usePanelFullscreen } from '../../components/shared/Panel';
 
 const SAMPLES = {
@@ -65,16 +67,6 @@ const LARGE_FILE_MODE_BANNER = 'Large file mode: live comparison disabled. Click
 const DIFF_ROW_CAP = 3000;
 const FOLD_THRESHOLD = 6;
 
-function formatBytes(bytes: number): string {
-  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-  return `${bytes} B`;
-}
-
-function escHtml(str: string): string {
-  return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
-}
-
 type AppView = 'split' | 'unified' | 'patch';
 
 interface DiffRowItem {
@@ -116,8 +108,6 @@ function buildDiffDisplay(lines: DiffLine[], rowCap: number): { items: DiffRowIt
   return { items, remaining };
 }
 
-// DiffTable is a top-level component so its fold/cap state (and the textarea-less
-// DOM) survives across parent re-renders.
 function DiffTable(props: {
   lines: DiffLine[];
   view: AppView;
@@ -275,8 +265,8 @@ function DiffTable(props: {
   }
 
 export default function JsonCompareApp() {
-  const [leftInput, setLeftInput] = useState<string>(SAMPLES.apiResponse.left);
-  const [rightInput, setRightInput] = useState<string>(SAMPLES.apiResponse.right);
+  const [leftDoc, leftActions] = useTextDoc(SAMPLES.apiResponse.left);
+  const [rightDoc, rightActions] = useTextDoc(SAMPLES.apiResponse.right);
   const [activeView, setActiveView] = useState<AppView>('split');
 
   const [ignoreKeyOrder, setIgnoreKeyOrder] = useState<boolean>(true);
@@ -285,43 +275,28 @@ export default function JsonCompareApp() {
   const [arrayIdKey, setArrayIdKey] = useState<string>('id');
   const [jsonPathFilter, setJsonPathFilter] = useState<string>('');
 
-  const [leftFilename, setLeftFilename] = useState<string | null>(null);
-  const [rightFilename, setRightFilename] = useState<string | null>(null);
-  const [leftEdited, setLeftEdited] = useState<boolean>(false);
-  const [rightEdited, setRightEdited] = useState<boolean>(false);
-  const [leftLarge, setLeftLarge] = useState<boolean>(false);
-  const [rightLarge, setRightLarge] = useState<boolean>(false);
-
   const [diffResult, setDiffResult] = useState<{ lines: DiffLine[]; stats: DiffStats; degraded: boolean } | null>(null);
   const [patchResult, setPatchResult] = useState<JsonPatchOperation[]>([]);
   const [largeComparePending, setLargeComparePending] = useState<boolean>(false);
 
   const { message: toastMessage, show: showToast } = useToast(3000);
 
-  const leftEditorRef = useRef<HTMLTextAreaElement>(null);
-  const rightEditorRef = useRef<HTMLTextAreaElement>(null);
+  const isLargeMode = leftDoc.isLarge || rightDoc.isLarge;
 
-  const leftLineCount = useMemo(() => (leftInput ? leftInput.split('\n').length : 0), [leftInput]);
-  const rightLineCount = useMemo(() => (rightInput ? rightInput.split('\n').length : 0), [rightInput]);
-
-  const isLargeMode = leftLarge || rightLarge;
+  // Local edited flags (useTextDoc resets edited on loadFile; we track edits separately).
+  const [leftEdited, setLeftEdited] = useState<boolean>(false);
+  const [rightEdited, setRightEdited] = useState<boolean>(false);
 
   // ---- File handling ----
   const applyLeftFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
-    setLeftInput(result.text);
-    setLeftFilename(result.name);
-    setLeftEdited(false);
-    setLeftLarge(result.large);
-    showToast(`Loaded ${escHtml(result.name)} (${formatBytes(result.size)})`);
-  }, [showToast]);
+    leftActions.loadFile(result);
+    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+  }, [leftActions, showToast]);
 
   const applyRightFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
-    setRightInput(result.text);
-    setRightFilename(result.name);
-    setRightEdited(false);
-    setRightLarge(result.large);
-    showToast(`Loaded ${escHtml(result.name)} (${formatBytes(result.size)})`);
-  }, [showToast]);
+    rightActions.loadFile(result);
+    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+  }, [rightActions, showToast]);
 
   const handleFileError = useCallback((msg: string) => {
     showToast(msg);
@@ -350,8 +325,8 @@ export default function JsonCompareApp() {
   const diffTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const recomputeDiff = useCallback(() => {
-    const leftRes = safeParseJson(leftInput, false);
-    const rightRes = safeParseJson(rightInput, false);
+    const leftRes = safeParseJson(leftDoc.text, false);
+    const rightRes = safeParseJson(rightDoc.text, false);
 
     let leftData = leftRes.data;
     let rightData = rightRes.data;
@@ -366,8 +341,8 @@ export default function JsonCompareApp() {
       rightData = sortKeysDeep(rightData, { ignoreArrayOrder, matchArrayById, idKey: arrayIdKey });
     }
 
-    const leftText = leftData !== undefined && leftData !== null ? JSON.stringify(leftData, null, 2) : leftInput;
-    const rightText = rightData !== undefined && rightData !== null ? JSON.stringify(rightData, null, 2) : rightInput;
+    const leftText = leftData !== undefined && leftData !== null ? JSON.stringify(leftData, null, 2) : leftDoc.text;
+    const rightText = rightData !== undefined && rightData !== null ? JSON.stringify(rightData, null, 2) : rightDoc.text;
 
     const diff = computeLineDiff(leftText, rightText, {
       maxEditDistance: 4000,
@@ -378,7 +353,7 @@ export default function JsonCompareApp() {
     setDiffResult({ lines: diff.lines, stats: diff.stats, degraded: diff.degraded });
     setPatchResult(patch);
     setLargeComparePending(false);
-  }, [leftInput, rightInput, ignoreKeyOrder, ignoreArrayOrder, matchArrayById, arrayIdKey, jsonPathFilter]);
+  }, [leftDoc.text, rightDoc.text, ignoreKeyOrder, ignoreArrayOrder, matchArrayById, arrayIdKey, jsonPathFilter]);
 
   useEffect(() => {
     if (isLargeMode) return;
@@ -389,66 +364,62 @@ export default function JsonCompareApp() {
     return () => {
       if (diffTimeoutRef.current) clearTimeout(diffTimeoutRef.current);
     };
-  }, [leftInput, rightInput, ignoreKeyOrder, ignoreArrayOrder, matchArrayById, arrayIdKey, jsonPathFilter, isLargeMode, recomputeDiff]);
+  }, [leftDoc.text, rightDoc.text, ignoreKeyOrder, ignoreArrayOrder, matchArrayById, arrayIdKey, jsonPathFilter, isLargeMode, recomputeDiff]);
 
-  const handleCompare = () => {
+  const handleCompare = async () => {
     setLargeComparePending(true);
+    await yieldToPaint();
     recomputeDiff();
   };
 
   // ---- Actions ----
   const handleSwap = () => {
-    const tmp = leftInput;
-    setLeftInput(rightInput);
-    setRightInput(tmp);
-    setLeftFilename(rightFilename);
-    setRightFilename(leftFilename);
-    setLeftEdited(rightEdited);
-    setRightEdited(leftEdited);
+    const tmpText = leftDoc.text;
+    const tmpFilename = leftDoc.filename;
+    const tmpEdited = leftDoc.edited;
+    leftActions.setText(rightDoc.text, { markEdited: false });
+    leftActions.setFilename(rightDoc.filename);
+    rightActions.setText(tmpText, { markEdited: false });
+    rightActions.setFilename(tmpFilename);
+    // Re-apply edited flags after setText (which marks edited by default).
+    setLeftEdited(tmpEdited);
+    setRightEdited(leftDoc.edited);
     showToast("Swapped left and right JSON");
   };
 
+  // Use local edited flags since useTextDoc resets edited on loadFile/setText default.
   const handleClearLeft = () => {
-    setLeftInput('');
-    setLeftFilename(null);
+    leftActions.clear();
     setLeftEdited(false);
-    setLeftLarge(false);
     showToast("Cleared left side");
   };
   const handleClearRight = () => {
-    setRightInput('');
-    setRightFilename(null);
+    rightActions.clear();
     setRightEdited(false);
-    setRightLarge(false);
     showToast("Cleared right side");
   };
 
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    showToast(`Copied ${label}!`);
+  const handleCopy = async (text: string, label: string) => {
+    const ok = await copyText(text);
+    showToast(ok ? `Copied ${label}!` : `Copy failed`);
   };
 
-  const handleDownload = (text: string, name: string) => {
-    const blob = new Blob([text], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleDownload = (text: string, sourceName: string | null, fallback: string) => {
+    const name = deriveDownloadName(sourceName, '.json', fallback);
+    downloadText(text, name, 'application/json');
     showToast(`Downloaded ${name}`);
   };
 
   const handleFormatBoth = () => {
     try {
-      if (leftInput.trim()) {
-        const lp = JSON.parse(leftInput);
-        setLeftInput(JSON.stringify(lp, null, 2));
+      if (leftDoc.text.trim()) {
+        const lp = JSON.parse(leftDoc.text);
+        leftActions.setText(JSON.stringify(lp, null, 2));
         setLeftEdited(true);
       }
-      if (rightInput.trim()) {
-        const rp = JSON.parse(rightInput);
-        setRightInput(JSON.stringify(rp, null, 2));
+      if (rightDoc.text.trim()) {
+        const rp = JSON.parse(rightDoc.text);
+        rightActions.setText(JSON.stringify(rp, null, 2));
         setRightEdited(true);
       }
       showToast("Formatted both JSONs");
@@ -458,23 +429,23 @@ export default function JsonCompareApp() {
   };
 
   const handleSmartRepairBoth = () => {
-    const repairedLeft = repairJsonString(leftInput);
-    const repairedRight = repairJsonString(rightInput);
-    setLeftInput(repairedLeft);
-    setRightInput(repairedRight);
+    const repairedLeft = repairJsonString(leftDoc.text);
+    const repairedRight = repairJsonString(rightDoc.text);
+    leftActions.setText(repairedLeft);
+    rightActions.setText(repairedRight);
     setLeftEdited(true);
     setRightEdited(true);
     showToast("Smart repair applied to both inputs");
   };
 
-  const handleCopyDiffReport = () => {
+  const handleCopyDiffReport = async () => {
     const report = {
       timestamp: new Date().toISOString(),
       stats: diffResult?.stats,
       patches: patchResult,
     };
-    navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-    showToast("Copied diff summary & patch to clipboard!");
+    const ok = await copyText(JSON.stringify(report, null, 2));
+    showToast(ok ? "Copied diff summary & patch to clipboard!" : "Copy failed");
   };
 
   const stats = diffResult ? diffResult.stats : { added: 0, removed: 0, modified: 0, unchanged: 0, totalChanges: 0 };
@@ -631,14 +602,12 @@ export default function JsonCompareApp() {
               <span class="text-[#707072] dark:text-[#8e8e93]">Samples:</span>
               <button
                 onClick={() => {
-                  setLeftInput(SAMPLES.apiResponse.left);
-                  setRightInput(SAMPLES.apiResponse.right);
-                  setLeftFilename(null);
-                  setRightFilename(null);
+                  leftActions.setText(SAMPLES.apiResponse.left, { markEdited: false });
+                  rightActions.setText(SAMPLES.apiResponse.right, { markEdited: false });
+                  leftActions.setFilename(null);
+                  rightActions.setFilename(null);
                   setLeftEdited(false);
                   setRightEdited(false);
-                  setLeftLarge(false);
-                  setRightLarge(false);
                   showToast("Loaded Sample API Response");
                 }}
                 class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
@@ -648,14 +617,12 @@ export default function JsonCompareApp() {
               <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
               <button
                 onClick={() => {
-                  setLeftInput(SAMPLES.keyOrder.left);
-                  setRightInput(SAMPLES.keyOrder.right);
-                  setLeftFilename(null);
-                  setRightFilename(null);
+                  leftActions.setText(SAMPLES.keyOrder.left, { markEdited: false });
+                  rightActions.setText(SAMPLES.keyOrder.right, { markEdited: false });
+                  leftActions.setFilename(null);
+                  rightActions.setFilename(null);
                   setLeftEdited(false);
                   setRightEdited(false);
-                  setLeftLarge(false);
-                  setRightLarge(false);
                   showToast("Loaded Key Order Sample");
                 }}
                 class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
@@ -665,14 +632,10 @@ export default function JsonCompareApp() {
               <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
               <button
                 onClick={() => {
-                  setLeftInput('');
-                  setRightInput('');
-                  setLeftFilename(null);
-                  setRightFilename(null);
+                  leftActions.clear();
+                  rightActions.clear();
                   setLeftEdited(false);
                   setRightEdited(false);
-                  setLeftLarge(false);
-                  setRightLarge(false);
                   showToast("Cleared both sides");
                 }}
                 class="hover:underline text-[#d30005] dark:text-[#f87171] cursor-pointer"
@@ -717,29 +680,24 @@ export default function JsonCompareApp() {
           )}
           <Panel
             title="Original JSON (Left / Base)"
-            filename={leftFilename}
-            lineCount={leftLineCount}
+            filename={leftDoc.filename}
+            lineCount={leftDoc.lineCount}
             edited={leftEdited}
             accept={ACCEPT_JSON_TXT}
             onFile={applyLeftFile}
             onError={handleFileError}
             fileLabel="Choose file"
+            fileAriaLabel="Choose file for Original JSON"
             onClear={handleClearLeft}
-            onCopy={() => handleCopy(leftInput, 'left JSON')}
-            onDownload={() => handleDownload(leftInput, (leftFilename ?? 'left') + '.json')}
+            onCopy={() => handleCopy(leftDoc.text, 'left JSON')}
+            onDownload={() => handleDownload(leftDoc.text, leftDoc.filename, 'left')}
             fullscreenable
           >
-            <textarea
-              ref={leftEditorRef}
-              value={leftInput}
-              onInput={(e: any) => {
-                setLeftInput((e.target as HTMLTextAreaElement).value);
-                setLeftEdited(true);
-              }}
+            <EditorTextarea
+              value={leftDoc.text}
+              onInput={(v) => { leftActions.setText(v); setLeftEdited(true); }}
               placeholder="Paste original JSON here..."
-              rows={12}
-              spellcheck={false}
-              class="w-full font-mono text-xs leading-relaxed text-[#111111] dark:text-[#f0f0f2] p-3 rounded-lg border border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#121316] resize-y focus:outline-none focus:border-[#111111] dark:focus:border-white focus:ring-1 focus:ring-[#111111] dark:focus:ring-white"
+              ariaLabel="Original JSON editor"
             />
           </Panel>
         </div>
@@ -750,29 +708,24 @@ export default function JsonCompareApp() {
           )}
           <Panel
             title="Modified JSON (Right / Target)"
-            filename={rightFilename}
-            lineCount={rightLineCount}
+            filename={rightDoc.filename}
+            lineCount={rightDoc.lineCount}
             edited={rightEdited}
             accept={ACCEPT_JSON_TXT}
             onFile={applyRightFile}
             onError={handleFileError}
             fileLabel="Choose file"
+            fileAriaLabel="Choose file for Modified JSON"
             onClear={handleClearRight}
-            onCopy={() => handleCopy(rightInput, 'right JSON')}
-            onDownload={() => handleDownload(rightInput, (rightFilename ?? 'right') + '.json')}
+            onCopy={() => handleCopy(rightDoc.text, 'right JSON')}
+            onDownload={() => handleDownload(rightDoc.text, rightDoc.filename, 'right')}
             fullscreenable
           >
-            <textarea
-              ref={rightEditorRef}
-              value={rightInput}
-              onInput={(e: any) => {
-                setRightInput((e.target as HTMLTextAreaElement).value);
-                setRightEdited(true);
-              }}
+            <EditorTextarea
+              value={rightDoc.text}
+              onInput={(v) => { rightActions.setText(v); setRightEdited(true); }}
               placeholder="Paste modified JSON here..."
-              rows={12}
-              spellcheck={false}
-              class="w-full font-mono text-xs leading-relaxed text-[#111111] dark:text-[#f0f0f2] p-3 rounded-lg border border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#121316] resize-y focus:outline-none focus:border-[#111111] dark:focus:border-white focus:ring-1 focus:ring-[#111111] dark:focus:ring-white"
+              ariaLabel="Modified JSON editor"
             />
           </Panel>
         </div>
@@ -786,7 +739,8 @@ export default function JsonCompareApp() {
         onCopy={handleCopyDiffReport}
         onDownload={() => {
           const report = { timestamp: new Date().toISOString(), stats, patches: patchResult };
-          handleDownload(JSON.stringify(report, null, 2), 'diff-report.json');
+          downloadText(JSON.stringify(report, null, 2), 'diff-report.json', 'application/json');
+          showToast("Downloaded diff-report.json");
         }}
         fullscreenable
       >
@@ -799,9 +753,9 @@ export default function JsonCompareApp() {
                   RFC 6902 Compliant JSON Patch Document ({patchResult.length} operations)
                 </span>
                 <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(JSON.stringify(patchResult, null, 2));
-                    showToast("Patch operations copied!");
+                  onClick={async () => {
+                    const ok = await copyText(JSON.stringify(patchResult, null, 2));
+                    showToast(ok ? "Patch operations copied!" : "Copy failed");
                   }}
                   class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
                 >

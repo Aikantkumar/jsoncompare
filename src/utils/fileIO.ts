@@ -5,6 +5,8 @@
 
 export const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 export const LARGE_FILE_THRESHOLD_BYTES = 1024 * 1024; // 1 MB -> treat as "large"
+export const LIVE_COMPUTE_MAX_CHARS = 500_000; // above this, live compute is disabled
+export const DEBOUNCE_MS = 250;
 
 export interface FileReadResult {
   name: string;
@@ -19,10 +21,14 @@ interface FileLike {
   arrayBuffer: () => Promise<ArrayBuffer>;
 }
 
-function formatBytes(bytes: number): string {
+export function formatBytes(bytes: number): string {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
   return `${bytes} B`;
+}
+
+export function isLargeText(text: string): boolean {
+  return text.length > LIVE_COMPUTE_MAX_CHARS;
 }
 
 function normalizeExt(ext: string): string {
