@@ -1,0 +1,84 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  lang="es"
+  title="404 — Página no encontrada | JSON Compare Online"
+  description="La página solicitada no se pudo encontrar. Explora nuestras herramientas online gratuitas de comparación, formato, validación y conversión de JSON."
+  canonicalPath="/404"
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 dark:bg-red-950/40 text-[11px] font-mono text-red-700 dark:text-red-400 mb-6 border border-red-200 dark:border-red-900/60">
+      <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+      HTTP 404 • Recurso no encontrado
+    </div>
+
+    <h1 class="text-6xl sm:text-7xl font-black tracking-tight text-[#111111] dark:text-[#f0f0f2] font-mono mb-4">
+      404
+    </h1>
+    <h2 class="text-xl sm:text-2xl font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+      Página perdida en el árbol de sintaxis
+    </h2>
+    <p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-md mx-auto leading-relaxed mb-8">
+      El documento o la ruta solicitada no existe o puede haberse reorganizado. Usa los enlaces a continuación para volver a nuestras principales herramientas para desarrolladores.
+    </p>
+
+    <div class="max-w-md mx-auto mb-10 text-left font-mono text-xs p-4 rounded-xl bg-[#12141a] text-[#e4e4e7] border border-[#232630] shadow-lg">
+      <div class="text-[#71717a] mb-1">// 404_error_response.json</div>
+      <div>&#123;</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"status"</span>: <span class="text-[#f87171]">404</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"error"</span>: <span class="text-[#fbbf24]">"No encontrado"</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"message"</span>: <span class="text-[#34d399]">"No se puede resolver el nodo URI solicitado."</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"suggestion"</span>: <span class="text-[#a78bfa]">"Volver al motor de diff principal"</span></div>
+      <div>&#125;</div>
+    </div>
+
+    <div class="mb-10">
+      <span class="text-xs uppercase tracking-wider font-mono text-[#707072] dark:text-[#8e8e93] block mb-4">
+        Herramientas populares para desarrolladores
+      </span>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-semibold">
+        <a
+          href="/es/"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          Comparador JSON
+        </a>
+        <a
+          href="/es/tools/json-formatter"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          Formateador JSON
+        </a>
+        <a
+          href="/es/tools/json-validator"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          Validador JSON
+        </a>
+        <a
+          href="/es/tools/json-to-typescript"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          JSON a TS
+        </a>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center gap-4">
+      <a
+        href="/es/"
+        class="px-6 py-2.5 rounded-full text-xs font-bold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors"
+      >
+        Ir a la página principal
+      </a>
+      <a
+        href="/es/contact"
+        class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors"
+      >
+        Reportar enlace roto
+      </a>
+    </div>
+  </div>
+</Layout>

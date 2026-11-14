@@ -1,0 +1,34 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "Home", item: "https://jsoncompareonline.com/it" }, { "@type": "ListItem", position: 2, name: "Informativa sulla privacy", item: "https://jsoncompareonline.com/it/privacy" } ] };
+---
+<Layout lang="it" title="Privacy e garanzia di sicurezza — Prova di server zero JSONCompareOnline" description="Scopri come JSONCompareOnline esegue al 100% nel tuo browser locale tramite Web Worker. Nessun log, nessuna telemetria, nessun archivio remoto." canonicalPath="/privacy" activeTab="privacy" structuredData={breadcrumbSchema}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#007d48] dark:text-[#34d399] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>Architettura privacy lato client Architettura privacy zero-knowledge</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">PRIVACY E GARANZIA DI SICUREZZA INFORMATIVA SULLA PRIVACY</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">Perché puoi confrontare in sicurezza credenziali API di produzione, JWT, record utenti e JSON sensibili su JSONCompareOnline. Ultimo aggiornamento: novembre 2026.</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">1. Esecuzione 100% nel browser (elaborazione remota zero)</h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">A differenza degli strumenti diff tradizionali che inviano il tuo testo a un server API o contenitore cloud di terze parti per calcolare le differenze, JSONCompareOnline esegue l'intero parser, l'algoritmo Myers LCS e il generatore di patch RFC 6902 all'interno della tua sessione del browser usando Web Worker JavaScript.</p>
+        <p class="text-xs leading-relaxed">JSON Compare Online (<a href="https://jsoncompareonline.com" class="underline text-[#111111] dark:text-[#f0f0f2]">jsoncompareonline.com</a>) è progettato con un'architettura zero-knowledge senza compromessi. A differenza dei servizi diff di testo online tradizionali che trasmettono i tuoi frammenti a API backend remoti, server cloud o funzioni serverless, le nostre utilità vengono eseguite interamente all'interno della tua sessione del browser web locale.</p>
+        <p class="text-xs leading-relaxed">Quando incolli, carichi, confronti, formatti, minifichi o converti documenti JSON, YAML, XML o CSV, i tuoi dati di payload vengono elaborati strettamente in memoria usando JavaScript lato client e Web Worker dedicati. <strong>Nessun dato di payload viene mai trasmesso, registrato, memorizzato in cache o archiviato sui nostri server.</strong></p>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">3. Nessun cookie, nessun tracker, nessuna impronta digitale</h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">Non memorizziamo cookie sul tuo dispositivo, non utilizziamo tracker comportamentali di terze parti né salviamo lo stato in database remoti. Quando chiudi o aggiorni la scheda, i tuoi dati JSON vengono completamente cancellati dalla memoria del browser.</p>
+        <div class="space-y-3 text-xs leading-relaxed">
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">Dati di payload:</strong> Non raccogliamo, vediamo, memorizziamo, vendiamo o ispezioniamo alcun testo, codice, stringhe di configurazione o file inseriti in qualsiasi strumento di questo sito.</p>
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">Informazioni personali:</strong> Non richiediamo account utente, registrazione email, password, dettagli di pagamento o numeri di telefono per utilizzare i nostri servizi.</p>
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">Cookie e tracciamento:</strong> Non implementiamo cookie di tracciamento pubblicitario, pixel di tracciamento comportamentale o script di fingerprinting tra siti.</p>
+        </div>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">5. Contatto per richieste di privacy</h2>
+        <p class="text-xs leading-relaxed mb-3">Se hai domande su questa Informativa sulla Privacy, sul nostro modello di sicurezza del browser o sulla verifica della compliance aziendale, contattaci tramite i nostri canali ufficiali:</p>
+        <div class="flex items-center gap-4 text-xs font-mono"><a href="/it/contact" class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">Contatta supporto e responsabile privacy</a><span>o email: privacy@jsoncompareonline.com</span></div>
+      </div>
+    </div>
+  </div></Layout>

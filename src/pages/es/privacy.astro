@@ -1,0 +1,153 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Inicio",
+      item: "https://jsoncompareonline.com/es",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Política de privacidad",
+      item: "https://jsoncompareonline.com/es/privacy",
+    },
+  ],
+};
+---
+
+<Layout
+  lang="es"
+  title="Privacidad y garantía de seguridad — Prueba de servidor cero de JSONCompareOnline"
+  description="Aprende cómo JSONCompareOnline se ejecuta al 100% en tu navegador local usando Web Workers. Sin registros, sin telemetría, sin almacenamiento remoto."
+  title="Política de privacidad — Recopilación de datos cero y seguridad en el navegador"
+  description="Lee la política de privacidad oficial de JSON Compare Online. Aprende cómo nuestra arquitectura del lado del cliente de servidor cero garantiza la privacidad de tus cargas."
+  canonicalPath="/privacy"
+  activeTab="privacy"
+  structuredData={breadcrumbSchema}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#007d48] dark:text-[#34d399] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>
+        Arquitectura de privacidad del lado del cliente Arquitectura de privacidad de conocimiento cero
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
+        PRIVACIDAD Y GARANTÍA DE SEGURIDAD POLÍTICA DE PRIVACIDAD
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
+        Por qué puedes comparar de forma segura credenciales de API de producción, JWT, registros de usuarios y JSON confidencial en JSONCompareOnline. Última actualización: noviembre de 2026. Por qué puedes difuminar de forma segura secretos de API de producción, registros de clientes y cargas propietarias.
+      </p>
+    </div>
+
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
+          1. Ejecución 100% en el navegador (Procesamiento remoto cero)
+        </h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
+          A diferencia de las herramientas de diff heredadas que envían tu texto a un servidor API o contenedor en la nube de terceros para calcular diferencias, JSONCompareOnline ejecuta todo el parser, el algoritmo Myers LCS y el generador de parches RFC 6902 dentro de tu sesión de navegador usando JavaScript Web Workers.
+        </p>
+        <p class="text-xs leading-relaxed mb-3">
+          JSON Compare Online (<a href="https://jsoncompareonline.com" class="underline text-[#111111] dark:text-[#f0f0f2]">jsoncompareonline.com</a>) está diseñado con una <strong>arquitectura de conocimiento cero</strong> sin compromisos. A diferencia de los servicios tradicionales de diff de texto en línea que transmiten tus fragmentos a APIs backend remotos, servidores en la nube o funciones sin servidor, nuestros servicios se ejecutan completamente dentro de tu sesión de navegador web local.
+        </p>
+        <p class="text-xs leading-relaxed">
+          Cuando pegas, subes, comparas, formateas, minimizas o conviertes documentos JSON, YAML, XML o CSV, tus datos de carga se procesan estrictamente en memoria usando JavaScript del lado del cliente y Web Workers dedicados. <strong>Ningún dato de carga se transmite, registra, almacena en caché o guarda en nuestros servidores.</strong>
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
+          2. Cómo puedes verificarlo tú mismo
+        </h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-3">
+          Animamos a todos los equipos de seguridad e ingenieros a verificar nuestra arquitectura de privacidad de forma independiente:
+        </p>
+        <p class="text-xs leading-relaxed mb-3">
+          Creemos que la privacidad debe ser comprobable, no solo afirmada. Puedes verificar de forma independiente nuestra garantía de transmisión de servidor cero usando las herramientas de desarrollador de cualquier navegador:
+        </p>
+        <ol class="list-decimal list-inside text-xs text-[#4b4b4d] dark:text-[#9ca3af] space-y-1.5">
+          <li>
+            Abre las herramientas de desarrollador de tu navegador (<kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]">F12</kbd> o <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]">Cmd+Option+I</kbd>).
+          </li>
+          <li>Ve a la pestaña <strong>Red</strong>.</li>
+          <li>
+            Pega cualquier carga JSON en los paneles de comparación izquierda y derecha y ejecuta un diff.
+          </li>
+          <li>
+            Observa que no se envían <strong>solicitudes HTTP POST/PUT</strong>.
+          </li>
+        </ol>
+        <p class="text-xs leading-relaxed">
+          Una vez cargados los recursos estáticos del sitio web (HTML, CSS, JS), todos los cálculos ocurren sin conexión. Incluso puedes desconectar tu conexión a Internet y la herramienta seguirá funcionando completamente.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
+          3. Sin cookies, sin rastreadores, sin huella digital
+        </h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
+          No almacenamos cookies en tu dispositivo, no usamos rastreadores de comportamiento de terceros ni guardamos estado en bases de datos remotas. Cuando cierras o actualizas la pestaña, tus datos JSON se borran por completo de la memoria del navegador.
+        </p>
+        <div class="space-y-3 text-xs leading-relaxed">
+          <p>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Datos de carga:</strong> No recopilamos, vemos, almacenamos, vendemos ni inspeccionamos ningún texto, código, cadenas de configuración o archivos ingresados en ninguna herramienta de este sitio.
+          </p>
+          <p>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Información personal:</strong> No requerimos cuentas de usuario, registro de correo electrónico, contraseñas, detalles de pago ni números de teléfono para usar nuestros servicios.
+          </p>
+          <p>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Cookies y rastreo:</strong> No implementamos cookies de rastreo publicitario, píxeles de seguimiento de comportamiento ni scripts de huella digital entre sitios.
+          </p>
+          <p>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Uso de almacenamiento local:</strong> Usamos la API estándar <code>localStorage</code> de tu navegador únicamente para preservar tu preferencia de tema de interfaz (<code>light</code> o <code>dark</code>). Ningún contenido de carga se almacena nunca en <code>localStorage</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          4. Cumplimiento normativo global (GDPR, CCPA, HIPAA)
+        </h2>
+        <p class="text-xs leading-relaxed mb-2">
+          Debido a que nunca transmitimos, procesamos ni almacenamos datos personales en sistemas remotos:
+        </p>
+        <ul class="list-disc list-inside text-xs space-y-1.5">
+          <li>
+            <strong>GDPR de la UE (Reglamento General de Protección de Datos):</strong> No actuamos como responsable del tratamiento ni como encargado del tratamiento de ningún dato pegado en el sitio. Tus datos permanecen únicamente dentro del perímetro de tu navegador.
+          </li>
+          <li>
+            <strong>CCPA de California (Ley de Privacidad del Consumidor de California):</strong> No vendemos, compartimos ni monetizamos la información personal del consumidor.
+          </li>
+          <li>
+            <strong>HIPAA y confidencialidad:</strong> Dado que la información de atención médica o los datos protegidos permanecen estrictamente dentro de la instancia local del navegador del usuario final, no se requiere ningún Acuerdo de Asociado Comercial (BAA) para el tránsito de datos.
+          </li>
+        </ul>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          5. Contacto para consultas de privacidad
+        </h2>
+        <p class="text-xs leading-relaxed mb-3">
+          Si tienes preguntas sobre esta Política de Privacidad, nuestro modelo de seguridad de navegador o la verificación de cumplimiento empresarial, contáctanos a través de nuestros canales oficiales:
+        </p>
+        <div class="flex items-center gap-4 text-xs font-mono">
+          <a
+            href="/es/contact"
+            class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors"
+          >
+            Contactar con soporte y oficial de privacidad
+          </a>
+          <span>o correo electrónico: privacy@jsoncompareonline.com</span>
+        </div>
+      </div>
+    </div>
+  </div></Layout
+>

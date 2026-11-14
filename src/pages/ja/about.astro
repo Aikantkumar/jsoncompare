@@ -1,0 +1,37 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "ホーム", item: "https://jsoncompareonline.com/ja" }, { "@type": "ListItem", position: 2, name: "私たちについて", item: "https://jsoncompareonline.com/ja/about" } ] };
+const aboutSchema = { "@context": "https://schema.org", "@type": "AboutPage", name: "JSON Compare Online について", url: "https://jsoncompareonline.com/ja/about", description: "JSON Compare Online の背後にある使命、エンジニアリング哲学、ゼロナレッジプライバシーアーキテクチャについて学びます。", mainEntity: { "@type": "Organization", name: "JSON Compare Online", url: "https://jsoncompareonline.com", logo: "https://jsoncompareonline.com/favicon.svg" } };
+---
+<Layout lang="ja" title="私たちについて — JSON Compare Online の背後にある物語とエンジニアリング" description="JSON Compare Online を支える使命、エンジニアリング原則、クライアント側ゼロナレッジアーキテクチャについて学びます。" canonicalPath="/about" activeTab="about" structuredData={[breadcrumbSchema, aboutSchema]}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>開発者ファースト哲学</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">JSON COMPARE ONLINE について</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">現代のソフトウェアエンジニア向けに、最速かつ最も信頼性が高く、真にプライベートな構造化データ差分と変換プラットフォームを構築します。</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">なぜ JSON Compare Online を構築したか</h2>
+        <p class="text-xs leading-relaxed mb-3">すべてのソフトウェアエンジニア、QA スペシャリスト、DevOps アーキテクト、データアナリストは、構造化データを常に比較しています。破壊的な REST API 回帰のデバッグ、ETL パイプライン出力の検証、Kubernetes Helm マニフェストのトラブルシューティングなど、2 つのデータペイロード間で正確に変更された内容を理解することは極めて重要です。</p>
+        <p class="text-xs leading-relaxed">しかし、従来のツールは 2 つの重要な点でエンジニアを失望させてきました。</p>
+        <ul class="list-disc list-inside text-xs space-y-1.5 mt-2">
+          <li><strong>テキストのみの誤検出：</strong>標準差分エンジンはテキスト行を比較します。API がオブジェクトキーを異なる順序でシリアル化したりインデントを変更したりすると、標準ツールは数百件の誤差分を強調表示します。</li>
+          <li><strong>深刻なセキュリティとプライバシーのリスク：</strong>従来のオンラインツールは、差分を計算するためにテキストスニペットをリモートクラウドサーバーにアップロードします。本番 API キー、顧客データベースレコード、独自の JSON 設定をこれらのツールに貼り付けることは、セキュリティ基準やコンプライアンス法に違反します。</li>
+        </ul>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-4">3 つのコア原則</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">🔍</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">セマンティック精度</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">JSON を抽象構文構文木（AST）にパースし、キーを自動ソートし、ユニーク識別子キーで配列要素を整合することで、実際のデータ変更のみを表示します。</p></div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">🛡️</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">サーバーゼロプライバシー</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">すべてがブラウザ内で Web Worker を使用して 100% ローカル実行されます。Cookie なし、リモートストレージなし、サードパーティトラッキングなし、データはデバイスから外に出ません。</p></div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">⚡</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">完全ツールセット</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">フォーマッタやバリダターから TypeScript ジェネレータ、RFC 6902 パッチ、YAML/XML/CSV コンバータまで、必要なものがすべて揃っています。</p></div>
+        </div>
+      </section>
+      <section class="p-6 rounded-2xl bg-white dark:bg-[#16181d] border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div><h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">フィードバック、アイデア、機能リクエストはありますか？</h3><p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">アルゴリズムを常に改善し、開発者ワークフローに貢献しています。</p></div>
+        <a href="/ja/contact" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0">チームに連絡</a>
+      </section>
+    </div>
+  </div>
+</Layout>

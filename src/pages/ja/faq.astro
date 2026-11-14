@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "ホーム", item: "https://jsoncompareonline.com/ja" }, { "@type": "ListItem", position: 2, name: "よくある質問", item: "https://jsoncompareonline.com/ja/faq" } ] };
+const faqs = [
+  { q: "2 つの JSON ファイルを比較する方法", a: "基準（左）と変更済み（右）の JSON ドキュメントをオンライン JSON 比較エディタに貼り付けるか、「ファイルを読み込む」をクリックしてコンピュータから .json ファイルをインポートします。「キーをソート」を有効にしてキー順序を無視し、差分を実行します。追加キーは緑、削除プロパティは赤、変更値は琥珀色で表示されます。並べ替え表示と統一表示を切り替え、検出されたすべての変更の RFC 6902 JSON パッチを 1 クリックでエクスポートします。" },
+  { q: "JSON 差分とは何ですか？", a: "JSON 差分（JSON diff）は、2 つの JSON ドキュメントを比較して正確に変更された内容を特定するプロセスです。追加キー、削除キー、変更値、タイプ変更、配列の挿入または削除です。セマンティック JSON 差分はドキュメント構造を解析し、プレーンテキストとして扱わないため、キーの再順序、空白変更、インデントの違いは誤検出を引き起こしません。" },
+  { q: "JSON は何に最適ですか？", a: "JSON（JavaScript オブジェクト表記）は、Web クライアントとサーバー間の軽量データ交換、REST API リクエストとレスポンスペイロード、package.json や tsconfig.json などの構成ファイル、NoSQL ドキュメントストレージ、フロントエンドアプリケーション状態に最適です。言語に依存せず、人間が読み取り可能で、すべての現代プログラミング言語でネイティブにサポートされています。" }
+];
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map(faq => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) };
+---
+<Layout lang="ja" title="JSON Compare よくある質問 | JSON Compare Online" description="セマンティック JSON 比較ツール、RFC 6902 パッチ、JSON キーソーター、クライアント側プライバシー、JSON コンバータに関するよくある質問。" keywords="json compare よくある質問, json オンライン比較, json ファイル比較方法, json 差分, json 比較ツール, rfc 6902 json パッチ, json キーソーター, json から typescript, json コンバータ, クライアント側 json 比較" canonicalPath="/faq" activeTab="faq" structuredData={[breadcrumbSchema, faqSchema]}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>ヘルプセンター</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">よくある質問</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">セマンティック差分アルゴリズム、開発者ツール、セキュリティアーキテクチャ、データコンバータについて必要な情報をすべてご覧いただけます。</p>
+    </div>
+    <section class="space-y-4">{faqs.map((faq) => (<details class="group bg-white dark:bg-[#14161b] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] p-5 [&_summary::-webkit-details-marker]:hidden cursor-pointer"><summary class="flex items-center justify-between font-semibold text-sm text-[#111111] dark:text-[#f0f0f2]"><span>{faq.q}</span><span class="ml-4 text-[#707072] dark:text-[#8e8e93] group-open:rotate-180 transition-transform"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span></summary><p class="mt-3 text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed border-t border-[#f5f5f5] dark:border-[#202228] pt-3">{faq.a}</p></details>))}</section>
+    <section class="mt-12 p-6 sm:p-8 rounded-2xl border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4"><div><h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">JSON を比較する準備はできていますか？</h3><p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">2 つの JSON ペイロードをすぐに差分比較——100% クライアント側、アップロード不要。</p></div><a href="/ja/" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0">JSON 比較ツールを開く</a></section>
+  </div>
+</Layout>

@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "首页", item: "https://jsoncompareonline.com/zh" }, { "@type": "ListItem", position: 2, name: "常见问题", item: "https://jsoncompareonline.com/zh/faq" } ] };
+const faqs = [
+  { q: "如何比较两个 JSON 文件", a: "将您的基准（左侧）和修改后（右侧）JSON 文档粘贴到我们的在线 JSON 比较编辑器中，或单击“加载文件”从计算机导入 .json 文件。保持“排序键”启用以忽略键顺序，然后运行差异。添加的键显示为绿色，删除的属性显示为红色，修改的值显示为琥珀色。在并排视图和统一视图之间切换，并单击一键导出 RFC 6902 JSON 补丁，包含所有检测到的更改。" },
+  { q: "什么是 JSON 差异？", a: "JSON 差异（JSON diff）是比较两个 JSON 文档以准确识别它们之间变化的过程——添加的键、删除的键、修改的值、类型更改以及数组插入或删除。语义化 JSON 差异分析文档结构，而不是将其视为纯文本，因此重新排序的键、空白更改和缩进差异不会触发误报。" },
+  { q: "JSON 最适合用于什么？", a: "JSON（JavaScript 对象表示法）最适合用于 Web 客户端和服务器之间的轻量级数据交换、REST API 请求和响应负载、package.json 和 tsconfig.json 等配置文件、NoSQL 文档存储以及前端应用程序状态。它与语言无关，人类可读，并且被每种现代编程语言原生支持。" }
+];
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map(faq => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) };
+---
+
+<Layout lang="zh" title="JSON Compare 常见问题 | JSON Compare Online" description="关于我们的语义化 JSON 比较工具、RFC 6902 补丁、JSON key 排序、客户端隐私和 JSON 转换器的常见问题。" keywords="json compare 常见问题, json 在线比较, 如何比较 json 文件, json 差异, json 比较工具, rfc 6902 json 补丁, json key 排序, json 转 typescript, json 转换器, 客户端 json 比较" canonicalPath="/faq" activeTab="faq" structuredData={[breadcrumbSchema, faqSchema]}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>帮助中心</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">常见问题</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">了解我们的语义化差异算法、开发者工具、安全架构和数据转换器所需的一切。</p>
+    </div>
+    <section class="space-y-4">
+      {faqs.map((faq) => (
+        <details class="group bg-white dark:bg-[#14161b] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] p-5 [&_summary::-webkit-details-marker]:hidden cursor-pointer"><summary class="flex items-center justify-between font-semibold text-sm text-[#111111] dark:text-[#f0f0f2]"><span>{faq.q}</span><span class="ml-4 text-[#707072] dark:text-[#8e8e93] group-open:rotate-180 transition-transform"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span></summary><p class="mt-3 text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed border-t border-[#f5f5f5] dark:border-[#202228] pt-3">{faq.a}</p></details>
+      ))}
+    </section>
+    <section class="mt-12 p-6 sm:p-8 rounded-2xl border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div><h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">准备好比较 JSON 了吗？</h3><p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">立即比较两个 JSON 负载——100% 客户端，无上传。</p></div>
+      <a href="/zh/" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0">打开 JSON 比较工具</a>
+    </section>
+  </div>
+</Layout>

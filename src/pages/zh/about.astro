@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "首页", item: "https://jsoncompareonline.com/zh" }, { "@type": "ListItem", position: 2, name: "关于我们", item: "https://jsoncompareonline.com/zh/about" } ] };
+const aboutSchema = { "@context": "https://schema.org", "@type": "AboutPage", name: "关于 JSON Compare Online", url: "https://jsoncompareonline.com/zh/about", description: "了解 JSON Compare Online 背后的使命、工程哲学和零知识隐私架构。", mainEntity: { "@type": "Organization", name: "JSON Compare Online", url: "https://jsoncompareonline.com", logo: "https://jsoncompareonline.com/favicon.svg" } };
+---
+
+<Layout lang="zh" title="关于我们 — JSON Compare Online 背后的故事与工程" description="了解驱动 JSON Compare Online 的使命、工程原则和客户端零知识架构。" canonicalPath="/about" activeTab="about" structuredData={[breadcrumbSchema, aboutSchema]}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>开发者优先哲学</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">关于 JSON COMPARE ONLINE</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">为现代软件工程师构建最快、最可靠且真正私有的结构化数据差异和转换平台。</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">为什么要构建 JSON Compare Online</h2>
+        <p class="text-xs leading-relaxed mb-3">每个软件工程师、QA 专家、DevOps 架构师和数据分析师都在不断比较结构化数据。无论是调试破坏性 REST API 回归、验证 ETL 管道输出，还是排查 Kubernetes Helm 清单问题，了解两个数据负载之间到底变化了什么都至关重要。</p>
+        <p class="text-xs leading-relaxed">然而，传统工具在两个关键方面令工程师失望：</p>
+        <ul class="list-disc list-inside text-xs space-y-1.5 mt-2">
+          <li><strong>纯文本误报：</strong>标准差异引擎按文本行比较。当 API 以不同顺序序列化对象键或更改缩进时，标准工具会突出数百个错误差异。</li>
+          <li><strong>严重的安全和隐私风险：</strong>传统在线工具会将您的文本片段上传到远程云服务器来计算差异。将生产 API 密钥、客户数据库记录或专有 JSON 配置粘贴到这些工具中会违反安全标准和合规性法律。</li>
+        </ul>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-4">我们的三大核心原则</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">🔍</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">语义精度</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">我们将 JSON 解析为抽象语法树，自动排序键，并按唯一标识符键对齐数组元素，因此您只能看到真正的数据变化。</p></div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">🛡️</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">服务器零隐私</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">一切在您的浏览器中使用现代 Web Worker 100% 本地运行。无 Cookie、无远程存储、无第三方跟踪，且没有数据离开您的设备。</p></div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">⚡</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">完整工具集</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">从格式化和验证到 TypeScript 生成器、RFC 6902 补丁和 YAML/XML/CSV 转换器，您所需的一切都在一处。</p></div>
+        </div>
+      </section>
+      <section class="p-6 rounded-2xl bg-white dark:bg-[#16181d] border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">有反馈、想法或功能请求？</h3>
+          <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">我们不断改进算法以更好地服务于开发者工作流。</p>
+        </div>
+        <a href="/zh/contact" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0">联系我们的团队</a>
+      </section>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,5 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ConverterApp from '../../../components/tools/ConverterApp';
+---
+<Layout lang="zh" title="在线 CSV 转 JSON 转换器 — 快速嵌套解析器和验证器" description="在线将电子表格数据和分析导出转换为数组对象或将对象扁平化为表格行，即时复制到剪贴板。" activeTab="converters" canonicalPath="/convert/csv-to-json"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"><div class="mb-8"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>DevOps 和配置</div><h1 class="text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">CSV 转 JSON 转换器</h1><p class="mt-2 text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl">将电子表格数据和分析导出转换为数组对象或将对象扁平化为表格行，无需通过网络发送数据。</p></div><ConverterApp client:load initialMode="csv-to-json" /></div></Layout>

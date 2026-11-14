@@ -1,0 +1,37 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "홈", item: "https://jsoncompareonline.com/ko" }, { "@type": "ListItem", position: 2, name: "회사 소개", item: "https://jsoncompareonline.com/ko/about" } ] };
+const aboutSchema = { "@context": "https://schema.org", "@type": "AboutPage", name: "JSON Compare Online 소개", url: "https://jsoncompareonline.com/ko/about", description: "JSON Compare Online의 미션, 엔지니어링 철학, 제로지식 개인정보 보호 아키텍처에 대해 알아보세요.", mainEntity: { "@type": "Organization", name: "JSON Compare Online", url: "https://jsoncompareonline.com", logo: "https://jsoncompareonline.com/favicon.svg" } };
+---
+<Layout lang="ko" title="회사 소개 — JSON Compare Online의 이야기와 엔지니어링" description="JSON Compare Online을 구동하는 미션, 엔지니어링 원칙 및 클라이언트 측 제로지식 아키텍처에 대해 알아보세요." canonicalPath="/about" activeTab="about" structuredData={[breadcrumbSchema, aboutSchema]}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>개발자 우선 철학</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">JSON COMPARE ONLINE 소개</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">현대 소프트웨어 엔지니어를 위한 가장 빠르고 안정적이며 진정한 비공개 구조화 데이터 비교 및 변환 플랫폼을 구축합니다.</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">JSON Compare Online을 구축한 이유</h2>
+        <p class="text-xs leading-relaxed mb-3">모든 소프트웨어 엔지니어, QA 전문가, DevOps 아키텍트, 데이터 분석가는 지속적으로 구조화된 데이터를 비교합니다. 파괴적인 REST API 회귀를 디버깅하고, ETL 파이프라인 출력을 검증하며, Kubernetes Helm 매니페스트를 문제 해결할 때 두 데이터 페이로드 간에 정확히 무엇이 변경되었는지 이해하는 것은 필수적입니다.</p>
+        <p class="text-xs leading-relaxed">그러나 기존 도구는 두 가지 중요한 측면에서 엔지니어를 실망시켜 왔습니다.</p>
+        <ul class="list-disc list-inside text-xs space-y-1.5 mt-2">
+          <li><strong>텍스트 전용 위양성:</strong> 표준 디프 엔진은 텍스트 행을 비교합니다. API가 객체 키를 다른 순서로 직렬화하거나 들여쓰기를 변경하면 표준 도구는 수백 개의 잘못된 차이를 강조 표시합니다.</li>
+          <li><strong>심각한 보안 및 개인정보 보호 위험:</strong> 기존 온라인 도구는 차이를 계산하기 위해 텍스트 스니펫을 원격 클라우드 서버에 업로드합니다. 프로덕션 API 키, 고객 데이터베이스 레코드 또는 독점 JSON 구성을 이러한 도구에 붙여넣는 것은 보안 표준 및 규정 준수 법률을 위반합니다.</li>
+        </ul>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-4">세 가지 핵심 원칙</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">🔍</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">시맨틱 정확성</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">JSON을 추상 구문 트리(AST)로 구문 분석하고, 키를 자동으로 정렬하며, 고유 식별자 키로 배열 요소를 정렬하여 실제 데이터 변경 사항만 표시합니다.</p></div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">🛡️</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">서버 제로 개인정보 보호</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">모든 것이 브라우저 내에서 현대적인 Web Worker를 사용하여 100% 로컬로 실행됩니다. 쿠키 없음, 원격 저장소 없음, 제삼자 추적 없음, 데이터는 기기를 떠나지 않습니다.</p></div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]"><span class="text-xl mb-1 block">⚡</span><h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">완전한 도구 세트</h3><p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">포맷터 및 검증기부터 TypeScript 생성기, RFC 6902 패치, YAML/XML/CSV 변환기까지 필요한 모든 것이 한곳에 있습니다.</p></div>
+        </div>
+      </section>
+      <section class="p-6 rounded-2xl bg-white dark:bg-[#16181d] border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div><h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">피드백, 아이디어 또는 기능 요청이 있으신가요?</h3><p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">더 나은 개발자 워크플로를 지원하기 위해 알고리즘을 지속적으로 개선하고 있습니다.</p></div>
+        <a href="/ko/contact" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0">팀에 문의하기</a>
+      </section>
+    </div>
+  </div>
+</Layout>

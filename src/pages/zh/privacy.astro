@@ -1,0 +1,35 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "首页", item: "https://jsoncompareonline.com/zh" }, { "@type": "ListItem", position: 2, name: "隐私政策", item: "https://jsoncompareonline.com/zh/privacy" } ] };
+---
+
+<Layout lang="zh" title="隐私与安全保证 — JSONCompareOnline 零服务器证明" description="了解 JSONCompareOnline 如何使用 Web Worker 在您的本地浏览器中 100% 运行。无日志、无遥测、无远程存储。" canonicalPath="/privacy" activeTab="privacy" structuredData={breadcrumbSchema}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#007d48] dark:text-[#34d399] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>客户端隐私架构 零知识隐私架构</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">隐私与安全保证 隐私政策</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">为什么您可以在 JSONCompareOnline 上安全比较生产 API 凭据、JWT、用户记录和敏感 JSON。最后更新：2026 年 11 月。</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">1. 100% 浏览器内执行（零远程处理）</h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">与将您的文本发送到 API 服务器或第三方云容器来计算差异的传统 diff 工具不同，JSONCompareOnline 在您的浏览器会话中使用 JavaScript Web Worker 运行整个解析器、Myers LCS 算法和 RFC 6902 补丁生成器。</p>
+        <p class="text-xs leading-relaxed">JSON Compare Online（<a href="https://jsoncompareonline.com" class="underline text-[#111111] dark:text-[#f0f0f2]">jsoncompareonline.com</a>）采用零知识架构设计，毫不妥协。与将您的片段传输到远程后端 API、云服务器或无服务器函数的传统在线文本差异服务不同，我们的实用工具完全在您的本地 Web 浏览器会话中运行。</p>
+        <p class="text-xs leading-relaxed">当您粘贴、上传、比较、格式化、压缩或转换 JSON、YAML、XML 或 CSV 文档时，您的负载数据严格使用客户端 JavaScript 和专用 Web Worker 在内存中处理。<strong>没有任何负载数据被传输、记录、缓存或存储在我们的服务器上。</strong></p>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">3. 无 Cookie、无跟踪器、无指纹识别</h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">我们不在您的设备上存储 Cookie，不使用第三方行为跟踪器，也不将状态保存到远程数据库。当您关闭或刷新标签页时，您的 JSON 数据将从浏览器内存中完全擦除。</p>
+        <div class="space-y-3 text-xs leading-relaxed">
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">负载数据：</strong>我们不会收集、查看、存储、出售或检查输入到本站点任何工具中的文本、代码、配置字符串或文件。</p>
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">个人信息：</strong>我们不要求用户帐户、电子邮件注册、密码、支付详细信息或电话号码来使用我们的服务。</p>
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">Cookie 和跟踪：</strong>我们不会部署广告跟踪 Cookie、行为跟踪像素或跨站点指纹识别脚本。</p>
+        </div>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">5. 隐私咨询联系人</h2>
+        <p class="text-xs leading-relaxed mb-3">如果您对本隐私政策、我们的浏览器安全模型或企业合规性验证有任何疑问，请通过我们的官方联系渠道联系：</p>
+        <div class="flex items-center gap-4 text-xs font-mono"><a href="/zh/contact" class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">联系支持和隐私官员</a><span>或电子邮件：privacy@jsoncompareonline.com</span></div>
+      </div>
+    </div>
+  </div></Layout>

@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout lang="ko" title="500 — 내부 오류 | JSON Compare Online" description="개발자 애플리케이션 실행 중 예상치 못한 오류가 발생했습니다. 복구 지침과 시스템 재설정 옵션을 확인하세요." canonicalPath="/500">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/40 text-[11px] font-mono text-amber-800 dark:text-amber-400 mb-6 border border-amber-200 dark:border-amber-900/60"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>HTTP 500 • 실행 예외</div>
+    <h1 class="text-6xl sm:text-7xl font-black tracking-tight text-[#111111] dark:text-[#f0f0f2] font-mono mb-4">500</h1>
+    <h2 class="text-xl sm:text-2xl font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">예상치 못한 실행 예외</h2>
+    <p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-md mx-auto leading-relaxed mb-8">처리 중 예상치 못한 오류가 발생했습니다. JSON Compare Online은 브라우저 내에서 실행되므로 매우 큰 페이로드가 브라우저 힙 메모리를 초과하거나 처리되지 않은 구문 루프에 도달하면 발생할 수 있습니다.</p>
+    <div class="flex flex-wrap items-center justify-center gap-4"><button id="reload-btn" class="px-6 py-2.5 rounded-full text-xs font-bold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer">페이지 새로 고침</button><button id="reset-storage-btn" class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors cursor-pointer">로컬 세션 재설정</button><a href="/ko/" class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors">홈으로</a></div>
+    <script is:inline>document.getElementById('reload-btn')?.addEventListener('click',()=>{window.location.reload();});document.getElementById('reset-storage-btn')?.addEventListener('click',()=>{try{localStorage.clear();sessionStorage.clear();alert('로컬 세션이 재설정되었습니다. 홈 페이지로 돌아갑니다.');window.location.href='/ko/';}catch(e){window.location.href='/ko/';}});</script>
+  </div>
+</Layout>

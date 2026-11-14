@@ -1,0 +1,160 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://jsoncompareonline.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "FAQ",
+      "item": "https://jsoncompareonline.com/faq"
+    }
+  ]
+};
+
+const faqs = [
+  {
+    q: "how to compare two json files",
+    a: "Paste your baseline (Left) and modified (Right) JSON documents into our online JSON compare editors, or click \"Load File\" to import .json files from your computer. Keep \"Sort Keys\" enabled so key ordering is ignored, then run the diff. Added keys appear green, removed properties appear red, and modified values appear amber. Switch between Side-by-Side and Unified views, and export a 1-click RFC 6902 JSON patch of all detected changes."
+  },
+  {
+    q: "What is JSON difference?",
+    a: "JSON difference (JSON diff) is the process of comparing two JSON documents to identify exactly what changed between them — added keys, removed keys, modified values, type changes, and array insertions or deletions. A semantic JSON diff parses the document structure rather than treating it as plain text, so reordered keys, whitespace changes, and indentation differences do not trigger false positives."
+  },
+  {
+    q: "What is JSON best for?",
+    a: "JSON (JavaScript Object Notation) is best for lightweight data interchange between web clients and servers, REST API request and response payloads, configuration files such as package.json and tsconfig.json, NoSQL document storage, and frontend application state. It is language-independent, human-readable, and natively supported by every modern programming language."
+  },
+  {
+    q: "How does semantic JSON compare differ from standard text diff?📑",
+    a: "Standard line-by-line diff tools treat JSON as plain text strings. If two JSON objects contain identical data but have different key ordering (for example, {\"a\":1, \"b\":2} versus {\"b\":2, \"a\":1}) or different whitespace formatting, standard text diff engines report dozens of false-positive discrepancies. Our semantic JSON compare diff parses the underlying AST (Abstract Syntax Tree), normalizes key ordering, and identifies true semantic additions, removals, and value mutations."
+  },
+  {
+    q: "Is it safe to run this online json compare tool with sensitive API payloads?📑",
+    a: "Yes, 100%. Security and developer privacy are our core architecture tenets. All parsing, key sorting, diffing, and conversions occur entirely client-side inside your browser sandbox via JavaScript and Web Workers. Zero bytes of your JSON or configuration files are uploaded to external servers, cloud databases, or third-party analytics."
+  },
+  {
+    q: "How does the built-in json key sorter improve json compare accuracy?📑",
+    a: "Modern microservices and NoSQL databases often output JSON documents with arbitrary object key ordering. By utilizing our deep recursive JSON key sorter, both JSON trees are ordered alphabetically prior to diffing. This isolates structural and value modifications from cosmetic ordering noise."
+  },
+  {
+    q: "What is an RFC 6902 JSON patch and how do I use it?📑",
+    a: "RFC 6902 is an IETF standard defining a JSON document format for expressing a sequence of operational transformations (add, remove, replace, move, copy, and test). Our JSON compare tool automatically generates compliant RFC 6902 JSON patch arrays that you can immediately supply to HTTP PATCH endpoints, Kubernetes controllers, or MongoDB updates."
+  },
+  {
+    q: "Can this json compare tool handle malformed or invalid JSON input?📑",
+    a: "Yes. In addition to a strict JSON validator, our platform features 1-click syntax auto-repair. It automatically fixes common syntax problems like trailing commas in objects and arrays, single quotes, missing quotes around keys, comments, and Python literals (True, False, None)."
+  },
+  {
+    q: "What data formats can I convert to and from JSON?",
+    a: "Our integrated converter suite supports seamless bi-directional conversion between JSON and other common serialization formats: YAML to JSON, JSON to YAML, XML to JSON, JSON to XML, CSV to JSON, and JSON to CSV. All converters process your data locally in your browser."
+  },
+  {
+    q: "Can I generate TypeScript interfaces directly from my JSON?",
+    a: "Yes. Our JSON to TypeScript tool analyzes your JSON structure, infers nested object schemas, primitive types, array item definitions, and nullable unions, producing clean, production-ready TypeScript interfaces ready to paste into your frontend or backend codebase."
+  }
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.a
+    }
+  }))
+};
+---
+
+<Layout
+  title="JSON Compare FAQ — Frequently Asked Questions | JSON Compare Online"
+  description="Frequently asked questions about our semantic JSON compare tool, RFC 6902 patches, JSON key sorter, client-side privacy, and JSON converters."
+  keywords="json compare faq, json compare online, how to compare json files, json difference, json compare tool, rfc 6902 json patch, json key sorter, json to typescript, json converter, client-side json compare"
+  canonicalPath="/faq"
+  activeTab="faq"
+  structuredData={[breadcrumbSchema, faqSchema]}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="mb-10">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>
+        Help Center
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
+        FREQUENTLY ASKED QUESTIONS
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
+        Everything you need to know about our semantic diff algorithms, developer tools, security architecture, and data converters.
+      </p>
+    </div>
+
+    <!-- FAQ Accordion -->
+    <section class="space-y-4">
+      {faqs.map((faq) => (
+        <details
+          class="group bg-white dark:bg-[#14161b] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] p-5 [&_summary::-webkit-details-marker]:hidden cursor-pointer"
+        >
+          <summary
+            class="flex items-center justify-between font-semibold text-sm text-[#111111] dark:text-[#f0f0f2]"
+          >
+            <span>{faq.q}</span>
+            <span
+              class="ml-4 text-[#707072] dark:text-[#8e8e93] group-open:rotate-180 transition-transform"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </span>
+          </summary>
+          <p class="mt-3 text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed border-t border-[#f5f5f5] dark:border-[#202228] pt-3">
+            {faq.a}
+          </p>
+        </details>
+      ))}
+    </section>
+
+    <!-- Related Tools CTA -->
+    <section
+      class="mt-12 p-6 sm:p-8 rounded-2xl border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4"
+    >
+      <div>
+        <h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">
+          Ready to compare JSON?
+        </h3>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">
+          Start diffing two JSON payloads instantly — 100% client-side, no uploads.
+        </p>
+      </div>
+      <a
+        href="/"
+        class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0"
+      >
+        Open JSON Compare Tool
+      </a>
+    </section>
+  </div>
+</Layout>

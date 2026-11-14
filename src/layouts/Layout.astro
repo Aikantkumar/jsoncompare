@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import { LANGUAGES, DEFAULT_LANG, langDir, hreflangUrl, otherLangs, LANG_LIST } from '../i18n';
 
 interface Props {
   title?: string;
@@ -12,6 +13,7 @@ interface Props {
   ogImage?: string;
   ogType?: string;
   structuredData?: Record<string, any> | Array<Record<string, any>>;
+  lang?: string;
 }
 
 const {
@@ -23,9 +25,12 @@ const {
   ogImage = '/og-image.png',
   ogType = 'website',
   structuredData,
+  lang = DEFAULT_LANG,
 } = Astro.props;
 
-const canonicalUrl = `https://jsoncompareonline.com${canonicalPath === '/' ? '' : canonicalPath}`;
+const langInfo = LANGUAGES[lang] ?? LANGUAGES[DEFAULT_LANG];
+const dir = langDir(lang);
+const canonicalUrl = `https://jsoncompareonline.com${dir}${canonicalPath === '/' ? '' : canonicalPath}`;
 const fullOgImageUrl = ogImage.startsWith('http')
   ? ogImage
   : `https://jsoncompareonline.com${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
@@ -71,7 +76,7 @@ const structuredDataItems = structuredData
 ---
 
 <!doctype html>
-<html lang="en" class="h-full scroll-smooth">
+<html lang={langInfo.code} class="h-full scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -85,6 +90,12 @@ const structuredDataItems = structuredData
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords} />
     <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Hreflang / alternate language markup -->
+    {LANG_LIST.map((l) => (
+      <link rel="alternate" hreflang={l.code} href={hreflangUrl(l.code, canonicalPath)} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={hreflangUrl(DEFAULT_LANG, canonicalPath)} />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#111111" />
@@ -96,7 +107,7 @@ const structuredDataItems = structuredData
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:site_name" content="JSON Compare Online" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={langInfo.locale} />
     <meta property="og:image" content={fullOgImageUrl} />
     <meta property="og:image:secure_url" content={fullOgImageUrl} />
     <meta property="og:image:type" content="image/png" />

@@ -1,0 +1,94 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import JsonCompareApp from '../../components/diff/JsonCompareApp';
+
+const features = [
+  { title: "语义化且无关键顺序依赖", desc: "自动归一化对象键顺序和空白。比较语义和数据变化，而非美观缩进。", badge: "语义化" },
+  { title: "按唯一 ID 对齐数组", desc: "按标识符（`id`、`uuid`、`key`）对齐数组元素，使插入行不会移位或打断整个序列。", badge: "智能匹配" },
+  { title: "RFC 6902 JSON 补丁", desc: "一键导出标准操作补丁（add、remove、replace、move），用于同步数据库或 API 模拟。", badge: "RFC 6902" },
+  { title: "一键智能语法修复", desc: "在比较前即时自动修复尾随逗号、单引号、未加引号键和 Python `True/False/None`。", badge: "自动修复" },
+  { title: "JSONPath 子查询比较", desc: "在比较前将高达 100k 行的响应过滤至目标节点（`$.items[*].sku`）。", badge: "JSONPath" },
+  { title: "100% 客户端隐私", desc: "所有计算在浏览器内执行。没有任何令牌、凭据或客户数据接触远程服务器。", badge: "私有" }
+];
+
+---
+
+<Layout
+  lang="zh"
+  title="JSON Compare Online — 快速、语义化且私有的 JSON 在线比较工具"
+  description="在线比较两个 JSON 对象或文件，支持语义化差异、键顺序独立、RFC 6902 补丁生成和零服务器上传隐私。"
+  keywords="json 在线比较, json 比较工具, json 比较差异, json 格式化, json 验证, json 压缩, json 补丁, json 转 typescript, json key 排序, yaml 转 json, json 转 yaml, xml 转 json, json 转 xml, csv 转 json, json 转 csv"
+  activeTab="compare"
+  canonicalPath="/"
+>
+  <section class="border-b border-[#e5e5e5] dark:border-[#22242a] bg-white dark:bg-[#000000] pt-8 pb-6 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#1eaa52]"></span>
+            语义化 JSON 差异引擎 • 100% 客户端隐私
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase leading-none">
+            在线语义化 JSON 比较
+          </h1>
+          <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl leading-relaxed">
+            现代的 <strong>json 比较工具</strong> 和语义化差异分析器。并排或统一比较两个 JSON 负载，归一化键，按 ID 对齐数组，并导出 RFC 6902 补丁，无需将数据上传至外部服务器。
+          </p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <a href="/zh/tools/json-formatter" class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">JSON 格式化</a>
+          <a href="/zh/tools/json-validator" class="px-4 py-2 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">JSON 验证</a>
+          <a href="/zh/tools/json-to-typescript" class="px-4 py-2 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors">JSON 转 TypeScript</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="bg-white dark:bg-[#000000] transition-colors"><JsonCompareApp client:load /></section>
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-10 text-center max-w-2xl mx-auto">
+      <span class="text-xs font-mono uppercase tracking-widest text-[#707072] dark:text-[#8e8e93]">面向现代开发者设计</span>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] dark:text-[#f0f0f2] mt-1">超越通用差异工具的设计</h2>
+      <p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] mt-2">比较配置文件、调试微服务响应，并生成符合 RFC 的补丁，无误报。</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {features.map((feat) => (
+        <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#cacacb] dark:hover:border-[#383d47] transition-all flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3"><span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1c1f26] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-medium">{feat.badge}</span></div>
+            <h3 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] tracking-tight mb-2">{feat.title}</h3>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">{feat.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+  <section class="bg-[#f5f5f5] dark:bg-[#111215] border-y border-[#e5e5e5] dark:border-[#22242a] py-14 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-[#111111] dark:text-[#f0f0f2]">全面数据转换套件</h2>
+          <p class="text-xs text-[#707072] dark:text-[#8e8e93] mt-0.5">无需离开浏览器标签页，即可在开发者实用工具之间切换。</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <a href="/zh/tools/json-formatter" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group"><span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON 格式化</span><span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">缩进与美化</span></a>
+        <a href="/zh/tools/json-validator" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group"><span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON 验证</span><span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">行诊断</span></a>
+        <a href="/zh/tools/json-minifier" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group"><span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON 压缩</span><span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">空白剥离</span></a>
+        <a href="/zh/tools/json-patch-generator" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group"><span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">RFC 6902 补丁</span><span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">操作性差异</span></a>
+        <a href="/zh/tools/json-to-typescript" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group"><span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">JSON 转 TS</span><span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">类型生成器</span></a>
+        <a href="/zh/convert/yaml-to-json" class="p-4 rounded-xl bg-white dark:bg-[#16181d] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] transition-all group"><span class="text-xs font-bold text-[#111111] dark:text-[#f0f0f2] block group-hover:underline">YAML ⇄ JSON</span><span class="text-[11px] text-[#707072] dark:text-[#8e8e93] mt-1 block">配置转换器</span></a>
+      </div>
+    </div>
+  </section>
+  <article class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-[#39393b] dark:text-[#d1d5db]">
+    <div class="space-y-12">
+      <header class="space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-xs font-mono text-[#39393b] dark:text-[#b5b5b8] border border-[#e5e5e5] dark:border-[#22242a]">开发者完整指南</div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2]">理解 JSON Compare：为什么语义化差异优于纯文本工具</h2>
+        <p class="text-sm sm:text-base leading-relaxed">在软件工程、分布式架构和 API 开发中，比较结构化数据是日常任务。开发人员经常依赖 Git diff 或 Unix diff 等传统工具时遇到令人沮丧的误报。标准文本差异将文档视为字符序列。如果 REST 端点返回的对象具有相同值但键重新排序，或使用制表符而非空格，文本比较会将每一行标记为修改。这时专用的 <strong>json 比较</strong> 引擎和 <strong>在线 json 比较</strong> 工具变得不可或缺。</p>
+        <p class="text-sm sm:text-base leading-relaxed">我们的在线 <strong>json 比较工具</strong> 实现语义树比较。我们的差异引擎将两个输入解析为抽象语法树（AST），协调结构节点，并进行深度 <strong>json 差异</strong> 比较。无论您是在调试微服务契约不匹配、验证暂存与生产数据库转储，还是跟踪前端 Redux 存储的状态更改，语义化差异都会揭示真实的添加、删除和值修改，同时忽略任意空白、缩进差异和键顺序。</p>
+      </header>
+    </div>
+  </article>
+</Layout>

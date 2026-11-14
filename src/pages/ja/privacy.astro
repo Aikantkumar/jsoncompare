@@ -1,0 +1,34 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "ホーム", item: "https://jsoncompareonline.com/ja" }, { "@type": "ListItem", position: 2, name: "プライバシーポリシー", item: "https://jsoncompareonline.com/ja/privacy" } ] };
+---
+<Layout lang="ja" title="プライバシーとセキュリティ保証 — JSONCompareOnline ゼロサーバー証明" description="JSONCompareOnline が Web Worker を使用してお客様のローカルブラウザ内で 100% 実行される仕組みについて学びます。ログなし、遥測なし、リモートストレージなし。" canonicalPath="/privacy" activeTab="privacy" structuredData={breadcrumbSchema}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#007d48] dark:text-[#34d399] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>クライアント側プライバシーアーキテクチャ ゼロナレッジプライバシーアーキテクチャ</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">プライバシーとセキュリティ保証 プライバシーポリシー</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">JSONCompareOnline で本番 API 認証情報、JWT、ユーザーレコード、機密 JSON を安全に比較できる理由。最終更新：2026 年 11 月。</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">1. 100% ブラウザ内実行（リモート処理ゼロ）</h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">従来の diff ツールが差分を計算するためにテキストを API サーバーやサードパーティクラウドコンテナに送信するのとは異なり、JSONCompareOnline は Web Worker を使用してお客様のブラウザセッション内でパーサー全体、Myers LCS アルゴリズム、RFC 6902 パッチジェネレータを実行します。</p>
+        <p class="text-xs leading-relaxed">JSON Compare Online（<a href="https://jsoncompareonline.com" class="underline text-[#111111] dark:text-[#f0f0f2]">jsoncompareonline.com</a>）は、ゼロナレッジアーキテクチャで設計されており、妥協はありません。お客様のスニペットをリモートバックエンド API、クラウドサーバー、サーバーレス関数に送信する従来のオンラインテキスト差分サービスとは異なり、当社のユーティリティはローカル Web ブラウザセッション内で完全に実行されます。</p>
+        <p class="text-xs leading-relaxed">JSON、YAML、XML、CSV ドキュメントを貼り付け、アップロード、比較、フォーマット、ミニファイ、変換する際、お客様のペイロードデータはクライアントサイド JavaScript と専用 Web Worker を使用してメモリ内で厳密に処理されます。<strong>ペイロードデータが当社サーバーに送信、ログ記録、キャッシュ、保存されることは決してありません。</strong></p>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">3. Cookie なし、トラッキングなし、フィンガープリントなし</h2>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">お客様のデバイスに Cookie を保存したり、サードパーティの行動トラッキングを使用したり、リモートデータベースに状態を保存したりすることはありません。タブを閉じたり更新したりすると、JSON データはブラウザメモリから完全に消去されます。</p>
+        <div class="space-y-3 text-xs leading-relaxed">
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">ペイロードデータ：</strong>本サイトの任意のツールに入力されたテキスト、コード、設定文字列、ファイルを収集、閲覧、保存、販売、検査することはありません。</p>
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">個人情報：</strong>当社のサービスをご利用いただく際に、ユーザーアカウント、メール登録、パスワード、支払い情報、電話番号は必要ありません。</p>
+          <p><strong class="text-[#111111] dark:text-[#f0f0f2]">Cookie とトラッキング：</strong>広告トラッキング Cookie、行動トラッキングピクセル、クロスサイトフィンガープリントスクリプトは配布していません。</p>
+        </div>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">5. プライバシーに関するお問い合わせ</h2>
+        <p class="text-xs leading-relaxed mb-3">本プライバシーポリシー、ブラウザセキュリティモデル、エンタープライズコンプライアンスの検証についてご質問がある場合は、公式連絡先までお問い合わせください。</p>
+        <div class="flex items-center gap-4 text-xs font-mono"><a href="/ja/contact" class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">サポートおよびプライバシー責任者にお問い合わせ</a><span>またはメール：privacy@jsoncompareonline.com</span></div>
+      </div>
+    </div>
+  </div></Layout>

@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "ホーム", item: "https://jsoncompareonline.com/ja" }, { "@type": "ListItem", position: 2, name: "利用規約", item: "https://jsoncompareonline.com/ja/terms" } ] };
+---
+<Layout lang="ja" title="利用規約 — JSON Compare Online" description="JSON Compare Online の利用規約をお読みください。無料、オープン、クライアント側の開発者ツール、明確な利用ガイドライン付き。" canonicalPath="/terms" activeTab="terms" structuredData={breadcrumbSchema}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>サービス利用規約</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">利用規約</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">最終更新：2026 年 11 月。jsoncompareonline.com のご利用を管理するこれらの規約をご確認ください。</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">1. 規約への同意</h2>
+        <p class="text-xs leading-relaxed">JSON Compare Online（<a href="https://jsoncompareonline.com" class="underline text-[#111111] dark:text-[#f0f0f2]">jsoncompareonline.com</a>）にアクセスし利用することで、これらの規約および当社のプライバシーポリシーに拘束されることに同意したものとみなされます。すべての規約に同意できない場合は、直ちに当社サービスの利用を中止してください。</p>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">2. 許可された使用と開発者ライセンス</h2>
+        <p class="text-xs leading-relaxed mb-3">JSON Compare Online は、データペイロードのフォーマット、検証、比較、圧縮、変換を行う Web ベースの開発者ツールを提供します。これらのツールは、個人および商用のエンジニアリングプロジェクトに無料でご利用いただけます。</p>
+        <p class="text-xs leading-relaxed">当社ウェブサイトの可用性を妨害したり、悪意のあるスクリプトを注入したり、適用法に違反して保護されたアセットをリバースエンジニアリングしたりすることは同意いただけません。</p>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">3. データの所有権</h2>
+        <p class="text-xs leading-relaxed">お客様は、本ウェブサイトの任意のツールに入力されたすべてのデータ、JSON 文字列、設定、ファイルの知的財産権を 100% 保有します。当社のツールはファイルを当社サーバーにアップロードすることなくクライアントブラウザ内でのみ実行されるため、お客様のデータおよびその差分出力に対する所有権、権利、主張は一切ありません。</p>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">6. お問い合わせと法的なご質問</h2>
+        <p class="text-xs leading-relaxed mb-3">これらの利用規約またはライセンスに関するご質問がある場合は、お問い合わせください。</p>
+        <div class="flex items-center gap-4 text-xs font-mono"><a href="/ja/contact" class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">サポートチームにお問い合わせ</a><span>またはメール：legal@jsoncompareonline.com</span></div>
+      </section>
+    </div>
+  </div>
+</Layout>

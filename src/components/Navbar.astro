@@ -4,7 +4,16 @@ interface Props {
 }
 
 const { activeTab = "" } = Astro.props;
+
+import { LANGUAGES, DEFAULT_LANG } from '../i18n';
+
+const currentPath = Astro.url.pathname;
+const currentLangInfo = Object.values(LANGUAGES).find((l) => l.dir && currentPath.startsWith(`/${l.dir}/`));
+const currentLang = currentLangInfo?.code ?? DEFAULT_LANG;
+const currentDir = currentLangInfo?.dir ?? '';
+const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`), '') || '/' : currentPath;
 ---
+
 
 <header
   id="site-header"
@@ -277,6 +286,17 @@ const { activeTab = "" } = Astro.props;
       </a>
 
       <a
+        href="/faq"
+        class={`px-3 py-1.5 rounded-full transition-colors ${
+          activeTab === "faq"
+            ? "bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]"
+            : "hover:bg-[#f5f5f5] hover:text-[#111111] dark:hover:bg-[#18191d] dark:hover:text-[#f0f0f2]"
+        }`}
+      >
+        FAQ
+      </a>
+
+      <a
         href="/privacy"
         class={`px-3 py-1.5 rounded-full transition-colors ${
           activeTab === "privacy"
@@ -289,6 +309,20 @@ const { activeTab = "" } = Astro.props;
 
     <!-- Right Action CTAs & Theme Toggle -->
     <div class="flex items-center gap-2.5">
+      <!-- Language Switcher -->
+      <select
+        id="lang-switcher"
+        data-current-dir={currentDir}
+        data-base-path={basePath}
+        class="text-xs text-[#39393b] dark:text-[#b5b5b8] bg-white dark:bg-[#16181d] border border-[#cacacb] dark:border-[#2b2d35] rounded-full px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2] cursor-pointer"
+      >
+        {Object.values(LANGUAGES).map((l) => (
+          <option value={l.dir ? `/${l.dir}` : ''} selected={l.code === currentLang}>
+            {l.nativeName}
+          </option>
+        ))}
+      </select>
+
       <!-- Dark / Light Mode Toggle Button -->
       <button
         id="theme-toggle"
@@ -431,5 +465,18 @@ const { activeTab = "" } = Astro.props;
       },
       { passive: true },
     );
+  })();
+</script>
+
+<script is:inline>
+  (function () {
+    const select = document.getElementById('lang-switcher');
+    if (!select) return;
+    const currentDir = select.getAttribute('data-current-dir') || '';
+    const basePath = select.getAttribute('data-base-path') || '/';
+    select.onchange = function () {
+      const dir = select.value;
+      window.location.href = (dir ? dir : '') + basePath;
+    };
   })();
 </script>

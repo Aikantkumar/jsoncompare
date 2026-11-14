@@ -1,0 +1,156 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Inicio",
+      "item": "https://jsoncompareonline.com/es"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Preguntas frecuentes",
+      "item": "https://jsoncompareonline.com/es/faq"
+    }
+  ]
+};
+
+const faqs = [
+  {
+    q: "cómo comparar dos archivos json",
+    a: "Pega tus documentos de referencia (Izquierda) y modificados (Derecha) en nuestros editores online de comparación JSON, o haz clic en \"Cargar archivo\" para importar archivos .json de tu computadora. Mantén activado \"Ordenar claves\" para ignorar el orden de claves, luego ejecuta el diff. Las claves añadidas aparecen verdes, las propiedades eliminadas rojas y los valores modificados ámbar. Cambia entre vistas Lado a lado y Unificado, y exporta un parche JSON RFC 6902 con un clic de todos los cambios detectados."
+  },
+  {
+    q: "¿Qué es la diferencia JSON?",
+    a: "La diferencia JSON (JSON diff) es el proceso de comparar dos documentos JSON para identificar exactamente qué cambió entre ellos: claves añadidas, claves eliminadas, valores modificados, cambios de tipo e inserciones o eliminaciones de array. Un diff semántico JSON analiza la estructura del documento en lugar de tratarlo como texto plano, por lo que las claves reordenadas, los cambios de espacios en blanco y las diferencias de indentación no activan falsos positivos."
+  },
+  {
+    q: "¿Para qué es mejor JSON?",
+    a: "JSON (JavaScript Object Notation) es ideal para el intercambio ligero de datos entre clientes web y servidores, cargas de solicitud y respuesta de API REST, archivos de configuración como package.json y tsconfig.json, almacenamiento de documentos NoSQL y estado de aplicaciones frontend. Es independiente del lenguaje, legible por humanos y nativamente compatible con todos los lenguajes de programación modernos."
+  },
+  {
+    q: "¿En qué se diferencia la comparación semántica JSON del diff de texto estándar?",
+    a: "Las herramientas de diff de línea por línea estándar tratan el JSON como cadenas de texto plano. Si dos objetos JSON contienen datos idénticos pero tienen un orden de claves diferente (por ejemplo, {\"a\":1, \"b\":2} versus {\"b\":2, \"a\":1}) o un formato de espacios en blanco diferente, los motores de diff de texto estándar reportan decenas de falsos positivos. Nuestra comparación semántica JSON parsea el AST subyacente (Árbol de Sintaxis Abstracta), normaliza el orden de claves e identifica adiciones, eliminaciones y mutaciones de valor verdaderas."
+  },
+  {
+    q: "¿Es seguro usar esta herramienta online de comparación JSON con cargas de API sensibles?",
+    a: "Sí, al 100%. La seguridad y la privacidad del desarrollador son los principios básicos de nuestra arquitectura. Todo el análisis, el ordenamiento de claves, la comparación y las conversiones ocurren completamente del lado del cliente dentro del entorno aislado de tu navegador mediante JavaScript y Web Workers. Ningún byte de tus JSON o archivos de configuración se sube a servidores externos, bases de datos en la nube ni análisis de terceros."
+  },
+  {
+    q: "¿Cómo mejora la precisión de comparación JSON el ordenador de claves JSON integrado?",
+    a: "Los microservicios modernos y las bases de datos NoSQL suelen generar documentos JSON con un orden de claves arbitrario. Utilizando nuestro ordenador de claves JSON profundo y recursivo, ambos árboles JSON se ordenan alfabéticamente antes de la comparación. Esto aísla las modificaciones estructurales y de valor del ruido de orden cosmético."
+  },
+  {
+    q: "¿Qué es un parche JSON RFC 6902 y cómo lo uso?",
+    a: "RFC 6902 es un estándar de IETF que define un formato de documento JSON para expresar una secuencia de transformaciones operativas (add, remove, replace, move, copy y test). Nuestra herramienta de comparación JSON genera automáticamente matrices de parche JSON RFC 6902 compatibles que puedes suministrar inmediatamente a puntos finales PATCH HTTP, controladores de Kubernetes o actualizaciones de MongoDB."
+  },
+  {
+    q: "¿Puede esta herramienta de comparación JSON manejar entrada JSON mal formada o no válida?",
+    a: "Sí. Además de un validador JSON estricto, nuestra plataforma cuenta con reparación automática de sintaxis con un clic. Corrige automáticamente problemas comunes de sintaxis como comas finales en objetos y arrays, comillas simples, comillas faltantes alrededor de claves, comentarios y literales de Python (True, False, None)."
+  },
+  {
+    q: "¿Qué formatos de datos puedo convertir a y desde JSON?",
+    a: "Nuestro conjunto integrado de conversores admite conversión bidireccional fluida entre JSON y otros formatos de serialización comunes: YAML a JSON, JSON a YAML, XML a JSON, JSON a XML, CSV a JSON y JSON a CSV. Todos los conversores procesan tus datos localmente en tu navegador."
+  },
+  {
+    q: "¿Puedo generar interfaces de TypeScript directamente desde mi JSON?",
+    a: "Sí. Nuestra herramienta JSON a TypeScript analiza la estructura de tu JSON, infiere esquemas de objetos anidados, tipos primitivos, definiciones de elementos de array y uniones nullable, produciendo interfaces TypeScript limpias y listas para producción que puedes pegar en tu código base frontend o backend."
+  }
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.a
+    }
+  }))
+};
+---
+
+<Layout
+  lang="es"
+  title="Preguntas frecuentes de JSON Compare | JSON Compare Online"
+  description="Preguntas frecuentes sobre nuestra herramienta semántica de comparación JSON, parches RFC 6902, ordenador de claves JSON, privacidad del lado del cliente y conversores JSON."
+  keywords="preguntas frecuentes json compare, comparador json online, cómo comparar archivos json, diferencia json, herramienta json compare, parche json rfc 6902, ordenador de claves json, json a typescript, convertidor json, comparación json del lado del cliente"
+  canonicalPath="/faq"
+  activeTab="faq"
+  structuredData={[breadcrumbSchema, faqSchema]}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>
+        Centro de ayuda
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
+        PREGUNTAS FRECUENTES
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
+        Todo lo que necesitas saber sobre nuestros algoritmos de diff semántico, herramientas para desarrolladores, arquitectura de seguridad y conversores de datos.
+      </p>
+    </div>
+
+    <section class="space-y-4">
+      {faqs.map((faq) => (
+        <details
+          class="group bg-white dark:bg-[#14161b] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] p-5 [&_summary::-webkit-details-marker]:hidden cursor-pointer"
+        >
+          <summary
+            class="flex items-center justify-between font-semibold text-sm text-[#111111] dark:text-[#f0f0f2]"
+          >
+            <span>{faq.q}</span>
+            <span
+              class="ml-4 text-[#707072] dark:text-[#8e8e93] group-open:rotate-180 transition-transform"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </span>
+          </summary>
+          <p class="mt-3 text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed border-t border-[#f5f5f5] dark:border-[#202228] pt-3">
+            {faq.a}
+          </p>
+        </details>
+      ))}
+    </section>
+
+    <section
+      class="mt-12 p-6 sm:p-8 rounded-2xl border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4"
+    >
+      <div>
+        <h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">
+          ¿Listo para comparar JSON?
+        </h3>
+        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">
+          Empieza a hacer diff de dos cargas JSON al instante — 100% del lado del cliente, sin subidas.
+        </p>
+      </div>
+      <a
+        href="/es/"
+        class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0"
+      >
+        Abrir herramienta de comparación JSON
+      </a>
+    </section>
+  </div>
+</Layout>

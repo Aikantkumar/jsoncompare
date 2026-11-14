@@ -1,0 +1,5 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import JsonFormatterApp from '../../../components/tools/JsonFormatterApp';
+---
+<Layout lang="zh" title="在线 JSON 格式化 — 免费、私有、即时缩进" description="在线格式化、美化和排序 JSON 键，支持自定义缩进（2 空格、4 空格、制表符）和自动语法错误修复。" activeTab="tools" canonicalPath="/tools/json-formatter"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"><div class="mb-8"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>开发者实用工具</div><h1 class="text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">JSON 格式化与美化</h1><p class="mt-2 text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl">清理紧凑、最小化或杂乱的 JSON。可配置间距、深度字母顺序键排序和一键语法自动修复。在浏览器中 100% 本地运行。</p></div><JsonFormatterApp client:load /></div></Layout>

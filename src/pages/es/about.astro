@@ -1,0 +1,162 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Inicio",
+      item: "https://jsoncompareonline.com/es",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Sobre nosotros",
+      item: "https://jsoncompareonline.com/es/about",
+    },
+  ],
+};
+
+const aboutSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "Acerca de JSON Compare Online",
+  url: "https://jsoncompareonline.com/es/about",
+  description:
+    "Conoce la misión, la filosofía de ingeniería y la arquitectura de privacidad de conocimiento cero detrás de JSON Compare Online.",
+  mainEntity: {
+    "@type": "Organization",
+    name: "JSON Compare Online",
+    url: "https://jsoncompareonline.com",
+    logo: "https://jsoncompareonline.com/favicon.svg",
+  },
+};
+---
+
+<Layout
+  lang="es"
+  title="Sobre nosotros — La historia e ingeniería detrás de JSON Compare Online"
+  description="Conoce la misión, los principios de ingeniería y la arquitectura del lado del cliente de conocimiento cero que impulsa JSON Compare Online."
+  canonicalPath="/about"
+  activeTab="about"
+  structuredData={[breadcrumbSchema, aboutSchema]}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
+        Filosofía centrada en el desarrollador
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
+        ACERCA DE JSON COMPARE ONLINE
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
+        Construyendo la plataforma de comparación y conversión de datos estructurados más rápida, fiable y verdaderamente privada para ingenieros de software modernos.
+      </p>
+    </div>
+
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          Por qué construimos JSON Compare Online
+        </h2>
+        <p class="text-xs leading-relaxed mb-3">
+          Todo ingeniero de software, especialista en QA, arquitecto DevOps y analista de datos compara datos estructurados constantemente. Ya sea depurando una regresión de API REST, verificando la salida de un pipeline ETL o solucionando problemas de manifiestos Helm de Kubernetes, entender exactamente qué cambió entre dos cargas de datos es fundamental.
+        </p>
+        <p class="text-xs leading-relaxed">
+          Sin embargo, las herramientas tradicionales han fallado a los ingenieros en dos aspectos críticos:
+        </p>
+        <ul class="list-disc list-inside text-xs space-y-1.5 mt-2">
+          <li>
+            <strong>Falsos positivos de solo texto:</strong> Los motores de diff estándar comparan líneas de texto. Cuando un API serializa las claves de un objeto en un orden diferente o cambia la indentación, las herramientas estándar destacan cientos de diferencias falsas.
+          </li>
+          <li>
+            <strong>Riesgos graves de seguridad y privacidad:</strong> Las herramientas en línea heredadas suben tus fragmentos de texto a servidores remotos en la nube para calcular diferencias. Pegar claves de API de producción, registros de clientes o configuraciones JSON propietarias en esas herramientas viola estándares de seguridad y leyes de cumplimiento.
+          </li>
+        </ul>
+      </section>
+
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-4">
+          Nuestros tres principios fundamentales
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]">
+            <span class="text-xl mb-1 block">🔍</span>
+            <h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">
+              Precisión semántica
+            </h3>
+            <p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
+              Parseamos JSON en Árboles de Sintaxis Abstracta, ordenamos claves automáticamente y alineamos elementos de array por claves identificadoras únicas para que solo veas cambios reales de datos.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]">
+            <span class="text-xl mb-1 block">🛡️</span>
+            <h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">
+              Privacidad de servidor cero
+            </h3>
+            <p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
+              Todo se ejecuta al 100% localmente en tu navegador usando Web Workers modernos. Sin cookies, sin almacenamiento remoto, sin rastreo de terceros y ningún dato sale de tu dispositivo.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#e5e5e5] dark:border-[#272a30]">
+            <span class="text-xl mb-1 block">⚡</span>
+            <h3 class="font-bold text-xs text-[#111111] dark:text-[#f0f0f2] mb-1">
+              Kit de herramientas completo
+            </h3>
+            <p class="text-[11px] text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
+              Desde formateadores y validadores hasta generadores de TypeScript, parches RFC 6902 y conversores YAML/XML/CSV, todo lo que necesitas está bajo un mismo techo.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          Stack de ingeniería web moderno
+        </h2>
+        <p class="text-xs leading-relaxed mb-3">
+          JSON Compare Online está diseñado para un rendimiento ultrarrápido, respuesta instantánea y una huella mínima:
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+          <div class="p-3 rounded-lg bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35]">
+            <span class="block text-[#707072] dark:text-[#8e8e93] text-[10px]">Framework</span>
+            <span class="font-bold text-[#111111] dark:text-[#f0f0f2]">Astro SSG</span>
+          </div>
+          <div class="p-3 rounded-lg bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35]">
+            <span class="block text-[#707072] dark:text-[#8e8e93] text-[10px]">UI Islands</span>
+            <span class="font-bold text-[#111111] dark:text-[#f0f0f2]">Preact</span>
+          </div>
+          <div class="p-3 rounded-lg bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35]">
+            <span class="block text-[#707072] dark:text-[#8e8e93] text-[10px]">Estilos</span>
+            <span class="font-bold text-[#111111] dark:text-[#f0f0f2]">Tailwind CSS v4</span>
+          </div>
+          <div class="p-3 rounded-lg bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35]">
+            <span class="block text-[#707072] dark:text-[#8e8e93] text-[10px]">Concurrencia</span>
+            <span class="font-bold text-[#111111] dark:text-[#f0f0f2]">Web Workers</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="p-6 rounded-2xl bg-white dark:bg-[#16181d] border border-[#111111] dark:border-[#f0f0f2] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2]">
+            ¿Tienes comentarios, ideas o solicitudes de funciones?
+          </h3>
+          <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-0.5">
+            Estamos mejorando constantemente nuestros algoritmos para servir mejor los flujos de trabajo de desarrolladores.
+          </p>
+        </div>
+        <a
+          href="/es/contact"
+          class="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shrink-0"
+        >
+          Contactar con nuestro equipo
+        </a>
+      </section>
+    </div>
+  </div>
+</Layout>

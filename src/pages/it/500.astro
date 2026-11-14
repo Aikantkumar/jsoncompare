@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout lang="it" title="500 — Errore interno | JSON Compare Online" description="Si è verificato un errore inaspettato durante l'esecuzione dell'applicazione per sviluppatori. Esplora le istruzioni di recupero e le opzioni di reset del sistema." canonicalPath="/500">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/40 text-[11px] font-mono text-amber-800 dark:text-amber-400 mb-6 border border-amber-200 dark:border-amber-900/60"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>HTTP 500 • Eccezione di esecuzione</div>
+    <h1 class="text-6xl sm:text-7xl font-black tracking-tight text-[#111111] dark:text-[#f0f0f2] font-mono mb-4">500</h1>
+    <h2 class="text-xl sm:text-2xl font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">Eccezione di esecuzione inaspettata</h2>
+    <p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-md mx-auto leading-relaxed mb-8">Si è verificato un errore inaspettato durante l'elaborazione. Poiché JSON Compare Online esegue nel browser, ciò può accadere se un payload eccezionalmente massiccio supera la memoria heap del browser o raggiunge un loop di sintassi non gestito.</p>
+    <div class="flex flex-wrap items-center justify-center gap-4"><button id="reload-btn" class="px-6 py-2.5 rounded-full text-xs font-bold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer">Ricarica pagina</button><button id="reset-storage-btn" class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors cursor-pointer">Resetta sessione locale</button><a href="/it/" class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors">Home</a></div>
+    <script is:inline>document.getElementById('reload-btn')?.addEventListener('click',()=>{window.location.reload();});document.getElementById('reset-storage-btn')?.addEventListener('click',()=>{try{localStorage.clear();sessionStorage.clear();alert('Sessione locale resettata. Ritorno alla home page.');window.location.href='/it/';}catch(e){window.location.href='/it/';}});</script>
+  </div>
+</Layout>

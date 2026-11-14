@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  lang="es"
+  title="500 — Error interno | JSON Compare Online"
+  description="Ocurrió un error inesperado al ejecutar la aplicación para desarrolladores. Explora las instrucciones de recuperación y las opciones de restablecimiento del sistema."
+  canonicalPath="/500"
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/40 text-[11px] font-mono text-amber-800 dark:text-amber-400 mb-6 border border-amber-200 dark:border-amber-900/60">
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+      HTTP 500 • Excepción de ejecución
+    </div>
+
+    <h1 class="text-6xl sm:text-7xl font-black tracking-tight text-[#111111] dark:text-[#f0f0f2] font-mono mb-4">
+      500
+    </h1>
+    <h2 class="text-xl sm:text-2xl font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+      Excepción de ejecución inesperada
+    </h2>
+    <p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-md mx-auto leading-relaxed mb-8">
+      Ocurrió un error inesperado durante el procesamiento. Debido a que JSON Compare Online se ejecuta en el navegador, puede ocurrir si una carga excepcionalmente masiva excedió la memoria del montón del navegador o llegó a un bucle de sintaxis no controlado.
+    </p>
+
+    <div class="max-w-md mx-auto mb-10 text-left font-mono text-xs p-4 rounded-xl bg-[#12141a] text-[#e4e4e7] border border-[#232630] shadow-lg">
+      <div class="text-[#71717a] mb-1">// 500_runtime_exception.json</div>
+      <div>&#123;</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"status"</span>: <span class="text-[#f87171]">500</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"error"</span>: <span class="text-[#fbbf24]">"ExecutionException"</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"remedy"</span>: <span class="text-[#34d399]">"Recarga la página o restablece la sesión de memoria del navegador"</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"zero_data_loss"</span>: <span class="text-[#a78bfa]">true</span></div>
+      <div>&#125;</div>
+    </div>
+
+    <div class="max-w-md mx-auto mb-10 text-left p-5 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+      <span class="text-xs uppercase tracking-wider font-mono font-bold text-[#111111] dark:text-[#f0f0f2] block mb-2">
+        Solución de problemas recomendada
+      </span>
+      <ul class="list-disc list-inside text-xs text-[#4b4b4d] dark:text-[#9ca3af] space-y-1.5">
+        <li>Actualiza la ventana del navegador para asignar una instancia limpia de Web Worker.</li>
+        <li>Para cargas masivas (>50MB), filtra con JSONPath antes de hacer diff.</li>
+        <li>Usa "Corrección inteligente" para reparar la sintaxis mal formada antes del análisis completo.</li>
+      </ul>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <button
+        id="reload-btn"
+        class="px-6 py-2.5 rounded-full text-xs font-bold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
+      >
+        Recargar página
+      </button>
+      <button
+        id="reset-storage-btn"
+        class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors cursor-pointer"
+      >
+        Restablecer sesión local
+      </button>
+      <a
+        href="/es/"
+        class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors"
+      >
+        Ir a Inicio
+      </a>
+    </div>
+
+    <script is:inline>
+      document.getElementById('reload-btn')?.addEventListener('click', () => {
+        window.location.reload();
+      });
+
+      document.getElementById('reset-storage-btn')?.addEventListener('click', () => {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+          alert('Sesión local restablecida. Volviendo a la página principal.');
+          window.location.href = '/es/';
+        } catch (e) {
+          window.location.href = '/es/';
+        }
+      });
+    </script>
+  </div>
+</Layout>

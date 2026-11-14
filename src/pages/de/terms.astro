@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const breadcrumbSchema = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [ { "@type": "ListItem", position: 1, name: "Startseite", item: "https://jsoncompareonline.com/de" }, { "@type": "ListItem", position: 2, name: "AGB", item: "https://jsoncompareonline.com/de/terms" } ] };
+---
+<Layout lang="de" title="AGB — JSON Compare Online" description="Lesen Sie die AGB von JSON Compare Online. Kostenlose, offene, clientseitige Entwickler-Utilities mit klaren Nutzungshinweisen." canonicalPath="/terms" activeTab="terms" structuredData={breadcrumbSchema}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>Nutzungsbedingungen</div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">AGB</h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">Letzte Aktualisierung: November 2026. Bitte überprüfen Sie diese Bedingungen, die Ihre Nutzung von jsoncompareonline.com regeln.</p>
+    </div>
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">1. Zustimmung zu den Bedingungen</h2>
+        <p class="text-xs leading-relaxed">Durch den Zugriff auf und die Nutzung von JSON Compare Online (<a href="https://jsoncompareonline.com" class="underline text-[#111111] dark:text-[#f0f0f2]">jsoncompareonline.com</a>) stimmen Sie diesen AGB und unserer Datenschutzerklärung zu. Wenn Sie allen Bedingungen nicht zustimmen, stellen Sie die Nutzung unserer Dienste unverzüglich ein.</p>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">2. Erlaubte Nutzung & Entwickler-Lizenz</h2>
+        <p class="text-xs leading-relaxed mb-3">JSON Compare Online stellt webbasierte Entwickler-Utilities zum Formatieren, Validieren, Vergleichen, Minimieren und Konvertieren von Daten-Nutzlasten bereit. Diese Tools sind kostenlos für persönliche und kommerzielle Ingenieurbereitstellungen verfügbar.</p>
+        <p class="text-xs leading-relaxed">Sie stimmen zu, unsere Website nicht missbräuchlich zu verwenden, indem Sie versuchen, deren Verfügbarkeit zu stören, bösartige Skripte einzufügen oder geschützte Assets zu reverse-engineeren, was gegen geltende Gesetze verstößt.</p>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">3. Eigentum an Ihren Daten</h2>
+        <p class="text-xs leading-relaxed">Sie behalten zu 100 % das geistige Eigentum an allen Daten, JSON-Strings, Konfigurationen und Dateien, die in irgendeinem Tool auf dieser Website eingegeben werden. Da unsere Tools ausschließlich in Ihrem Client-Browser ausgeführt werden, ohne Dateien auf unsere Server hochzuladen, erheben wir keinerlei Eigentum, Rechte oder Ansprüche an Ihren Daten oder deren Diff-Ausgaben.</p>
+      </section>
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">6. Kontakt & rechtliche Anfragen</h2>
+        <p class="text-xs leading-relaxed mb-3">Bei Fragen zu diesen AGB oder Lizenzanfragen wenden Sie sich bitte an uns:</p>
+        <div class="flex items-center gap-4 text-xs font-mono"><a href="/de/contact" class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">Support-Team kontaktieren</a><span>oder E-Mail: legal@jsoncompareonline.com</span></div>
+      </section>
+    </div>
+  </div>
+</Layout>

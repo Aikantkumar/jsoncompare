@@ -1,0 +1,5 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ConverterApp from '../../../components/tools/ConverterApp';
+---
+<Layout lang="zh" title="在线 JSON 转 XML 转换器 — 快速嵌套解析器和验证器" description="在线将 JSON 负载转换为结构化 XML，支持语法验证、命名空间处理和即时剪贴板复制。" activeTab="converters" canonicalPath="/convert/json-to-xml"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"><div class="mb-8"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#e5e5e5] dark:border-[#22242a]"><span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>DevOps 和配置</div><h1 class="text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">JSON 转 XML 转换器</h1><p class="mt-2 text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-2xl">将 JSON 负载转换为用于旧式企业系统和 RSS 源的结构化 XML，无需通过网络发送数据。</p></div><ConverterApp client:load initialMode="json-to-xml" /></div></Layout>
