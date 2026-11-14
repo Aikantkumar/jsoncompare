@@ -4,6 +4,7 @@ import { formatBytes, readTextFile } from '../../utils/fileIO';
 import { copyText, downloadText, deriveDownloadName } from '../../utils/download';
 import { useTextDoc } from '../../hooks/useTextDoc';
 import { useFileDrop } from '../../hooks/useFileDrop';
+import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../components/shared/ToolWorkspace';
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
@@ -17,6 +18,7 @@ export default function JsonEscapeUnescapeApp() {
   const [output, setOutput] = useState<string>('');
 
   const { message: toastMessage, show: showToast } = useToast(3000);
+  const { isFullscreen } = useToolWorkspace();
 
   const handleUnescape = useCallback(() => {
     try {
@@ -77,11 +79,11 @@ export default function JsonEscapeUnescapeApp() {
   }, [actions, showToast]);
 
   return (
-    <div class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
+    <ToolWorkspace class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
       <Toast message={toastMessage} />
 
       {/* Toolbar */}
-      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3">
+      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2]">
           Stringify, Unescape & Escape JSON
         </span>
@@ -106,11 +108,12 @@ export default function JsonEscapeUnescapeApp() {
           >
             Copy
           </button>
+          <FullscreenButton />
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a]">
-        <div {...drop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
+      <div class={`grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] ${isFullscreen ? 'h-full min-h-0' : ''}`}>
+        <div {...drop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
           {drop.isDragging && (
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
@@ -126,24 +129,23 @@ export default function JsonEscapeUnescapeApp() {
             fileAriaLabel="Choose file for escape/unescape input"
             onClear={handleClear}
             onCopy={handleCopy}
-            fullscreenable
           >
             <EditorTextarea
               value={doc.text}
               onInput={(v) => actions.setText(v)}
               placeholder="Paste string or JSON here..."
               ariaLabel="Escape/unescape input"
+              fillHeight={isFullscreen}
             />
           </Panel>
         </div>
 
-        <div class="p-4 bg-[#fafafa] dark:bg-[#111215]">
+        <div class={`p-4 ${isFullscreen ? 'h-full min-h-0' : ''} bg-[#fafafa] dark:bg-[#111215]`}>
           <Panel
             title="Result Output"
             lineCount={output ? output.split('\n').length : 0}
             onCopy={handleCopy}
             onDownload={handleDownloadOutput}
-            fullscreenable
           >
             <EditorTextarea
               value={output}
@@ -151,15 +153,18 @@ export default function JsonEscapeUnescapeApp() {
               onInput={() => {}}
               placeholder="Result will appear here..."
               ariaLabel="Escape/unescape output"
+              fillHeight={isFullscreen}
             />
           </Panel>
         </div>
       </div>
 
-      <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-        Files are read locally and never uploaded.
-      </p>
-    </div>
+      {!isFullscreen && (
+        <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
+          Files are read locally and never uploaded.
+        </p>
+      )}
+    </ToolWorkspace>
   );
 }
 

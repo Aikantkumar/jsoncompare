@@ -7,6 +7,7 @@ import { yieldToPaint } from '../../utils/async';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useTextDoc } from '../../hooks/useTextDoc';
 import { useFileDrop } from '../../hooks/useFileDrop';
+import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../components/shared/ToolWorkspace';
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
@@ -195,6 +196,7 @@ export default function JsonSchemaValidatorApp() {
   const [busy, setBusy] = useState<boolean>(false);
 
   const { message: toastMessage, show: showToast } = useToast(3000);
+  const { isFullscreen } = useToolWorkspace();
 
   const debouncedSchema = useDebouncedValue(schemaDoc.text, 250);
   const debouncedData = useDebouncedValue(dataDoc.text, 250);
@@ -291,12 +293,12 @@ export default function JsonSchemaValidatorApp() {
   const hiddenCount = errors.length > MAX_VIOLATIONS_RENDERED ? errors.length - MAX_VIOLATIONS_RENDERED : 0;
 
   return (
-    <div class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
+    <ToolWorkspace class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
       <Toast message={toastMessage} />
 
       {/* Top Banner with Validation Status */}
       <div
-        class={`p-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#e5e5e5] dark:border-[#22242a] ${
+        class={`p-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#e5e5e5] dark:border-[#22242a] shrink-0 ${
           status === 'valid'
             ? 'bg-[#e8f7ee] dark:bg-[#06331e]/40 text-[#007d48] dark:text-[#34d399]'
             : status === 'invalid'
@@ -326,11 +328,12 @@ export default function JsonSchemaValidatorApp() {
           >
             Prettify Both
           </button>
+          <FullscreenButton />
         </div>
       </div>
 
       {schemaDoc.isLarge || dataDoc.isLarge && (
-        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
+        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a] shrink-0">
           <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
             <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
             Large file mode: live validation disabled. Click "Validate against schema" to check.
@@ -347,7 +350,7 @@ export default function JsonSchemaValidatorApp() {
 
       {/* Error Details List if Invalid */}
       {displayedErrors.length > 0 && (
-        <div class="bg-[#fef2f2] dark:bg-[#451010]/20 border-b border-[#fca5a5] dark:border-[#7a1f1f] p-4 text-xs font-mono text-[#991b1b] dark:text-[#fca5a5]">
+        <div class="bg-[#fef2f2] dark:bg-[#451010]/20 border-b border-[#fca5a5] dark:border-[#7a1f1f] p-4 text-xs font-mono text-[#991b1b] dark:text-[#fca5a5] shrink-0">
           <div class="font-bold mb-2 uppercase tracking-wide text-[11px]">Violations Breakdown:</div>
           <ul class="space-y-1 max-h-[400px] overflow-y-auto">
             {displayedErrors.map((err, i) => (
@@ -367,8 +370,8 @@ export default function JsonSchemaValidatorApp() {
       )}
 
       {/* Dual Inputs */}
-      <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a]">
-        <div {...schemaDrop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
+      <div class={`grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] ${isFullscreen ? 'h-full min-h-0' : ''}`}>
+        <div {...schemaDrop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
           {schemaDrop.isDragging && (
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
@@ -385,18 +388,18 @@ export default function JsonSchemaValidatorApp() {
             onClear={handleClearSchema}
             onCopy={handleCopySchema}
             onDownload={handleDownloadSchema}
-            fullscreenable
           >
             <EditorTextarea
               value={schemaDoc.text}
               onInput={(v) => schemaActions.setText(v)}
               placeholder="Paste JSON Schema..."
               ariaLabel="Schema editor"
+              fillHeight={isFullscreen}
             />
           </Panel>
         </div>
 
-        <div {...dataDrop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
+        <div {...dataDrop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
           {dataDrop.isDragging && (
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
@@ -413,22 +416,24 @@ export default function JsonSchemaValidatorApp() {
             onClear={handleClearData}
             onCopy={handleCopyData}
             onDownload={handleDownloadData}
-            fullscreenable
           >
             <EditorTextarea
               value={dataDoc.text}
               onInput={(v) => dataActions.setText(v)}
               placeholder="Paste JSON data..."
               ariaLabel="Data editor"
+              fillHeight={isFullscreen}
             />
           </Panel>
         </div>
       </div>
 
-      <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-        Files are read locally and never uploaded.
-      </p>
-    </div>
+      {!isFullscreen && (
+        <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
+          Files are read locally and never uploaded.
+        </p>
+      )}
+    </ToolWorkspace>
   );
 }
 

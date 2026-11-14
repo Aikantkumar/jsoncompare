@@ -6,6 +6,7 @@ import { copyText, downloadText, deriveDownloadName } from '../../utils/download
 import { yieldToPaint } from '../../utils/async';
 import { useTextDoc } from '../../hooks/useTextDoc';
 import { useFileDrop } from '../../hooks/useFileDrop';
+import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../components/shared/ToolWorkspace';
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
@@ -23,6 +24,7 @@ export default function JsonFormatterApp() {
   const [busy, setBusy] = useState<boolean>(false);
 
   const { message: toastMessage, show: showToast } = useToast(3000);
+  const { isFullscreen } = useToolWorkspace();
 
   const handleFormat = useCallback(async () => {
     if (!doc.text.trim()) {
@@ -105,11 +107,11 @@ export default function JsonFormatterApp() {
   }, [actions, showToast]);
 
   return (
-    <div class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
+    <ToolWorkspace class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
       <Toast message={toastMessage} />
 
       {/* Toolbar */}
-      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3">
+      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-4 text-xs">
           <label class="flex items-center gap-1.5 font-medium text-[#111111] dark:text-[#f0f0f2]">
             <span>Indentation:</span>
@@ -164,11 +166,12 @@ export default function JsonFormatterApp() {
           >
             Download
           </button>
+          <FullscreenButton />
         </div>
       </div>
 
       {doc.isLarge && (
-        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
+        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a] shrink-0">
           <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
             <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
             {LARGE_BANNER}
@@ -177,7 +180,7 @@ export default function JsonFormatterApp() {
       )}
 
       {error && (
-        <div class="bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a] flex items-center justify-between">
+        <div class="bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a] flex items-center justify-between shrink-0">
           <span>Error: {error}</span>
           <button onClick={handleSmartRepair} disabled={busy} class={`underline font-semibold ml-4 ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}>
             Click to auto-repair
@@ -186,7 +189,7 @@ export default function JsonFormatterApp() {
       )}
 
       {/* Editor */}
-      <div {...drop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
+      <div {...drop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
         {drop.isDragging && (
           <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
         )}
@@ -203,19 +206,21 @@ export default function JsonFormatterApp() {
           onClear={handleClear}
           onCopy={handleCopy}
           onDownload={handleDownload}
-          fullscreenable
         >
           <EditorTextarea
             value={doc.text}
             onInput={(v) => { actions.setText(v); setError(''); }}
             placeholder="Paste JSON here..."
             ariaLabel="JSON formatter input"
+            fillHeight={isFullscreen}
           />
         </Panel>
-        <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1">
-          Files are read locally and never uploaded.
-        </p>
+        {!isFullscreen && (
+          <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1">
+            Files are read locally and never uploaded.
+          </p>
+        )}
       </div>
-    </div>
+    </ToolWorkspace>
   );
 }

@@ -47,5 +47,23 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #9e9ea0;
   }
+
+  /* Ensure native fullscreen element and backdrop have opaque background matching theme */
+  :fullscreen {
+    background-color: #ffffff;
+    width: 100vw;
+    height: 100vh;
+  }
+  :where(.dark, .dark *) :fullscreen,
+  :fullscreen:where(.dark, .dark *) {
+    background-color: #0c0d0e;
+  }
+  ::backdrop {
+    background-color: #ffffff;
+  }
+  :where(.dark, .dark *) ::backdrop,
+  .dark ::backdrop {
+    background-color: #0c0d0e;
+  }
 }
 

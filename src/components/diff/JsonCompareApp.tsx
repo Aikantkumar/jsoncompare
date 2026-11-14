@@ -17,9 +17,9 @@ import { yieldToPaint } from '../../utils/async';
 import { useTextDoc } from '../../hooks/useTextDoc';
 import { useFileDrop } from '../../hooks/useFileDrop';
 import Toast from '../../components/shared/Toast';
-import Panel from '../../components/shared/Panel';
+import Panel, { PanelFullscreenContext, usePanelFullscreen } from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
-import { usePanelFullscreen } from '../../components/shared/Panel';
+import ResizeHandle from '../../components/shared/ResizeHandle';
 
 const SAMPLES = {
   apiResponse: {
@@ -264,6 +264,63 @@ function DiffTable(props: {
     );
   }
 
+const DEFAULT_TOP_RATIO = 0.4;
+const MIN_TOP_RATIO = 0.15;
+const MAX_TOP_RATIO = 0.85;
+
+function getStoredTopRatio(): number {
+  if (typeof window === 'undefined') return DEFAULT_TOP_RATIO;
+  try {
+    const item = localStorage.getItem('jsoncompare:topRatio');
+    if (item !== null) {
+      const val = parseFloat(item);
+      if (!Number.isNaN(val) && val >= MIN_TOP_RATIO && val <= MAX_TOP_RATIO) {
+        return val;
+      }
+    }
+  } catch {
+    // localStorage not available
+  }
+  return DEFAULT_TOP_RATIO;
+}
+
+function setStoredTopRatio(ratio: number) {
+  try {
+    localStorage.setItem('jsoncompare:topRatio', ratio.toString());
+  } catch {
+    // localStorage not available
+  }
+}
+
+function getStoredNormalHeight(): number | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const item = localStorage.getItem('jsoncompare:normalHeightPx');
+    if (item !== null) {
+      const val = parseInt(item, 10);
+      const max = (window.innerHeight || 900) * 0.8;
+      if (!Number.isNaN(val) && val >= 120 && val <= max) {
+        return val;
+      }
+    }
+  } catch {
+    // localStorage not available
+  }
+  return null;
+}
+
+function setStoredNormalHeight(height: number | null) {
+  try {
+    if (height === null) {
+      localStorage.removeItem('jsoncompare:normalHeightPx');
+    } else {
+      localStorage.setItem('jsoncompare:normalHeightPx', height.toString());
+    }
+  } catch {
+    // localStorage not available
+  }
+}
+
 export default function JsonCompareApp() {
   const [leftDoc, leftActions] = useTextDoc(SAMPLES.apiResponse.left);
   const [rightDoc, rightActions] = useTextDoc(SAMPLES.apiResponse.right);
@@ -280,6 +337,241 @@ export default function JsonCompareApp() {
   const [largeComparePending, setLargeComparePending] = useState<boolean>(false);
 
   const { message: toastMessage, show: showToast } = useToast(3000);
+
+  const [workspaceFullscreen, setWorkspaceFullscreen] = useState<boolean>(false);
+  const [isFallbackMode, setIsFallbackMode] = useState<boolean>(false);
+  const [spacerHeight, setSpacerHeight] = useState<number>(0);
+  const [topRatio, setTopRatio] = useState<number>(getStoredTopRatio);
+  const [normalHeightPx, setNormalHeightPx] = useState<number | null>(getStoredNormalHeight);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const workspaceBodyRef = useRef<HTMLDivElement>(null);
+  const spacerRef = useRef<HTMLDivElement>(null);
+  const fullscreenTriggerRef = useRef<HTMLButtonElement>(null);
+  const bodyOverflowRef = useRef<string | null>(null);
+
+  const handleResizeDrag = useCallback((clientY: number) => {
+    const container = workspaceBodyRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const handleHalfHeight = 4;
+    const relativeY = clientY - rect.top - handleHalfHeight;
+
+    if (workspaceFullscreen) {
+      const rawRatio = relativeY / rect.height;
+      const clampedRatio = Math.min(MAX_TOP_RATIO, Math.max(MIN_TOP_RATIO, rawRatio));
+      setTopRatio(clampedRatio);
+      setStoredTopRatio(clampedRatio);
+    } else {
+      const maxPx = window.innerHeight * 0.8;
+      const clampedPx = Math.min(maxPx, Math.max(120, Math.round(relativeY)));
+      setNormalHeightPx(clampedPx);
+      setStoredNormalHeight(clampedPx);
+    }
+  }, [workspaceFullscreen]);
+
+  const handleResizeReset = useCallback(() => {
+    if (workspaceFullscreen) {
+      setTopRatio(DEFAULT_TOP_RATIO);
+      setStoredTopRatio(DEFAULT_TOP_RATIO);
+    } else {
+      setNormalHeightPx(null);
+      setStoredNormalHeight(null);
+    }
+  }, [workspaceFullscreen]);
+
+  const handleResizeKeyAdjust = useCallback((step: number) => {
+    if (workspaceFullscreen) {
+      setTopRatio((prev) => {
+        const next = Math.min(MAX_TOP_RATIO, Math.max(MIN_TOP_RATIO, prev + step));
+        setStoredTopRatio(next);
+        return next;
+      });
+    } else {
+      const pxStep = Math.round(step * 500);
+      setNormalHeightPx((prev) => {
+        const base = prev ?? (workspaceBodyRef.current?.firstElementChild?.clientHeight || 280);
+        const maxPx = window.innerHeight * 0.8;
+        const next = Math.min(maxPx, Math.max(120, base + pxStep));
+        setStoredNormalHeight(next);
+        return next;
+      });
+    }
+  }, [workspaceFullscreen]);
+
+  const handleGoToMin = useCallback(() => {
+    if (workspaceFullscreen) {
+      setTopRatio(MIN_TOP_RATIO);
+      setStoredTopRatio(MIN_TOP_RATIO);
+    } else {
+      setNormalHeightPx(120);
+      setStoredNormalHeight(120);
+    }
+  }, [workspaceFullscreen]);
+
+  const handleGoToMax = useCallback(() => {
+    if (workspaceFullscreen) {
+      setTopRatio(MAX_TOP_RATIO);
+      setStoredTopRatio(MAX_TOP_RATIO);
+    } else {
+      const maxPx = Math.round(window.innerHeight * 0.8);
+      setNormalHeightPx(maxPx);
+      setStoredNormalHeight(maxPx);
+    }
+  }, [workspaceFullscreen]);
+
+  // CSS Fallback for browsers without Fullscreen API (e.g. iPhone Safari)
+  const enterCssFallback = useCallback(() => {
+    const workspace = workspaceRef.current;
+    if (!workspace) return;
+    setSpacerHeight(workspace.offsetHeight || 0);
+    setIsFallbackMode(true);
+    setWorkspaceFullscreen(true);
+    bodyOverflowRef.current = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+      const el = workspaceRef.current;
+      if (!el) return;
+      const focusable = el.querySelector<HTMLElement>(
+        'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+      );
+      (focusable || el)?.focus?.();
+    });
+  }, []);
+
+  const exitCssFallback = useCallback(() => {
+    setIsFallbackMode(false);
+    setWorkspaceFullscreen(false);
+    setSpacerHeight(0);
+    if (bodyOverflowRef.current !== null) {
+      document.body.style.overflow = bodyOverflowRef.current;
+      bodyOverflowRef.current = null;
+    } else {
+      document.body.style.overflow = '';
+    }
+    requestAnimationFrame(() => {
+      fullscreenTriggerRef.current?.focus?.();
+    });
+  }, []);
+
+  // Synchronous click handler for native Fullscreen API (F11 parity)
+  const toggleWorkspaceFullscreen = useCallback(() => {
+    const el = workspaceRef.current;
+    const isNativeFs = Boolean(
+      document.fullscreenElement || (document as any).webkitFullscreenElement
+    );
+
+    // If already in fullscreen, exit
+    if (workspaceFullscreen || isNativeFs) {
+      if (isNativeFs) {
+        try {
+          const exitPromise = document.exitFullscreen
+            ? document.exitFullscreen()
+            : (document as any).webkitExitFullscreen?.();
+          if (exitPromise && typeof exitPromise.catch === 'function') {
+            exitPromise.catch((err: unknown) => console.warn('exitFullscreen error', err));
+          }
+        } catch (err) {
+          console.warn('exitFullscreen error', err);
+        }
+      } else {
+        exitCssFallback();
+      }
+      return;
+    }
+
+    // Enter fullscreen: requestFullscreen must run synchronously inside user gesture
+    if (el && (el.requestFullscreen || (el as any).webkitRequestFullscreen)) {
+      try {
+        const reqPromise = el.requestFullscreen
+          ? el.requestFullscreen({ navigationUI: 'hide' })
+          : (el as any).webkitRequestFullscreen();
+        if (reqPromise && typeof reqPromise.catch === 'function') {
+          reqPromise.catch((err: unknown) => {
+            console.warn('requestFullscreen rejected, falling back to CSS overlay', err);
+            enterCssFallback();
+          });
+        }
+      } catch (err) {
+        console.warn('requestFullscreen threw, falling back to CSS overlay', err);
+        enterCssFallback();
+      }
+    } else {
+      enterCssFallback();
+    }
+  }, [workspaceFullscreen, enterCssFallback, exitCssFallback]);
+
+  // fullscreenchange is the single source of truth for native fullscreen state
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      const fsElement = document.fullscreenElement ?? (document as any).webkitFullscreenElement;
+      const isFs = fsElement === workspaceRef.current;
+      setWorkspaceFullscreen(isFs);
+      if (!isFs) {
+        setIsFallbackMode(false);
+        requestAnimationFrame(() => {
+          fullscreenTriggerRef.current?.focus?.();
+        });
+      }
+    };
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', onFullscreenChange);
+    };
+  }, []);
+
+  // Esc keydown listener: ONLY in CSS fallback mode (native fullscreen handles Esc automatically)
+  useEffect(() => {
+    if (!workspaceFullscreen || !isFallbackMode) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        exitCssFallback();
+      }
+    };
+    document.addEventListener('keydown', onEsc);
+    return () => document.removeEventListener('keydown', onEsc);
+  }, [workspaceFullscreen, isFallbackMode, exitCssFallback]);
+
+  // Intercept F11 key to toggle our compare workspace fullscreen
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F11') {
+        try {
+          e.preventDefault();
+        } catch {
+          // ignore if preventDefault is not permitted by browser
+        }
+        toggleWorkspaceFullscreen();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [toggleWorkspaceFullscreen]);
+
+  // Unmount cleanup: exit fullscreen if unmounting while active, and restore body scroll if fallback was active
+  useEffect(() => {
+    return () => {
+      const fsElement = document.fullscreenElement ?? (document as any).webkitFullscreenElement;
+      if (fsElement && fsElement === workspaceRef.current) {
+        try {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if ((document as any).webkitExitFullscreen) {
+            (document as any).webkitExitFullscreen();
+          }
+        } catch {
+          // ignore
+        }
+      }
+      if (bodyOverflowRef.current !== null) {
+        document.body.style.overflow = bodyOverflowRef.current;
+        bodyOverflowRef.current = null;
+      }
+    };
+  }, []);
 
   const isLargeMode = leftDoc.isLarge || rightDoc.isLarge;
 
@@ -486,291 +778,360 @@ export default function JsonCompareApp() {
     </div>
   );
 
+  const spacer = (
+    <div ref={spacerRef} key="workspace-spacer" class="w-full" style={{ height: `${spacerHeight}px` }} />
+  );
+
   return (
-    <div class="w-full bg-white dark:bg-[#0c0d0e] transition-colors">
-      <Toast message={toastMessage} />
-
-      {/* Main Control Toolbar */}
-      <div class="border-b border-[#e5e5e5] dark:border-[#22242a] bg-[#f5f5f5]/80 dark:bg-[#14161b] px-4 sm:px-6 py-3 transition-colors">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-1.5">
-            <button
-              onClick={handleSwap}
-              title="Swap Left and Right"
-              class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
-            >
-              ↔ Swap
-            </button>
-            <button
-              onClick={handleFormatBoth}
-              title="Format and beautify both inputs"
-              class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
-            >
-              Prettify
-            </button>
-            <button
-              onClick={handleSmartRepairBoth}
-              title="Fix syntax errors, trailing commas, single quotes"
-              class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#1151ff] dark:text-[#60a5fa] hover:bg-[#1151ff] hover:text-white dark:hover:bg-[#1151ff] dark:hover:text-white transition-colors cursor-pointer"
-            >
-              ✨ Smart Fix
-            </button>
-            <button
-              onClick={handleCopyDiffReport}
-              class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
-            >
-              Copy Report
-            </button>
-          </div>
-
-          <div class="flex items-center gap-2 text-xs font-mono">
-            <span class="px-2.5 py-0.5 rounded-full bg-white dark:bg-[#18191d] border border-[#e5e5e5] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-semibold">
-              {stats.totalChanges === 0 ? "Identical" : `${stats.totalChanges} changes`}
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-[#007d48]/10 text-[#007d48] dark:bg-[#1eaa52]/20 dark:text-[#34d399] font-medium">
-              +{stats.added}
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-[#d30005]/10 text-[#d30005] dark:bg-[#f87171]/20 dark:text-[#f87171] font-medium">
-              -{stats.removed}
-            </span>
-            <span class="px-2 py-0.5 rounded-full bg-[#1151ff]/10 text-[#1151ff] dark:bg-[#60a5fa]/20 dark:text-[#60a5fa] font-medium">
-              ~{stats.modified}
-            </span>
-          </div>
-
-          {viewPills(activeView)}
-        </div>
-
-        <div class="mt-2.5 pt-2 border-t border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 text-xs text-[#39393b] dark:text-[#b5b5b8]">
-          <div class="flex flex-wrap items-center gap-4">
-            <label class="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={ignoreKeyOrder}
-                onChange={(e: any) => setIgnoreKeyOrder((e.target as HTMLInputElement).checked)}
-                class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
-              />
-              <span class="font-medium">Ignore Key Order</span>
-            </label>
-            <label class="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={ignoreArrayOrder}
-                onChange={(e: any) => setIgnoreArrayOrder((e.target as HTMLInputElement).checked)}
-                class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
-              />
-              <span class="font-medium">Ignore Array Order</span>
-            </label>
-            <label class="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={matchArrayById}
-                onChange={(e: any) => setMatchArrayById((e.target as HTMLInputElement).checked)}
-                class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
-              />
-              <span class="font-medium">Align Array by Key:</span>
-              <input
-                type="text"
-                value={arrayIdKey}
-                onInput={(e: any) => setArrayIdKey((e.target as HTMLInputElement).value)}
-                class="w-12 px-1.5 py-0.5 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-white dark:bg-[#18191d] text-[11px] font-mono text-center text-[#111111] dark:text-[#f0f0f2]"
-              />
-            </label>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <div class="flex items-center gap-1.5 bg-white dark:bg-[#18191d] px-2.5 py-1 rounded-full border border-[#cacacb]/80 dark:border-[#2b2d35]">
-              <span class="font-mono text-[11px] text-[#707072] dark:text-[#8e8e93]">Filter:</span>
-              <input
-                type="text"
-                value={jsonPathFilter}
-                onInput={(e: any) => setJsonPathFilter((e.target as HTMLInputElement).value)}
-                placeholder="$.users[*] (Optional)"
-                class="font-mono text-xs text-[#111111] dark:text-[#f0f0f2] outline-none w-36 bg-transparent"
-              />
-              {jsonPathFilter && (
-                <button
-                  onClick={() => setJsonPathFilter('')}
-                  class="text-[10px] text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2] cursor-pointer"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            <div class="flex items-center gap-1 text-[11px]">
-              <span class="text-[#707072] dark:text-[#8e8e93]">Samples:</span>
-              <button
-                onClick={() => {
-                  leftActions.setText(SAMPLES.apiResponse.left, { markEdited: false });
-                  rightActions.setText(SAMPLES.apiResponse.right, { markEdited: false });
-                  leftActions.setFilename(null);
-                  rightActions.setFilename(null);
-                  setLeftEdited(false);
-                  setRightEdited(false);
-                  showToast("Loaded Sample API Response");
-                }}
-                class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
-              >
-                API
-              </button>
-              <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
-              <button
-                onClick={() => {
-                  leftActions.setText(SAMPLES.keyOrder.left, { markEdited: false });
-                  rightActions.setText(SAMPLES.keyOrder.right, { markEdited: false });
-                  leftActions.setFilename(null);
-                  rightActions.setFilename(null);
-                  setLeftEdited(false);
-                  setRightEdited(false);
-                  showToast("Loaded Key Order Sample");
-                }}
-                class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
-              >
-                Key Order
-              </button>
-              <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
-              <button
-                onClick={() => {
-                  leftActions.clear();
-                  rightActions.clear();
-                  setLeftEdited(false);
-                  setRightEdited(false);
-                  showToast("Cleared both sides");
-                }}
-                class="hover:underline text-[#d30005] dark:text-[#f87171] cursor-pointer"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {isLargeMode && (
-          <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
-            <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
-              {LARGE_FILE_MODE_BANNER}
-            </div>
-            <button
-              onClick={handleCompare}
-              disabled={largeComparePending}
-              class="ml-auto px-3 py-1 rounded-full text-xs font-semibold border border-[#b45309] dark:border-[#fde047] text-[#b45309] dark:text-[#fde047] hover:bg-[#b45309] dark:hover:bg-[#fde047] hover:text-white dark:hover:text-[#111111] transition-colors cursor-pointer"
-            >
-              {largeComparePending ? 'Comparing…' : 'Compare'}
-            </button>
-          </div>
-        )}
-
-        {diffResult?.degraded && (
-          <div class="px-4 sm:px-6 py-2 bg-[#fde8e8] dark:bg-[#451010]/40 border border-[#e5e5e5] dark:border-[#7a1f1f]">
-            <div class="flex items-center gap-2 text-[11px] font-medium text-[#d30005] dark:text-[#fca5a5]">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#d30005] dark:bg-[#fca5a5]"></span>
-              Diff simplified: files are very large or very different. Showing approximate alignment.
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Editor & Diff Stage */}
-      <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] border-b border-[#e5e5e5] dark:border-[#22242a]">
-        <div {...leftDrop.getDropProps()} class="relative flex flex-col bg-white dark:bg-[#0c0d0e]">
-          {leftDrop.isDragging && (
-            <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
-          )}
-          <Panel
-            title="Original JSON (Left / Base)"
-            filename={leftDoc.filename}
-            lineCount={leftDoc.lineCount}
-            edited={leftEdited}
-            accept={ACCEPT_JSON_TXT}
-            onFile={applyLeftFile}
-            onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for Original JSON"
-            onClear={handleClearLeft}
-            onCopy={() => handleCopy(leftDoc.text, 'left JSON')}
-            onDownload={() => handleDownload(leftDoc.text, leftDoc.filename, 'left')}
-            fullscreenable
-          >
-            <EditorTextarea
-              value={leftDoc.text}
-              onInput={(v) => { leftActions.setText(v); setLeftEdited(true); }}
-              placeholder="Paste original JSON here..."
-              ariaLabel="Original JSON editor"
-            />
-          </Panel>
-        </div>
-
-        <div {...rightDrop.getDropProps()} class="relative flex flex-col bg-white dark:bg-[#0c0d0e]">
-          {rightDrop.isDragging && (
-            <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
-          )}
-          <Panel
-            title="Modified JSON (Right / Target)"
-            filename={rightDoc.filename}
-            lineCount={rightDoc.lineCount}
-            edited={rightEdited}
-            accept={ACCEPT_JSON_TXT}
-            onFile={applyRightFile}
-            onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for Modified JSON"
-            onClear={handleClearRight}
-            onCopy={() => handleCopy(rightDoc.text, 'right JSON')}
-            onDownload={() => handleDownload(rightDoc.text, rightDoc.filename, 'right')}
-            fullscreenable
-          >
-            <EditorTextarea
-              value={rightDoc.text}
-              onInput={(v) => { rightActions.setText(v); setRightEdited(true); }}
-              placeholder="Paste modified JSON here..."
-              ariaLabel="Modified JSON editor"
-            />
-          </Panel>
-        </div>
-      </div>
-
-      {/* Visual Diff Output Viewport */}
-      <Panel
-        title="Difference Inspector"
-        lineCount={lines.length}
-        actions={viewPills(activeView)}
-        onCopy={handleCopyDiffReport}
-        onDownload={() => {
-          const report = { timestamp: new Date().toISOString(), stats, patches: patchResult };
-          downloadText(JSON.stringify(report, null, 2), 'diff-report.json', 'application/json');
-          showToast("Downloaded diff-report.json");
-        }}
-        fullscreenable
+    <>
+      {isFallbackMode && workspaceFullscreen && spacer}
+      <div
+        key="workspace-root"
+        ref={workspaceRef}
+        class={`bg-white dark:bg-[#0c0d0e] transition-colors ${
+          workspaceFullscreen
+            ? isFallbackMode
+              ? 'fixed inset-0 z-[100] h-[100dvh] flex flex-col overflow-hidden'
+              : 'w-screen h-screen flex flex-col overflow-hidden [&:fullscreen]:w-screen [&:fullscreen]:h-screen [&:fullscreen]:flex [&:fullscreen]:flex-col [&:fullscreen]:overflow-hidden'
+            : 'w-full'
+        }`}
       >
-        <>
-          {activeView !== 'patch' && <DiffTable lines={lines} view={activeView} />}
-          {activeView === 'patch' && (
-            <div class="p-4 sm:p-6 bg-[#fafafa] dark:bg-[#111215] transition-colors">
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2]">
-                  RFC 6902 Compliant JSON Patch Document ({patchResult.length} operations)
-                </span>
+        <Toast message={toastMessage} />
+
+        {/* Main Control Toolbar */}
+        <div
+          class={`border-b border-[#e5e5e5] dark:border-[#22242a] bg-[#f5f5f5]/80 dark:bg-[#14161b] px-4 sm:px-6 py-3 transition-colors shrink-0 ${
+            workspaceFullscreen ? 'max-h-[40vh] overflow-y-auto' : ''
+          }`}
+        >
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-1.5">
+              <button
+                onClick={handleSwap}
+                title="Swap Left and Right"
+                class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
+              >
+                ↔ Swap
+              </button>
+              <button
+                onClick={handleFormatBoth}
+                title="Format and beautify both inputs"
+                class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
+              >
+                Prettify
+              </button>
+              <button
+                onClick={handleSmartRepairBoth}
+                title="Fix syntax errors, trailing commas, single quotes"
+                class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#1151ff] dark:text-[#60a5fa] hover:bg-[#1151ff] hover:text-white dark:hover:bg-[#1151ff] dark:hover:text-white transition-colors cursor-pointer"
+              >
+                ✨ Smart Fix
+              </button>
+              <button
+                onClick={handleCopyDiffReport}
+                class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
+              >
+                Copy Report
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-xs font-mono">
+              <span class="px-2.5 py-0.5 rounded-full bg-white dark:bg-[#18191d] border border-[#e5e5e5] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-semibold">
+                {stats.totalChanges === 0 ? "Identical" : `${stats.totalChanges} changes`}
+              </span>
+              <span class="px-2 py-0.5 rounded-full bg-[#007d48]/10 text-[#007d48] dark:bg-[#1eaa52]/20 dark:text-[#34d399] font-medium">
+                +{stats.added}
+              </span>
+              <span class="px-2 py-0.5 rounded-full bg-[#d30005]/10 text-[#d30005] dark:bg-[#f87171]/20 dark:text-[#f87171] font-medium">
+                -{stats.removed}
+              </span>
+              <span class="px-2 py-0.5 rounded-full bg-[#1151ff]/10 text-[#1151ff] dark:bg-[#60a5fa]/20 dark:text-[#60a5fa] font-medium">
+                ~{stats.modified}
+              </span>
+            </div>
+
+            {viewPills(activeView)}
+          </div>
+
+          <div class="mt-2.5 pt-2 border-t border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 text-xs text-[#39393b] dark:text-[#b5b5b8]">
+            <div class="flex flex-wrap items-center gap-4">
+              <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={ignoreKeyOrder}
+                  onChange={(e: any) => setIgnoreKeyOrder((e.target as HTMLInputElement).checked)}
+                  class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
+                />
+                <span class="font-medium">Ignore Key Order</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={ignoreArrayOrder}
+                  onChange={(e: any) => setIgnoreArrayOrder((e.target as HTMLInputElement).checked)}
+                  class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
+                />
+                <span class="font-medium">Ignore Array Order</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={matchArrayById}
+                  onChange={(e: any) => setMatchArrayById((e.target as HTMLInputElement).checked)}
+                  class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
+                />
+                <span class="font-medium">Align Array by Key:</span>
+                <input
+                  type="text"
+                  value={arrayIdKey}
+                  onInput={(e: any) => setArrayIdKey((e.target as HTMLInputElement).value)}
+                  class="w-12 px-1.5 py-0.5 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-white dark:bg-[#18191d] text-[11px] font-mono text-center text-[#111111] dark:text-[#f0f0f2]"
+                />
+              </label>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1.5 bg-white dark:bg-[#18191d] px-2.5 py-1 rounded-full border border-[#cacacb]/80 dark:border-[#2b2d35]">
+                <span class="font-mono text-[11px] text-[#707072] dark:text-[#8e8e93]">Filter:</span>
+                <input
+                  type="text"
+                  value={jsonPathFilter}
+                  onInput={(e: any) => setJsonPathFilter((e.target as HTMLInputElement).value)}
+                  placeholder="$.users[*] (Optional)"
+                  class="font-mono text-xs text-[#111111] dark:text-[#f0f0f2] outline-none w-36 bg-transparent"
+                />
+                {jsonPathFilter && (
+                  <button
+                    onClick={() => setJsonPathFilter('')}
+                    class="text-[10px] text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2] cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              <button
+                ref={fullscreenTriggerRef}
+                type="button"
+                onClick={toggleWorkspaceFullscreen}
+                aria-label="Toggle workspace fullscreen"
+                aria-pressed={workspaceFullscreen}
+                class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
+              >
+                {workspaceFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              </button>
+
+              <div class="flex items-center gap-1 text-[11px]">
+                <span class="text-[#707072] dark:text-[#8e8e93]">Samples:</span>
                 <button
-                  onClick={async () => {
-                    const ok = await copyText(JSON.stringify(patchResult, null, 2));
-                    showToast(ok ? "Patch operations copied!" : "Copy failed");
+                  onClick={() => {
+                    leftActions.setText(SAMPLES.apiResponse.left, { markEdited: false });
+                    rightActions.setText(SAMPLES.apiResponse.right, { markEdited: false });
+                    leftActions.setFilename(null);
+                    rightActions.setFilename(null);
+                    setLeftEdited(false);
+                    setRightEdited(false);
+                    showToast("Loaded Sample API Response");
                   }}
-                  class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
+                  class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
                 >
-                  Copy Patch JSON
+                  API
+                </button>
+                <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
+                <button
+                  onClick={() => {
+                    leftActions.setText(SAMPLES.keyOrder.left, { markEdited: false });
+                    rightActions.setText(SAMPLES.keyOrder.right, { markEdited: false });
+                    leftActions.setFilename(null);
+                    rightActions.setFilename(null);
+                    setLeftEdited(false);
+                    setRightEdited(false);
+                    showToast("Loaded Key Order Sample");
+                  }}
+                  class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
+                >
+                  Key Order
+                </button>
+                <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
+                <button
+                  onClick={() => {
+                    leftActions.clear();
+                    rightActions.clear();
+                    setLeftEdited(false);
+                    setRightEdited(false);
+                    showToast("Cleared both sides");
+                  }}
+                  class="hover:underline text-[#d30005] dark:text-[#f87171] cursor-pointer"
+                >
+                  Clear
                 </button>
               </div>
-              <pre class="p-4 rounded-xl bg-white dark:bg-[#121316] border border-[#e5e5e5] dark:border-[#22242a] font-mono text-xs overflow-x-auto text-[#111111] dark:text-[#f0f0f2] max-h-[500px]">
-                {patchResult.length > 0
-                  ? JSON.stringify(patchResult, null, 2)
-                  : '// Both JSON documents are semantically identical. No patch required.'}
-              </pre>
+            </div>
+          </div>
+
+          {isLargeMode && (
+            <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
+              <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
+                {LARGE_FILE_MODE_BANNER}
+              </div>
+              <button
+                onClick={handleCompare}
+                disabled={largeComparePending}
+                class="ml-auto px-3 py-1 rounded-full text-xs font-semibold border border-[#b45309] dark:border-[#fde047] text-[#b45309] dark:text-[#fde047] hover:bg-[#b45309] dark:hover:bg-[#fde047] hover:text-white dark:hover:text-[#111111] transition-colors cursor-pointer"
+              >
+                {largeComparePending ? 'Comparing…' : 'Compare'}
+              </button>
             </div>
           )}
-        </>
-      </Panel>
-    </div>
+
+          {diffResult?.degraded && (
+            <div class="px-4 sm:px-6 py-2 bg-[#fde8e8] dark:bg-[#451010]/40 border border-[#e5e5e5] dark:border-[#7a1f1f]">
+              <div class="flex items-center gap-2 text-[11px] font-medium text-[#d30005] dark:text-[#fca5a5]">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#d30005] dark:bg-[#fca5a5]"></span>
+                Diff simplified: files are very large or very different. Showing approximate alignment.
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Workspace Body */}
+        <PanelFullscreenContext.Provider value={{ isFullscreen: workspaceFullscreen }}>
+          <div
+            ref={workspaceBodyRef}
+            class={workspaceFullscreen ? 'flex-1 min-h-0 flex flex-col overflow-hidden relative' : 'flex flex-col relative'}
+          >
+            {/* Editor Stage */}
+            <div
+              style={
+                workspaceFullscreen
+                  ? { height: `${topRatio * 100}%` }
+                  : normalHeightPx !== null
+                  ? { height: `${normalHeightPx}px` }
+                  : undefined
+              }
+              class={
+                workspaceFullscreen
+                  ? 'min-h-0 shrink-0 grid grid-cols-1 lg:grid-cols-2 grid-rows-2 lg:grid-rows-1 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] overflow-hidden'
+                  : normalHeightPx !== null
+                  ? 'min-h-[120px] shrink-0 grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] overflow-hidden'
+                  : 'grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a]'
+              }
+            >
+              <div {...leftDrop.getDropProps()} class={`relative flex flex-col bg-white dark:bg-[#0c0d0e] ${workspaceFullscreen || normalHeightPx !== null ? 'h-full min-h-0 overflow-hidden' : ''}`}>
+                {leftDrop.isDragging && (
+                  <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
+                )}
+                <Panel
+                  title="Original JSON (Left / Base)"
+                  filename={leftDoc.filename}
+                  lineCount={leftDoc.lineCount}
+                  edited={leftEdited}
+                  accept={ACCEPT_JSON_TXT}
+                  onFile={applyLeftFile}
+                  onError={handleFileError}
+                  fileLabel="Choose file"
+                  fileAriaLabel="Choose file for Original JSON"
+                  onClear={handleClearLeft}
+                  onCopy={() => handleCopy(leftDoc.text, 'left JSON')}
+                  onDownload={() => handleDownload(leftDoc.text, leftDoc.filename, 'left')}
+                  class={workspaceFullscreen || normalHeightPx !== null ? 'h-full' : ''}
+                >
+                  <EditorTextarea
+                    value={leftDoc.text}
+                    onInput={(v) => { leftActions.setText(v); setLeftEdited(true); }}
+                    placeholder="Paste original JSON here..."
+                    ariaLabel="Original JSON editor"
+                    fillHeight={workspaceFullscreen || normalHeightPx !== null}
+                  />
+                </Panel>
+              </div>
+
+              <div {...rightDrop.getDropProps()} class={`relative flex flex-col bg-white dark:bg-[#0c0d0e] ${workspaceFullscreen || normalHeightPx !== null ? 'h-full min-h-0 overflow-hidden' : ''}`}>
+                {rightDrop.isDragging && (
+                  <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
+                )}
+                <Panel
+                  title="Modified JSON (Right / Target)"
+                  filename={rightDoc.filename}
+                  lineCount={rightDoc.lineCount}
+                  edited={rightEdited}
+                  accept={ACCEPT_JSON_TXT}
+                  onFile={applyRightFile}
+                  onError={handleFileError}
+                  fileLabel="Choose file"
+                  fileAriaLabel="Choose file for Modified JSON"
+                  onClear={handleClearRight}
+                  onCopy={() => handleCopy(rightDoc.text, 'right JSON')}
+                  onDownload={() => handleDownload(rightDoc.text, rightDoc.filename, 'right')}
+                  class={workspaceFullscreen || normalHeightPx !== null ? 'h-full' : ''}
+                >
+                  <EditorTextarea
+                    value={rightDoc.text}
+                    onInput={(v) => { rightActions.setText(v); setRightEdited(true); }}
+                    placeholder="Paste modified JSON here..."
+                    ariaLabel="Modified JSON editor"
+                    fillHeight={workspaceFullscreen || normalHeightPx !== null}
+                  />
+                </Panel>
+              </div>
+            </div>
+
+            {/* Draggable Height Resize Handle */}
+            <ResizeHandle
+              onDrag={handleResizeDrag}
+              onReset={handleResizeReset}
+              onKeyAdjust={handleResizeKeyAdjust}
+              onGoToMin={handleGoToMin}
+              onGoToMax={handleGoToMax}
+              valueNow={workspaceFullscreen ? Math.round(topRatio * 100) : (normalHeightPx ? Math.round(normalHeightPx) : 40)}
+              valueMin={workspaceFullscreen ? 15 : 120}
+              valueMax={workspaceFullscreen ? 85 : Math.round(typeof window !== 'undefined' ? window.innerHeight * 0.8 : 800)}
+            />
+
+            {/* Visual Diff Output Viewport */}
+            <Panel
+              title="Difference Inspector"
+              lineCount={lines.length}
+              actions={viewPills(activeView)}
+              onCopy={handleCopyDiffReport}
+              onDownload={() => {
+                const report = { timestamp: new Date().toISOString(), stats, patches: patchResult };
+                downloadText(JSON.stringify(report, null, 2), 'diff-report.json', 'application/json');
+                showToast("Downloaded diff-report.json");
+              }}
+              class={workspaceFullscreen ? 'flex-1 min-h-0 overflow-hidden' : ''}
+            >
+              <>
+                {activeView !== 'patch' && <DiffTable lines={lines} view={activeView} />}
+                {activeView === 'patch' && (
+                  <div class={`p-4 sm:p-6 bg-[#fafafa] dark:bg-[#111215] transition-colors ${workspaceFullscreen ? 'h-full flex flex-col min-h-0' : ''}`}>
+                    <div class="flex items-center justify-between mb-3 shrink-0">
+                      <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2]">
+                        RFC 6902 Compliant JSON Patch Document ({patchResult.length} operations)
+                      </span>
+                      <button
+                        onClick={async () => {
+                          const ok = await copyText(JSON.stringify(patchResult, null, 2));
+                          showToast(ok ? "Patch operations copied!" : "Copy failed");
+                        }}
+                        class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
+                      >
+                        Copy Patch JSON
+                      </button>
+                    </div>
+                    <pre class={`p-4 rounded-xl bg-white dark:bg-[#121316] border border-[#e5e5e5] dark:border-[#22242a] font-mono text-xs overflow-x-auto text-[#111111] dark:text-[#f0f0f2] ${workspaceFullscreen ? 'flex-1 min-h-0 overflow-auto' : 'max-h-[500px]'}`}>
+                      {patchResult.length > 0
+                        ? JSON.stringify(patchResult, null, 2)
+                        : '// Both JSON documents are semantically identical. No patch required.'}
+                    </pre>
+                  </div>
+                )}
+              </>
+            </Panel>
+          </div>
+        </PanelFullscreenContext.Provider>
+      </div>
+    </>
   );
 }

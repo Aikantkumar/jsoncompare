@@ -7,6 +7,7 @@ import { yieldToPaint } from '../../utils/async';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useTextDoc } from '../../hooks/useTextDoc';
 import { useFileDrop } from '../../hooks/useFileDrop';
+import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../components/shared/ToolWorkspace';
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
@@ -42,6 +43,7 @@ export default function JsonValidatorApp() {
   const [busy, setBusy] = useState<boolean>(false);
 
   const { message: toastMessage, show: showToast } = useToast(3000);
+  const { isFullscreen } = useToolWorkspace();
 
   const debouncedText = useDebouncedValue(doc.text, 250);
 
@@ -128,12 +130,12 @@ export default function JsonValidatorApp() {
   }, [actions, showToast]);
 
   return (
-    <div class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
+    <ToolWorkspace class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
       <Toast message={toastMessage} />
 
       {/* Validation Status Banner */}
       <div
-        class={`p-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#e5e5e5] dark:border-[#22242a] ${
+        class={`p-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#e5e5e5] dark:border-[#22242a] shrink-0 ${
           validationResult.isValid === true
             ? 'bg-[#e8f7ee] dark:bg-[#06331e]/40 text-[#007d48] dark:text-[#34d399]'
             : validationResult.isValid === false
@@ -179,11 +181,12 @@ export default function JsonValidatorApp() {
           >
             Download
           </button>
+          <FullscreenButton />
         </div>
       </div>
 
       {doc.isLarge && (
-        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
+        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a] shrink-0">
           <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
             <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
             {LARGE_BANNER}
@@ -199,7 +202,7 @@ export default function JsonValidatorApp() {
       )}
 
       {/* Editor */}
-      <div {...drop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
+      <div {...drop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
         {drop.isDragging && (
           <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
         )}
@@ -216,19 +219,21 @@ export default function JsonValidatorApp() {
           onClear={handleClear}
           onCopy={handleCopy}
           onDownload={handleDownload}
-          fullscreenable
         >
           <EditorTextarea
             value={doc.text}
             onInput={(v) => { actions.setText(v); setError(''); }}
             placeholder="Paste JSON payload to validate..."
             ariaLabel="JSON validator input"
+            fillHeight={isFullscreen}
           />
         </Panel>
-        <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1">
-          Files are read locally and never uploaded.
-        </p>
+        {!isFullscreen && (
+          <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1">
+            Files are read locally and never uploaded.
+          </p>
+        )}
       </div>
-    </div>
+    </ToolWorkspace>
   );
 }

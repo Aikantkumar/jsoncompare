@@ -24,7 +24,7 @@ export interface PanelFullscreenContextValue {
   isFullscreen: boolean;
 }
 
-const PanelFullscreenContext = createContext<PanelFullscreenContextValue>({
+export const PanelFullscreenContext = createContext<PanelFullscreenContextValue>({
   isFullscreen: false,
 });
 
@@ -49,6 +49,7 @@ interface Props {
   fullscreenable?: boolean;
   actions?: JSX.Element;
   children?: JSX.Element;
+  class?: string;
 }
 
 export default function Panel({
@@ -68,6 +69,7 @@ export default function Panel({
   fullscreenable = false,
   actions,
   children,
+  class: className = '',
 }: Props) {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [spacerHeight, setSpacerHeight] = useState<number>(0);
@@ -76,6 +78,9 @@ export default function Panel({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const bodyOverflowRef = useRef<string | null>(null);
   const id = useRef(Math.random().toString(36).slice(2, 8)).current;
+
+  const parentFullscreen = useContext(PanelFullscreenContext);
+  const effectiveFullscreen = isFullscreen || parentFullscreen.isFullscreen;
 
   const exitFullscreen = useCallback(() => {
     setIsFullscreen(false);
@@ -185,13 +190,19 @@ export default function Panel({
   const pillPrimary =
     'px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer';
 
-  const bodyClasses = 'flex-1 min-h-0 overflow-auto';
+  const bodyClasses = effectiveFullscreen
+    ? 'flex-1 min-h-0 overflow-auto flex flex-col'
+    : 'flex-1 min-h-0 overflow-auto';
+
+  const rootClasses = effectiveFullscreen
+    ? `${baseClasses} h-full min-h-0 ${fullscreenClasses} ${className}`.trim()
+    : `${baseClasses} ${fullscreenClasses} ${className}`.trim();
 
   const panelEl = (
     <div
       ref={panelRef}
-      class={`${baseClasses} ${fullscreenClasses}`.trim()}
-      data-fullscreen={isFullscreen ? 'true' : 'false'}
+      class={rootClasses}
+      data-fullscreen={effectiveFullscreen ? 'true' : 'false'}
     >
       <header class={headerClasses}>
         <div class={titleClasses}>
@@ -247,7 +258,7 @@ export default function Panel({
       </header>
 
       <div class={bodyClasses}>
-        <PanelFullscreenContext.Provider value={{ isFullscreen }}>
+        <PanelFullscreenContext.Provider value={{ isFullscreen: effectiveFullscreen }}>
           {children}
         </PanelFullscreenContext.Provider>
       </div>

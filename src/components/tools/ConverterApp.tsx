@@ -7,6 +7,7 @@ import { copyText, downloadText, deriveDownloadName } from '../../utils/download
 import { yieldToPaint } from '../../utils/async';
 import { useTextDoc } from '../../hooks/useTextDoc';
 import { useFileDrop } from '../../hooks/useFileDrop';
+import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../components/shared/ToolWorkspace';
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
@@ -43,6 +44,7 @@ export default function ConverterApp({ initialMode }: Props) {
   const [busy, setBusy] = useState<boolean>(false);
 
   const { message: toastMessage, show: showToast } = useToast(3000);
+  const { isFullscreen } = useToolWorkspace();
 
   const handleConvert = useCallback(async () => {
     setError('');
@@ -140,11 +142,11 @@ export default function ConverterApp({ initialMode }: Props) {
   }, [actions, showToast]);
 
   return (
-    <div class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
+    <ToolWorkspace class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
       <Toast message={toastMessage} />
 
       {/* Toolbar */}
-      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3">
+      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-2">
           <select
             value={mode}
@@ -179,17 +181,18 @@ export default function ConverterApp({ initialMode }: Props) {
           >
             Download
           </button>
+          <FullscreenButton />
         </div>
       </div>
 
       {error && (
-        <div class="bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a]">
+        <div class="bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a] shrink-0">
           Conversion Error: {error}
         </div>
       )}
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a]">
-        <div {...drop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
+      <div class={`grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] ${isFullscreen ? 'h-full min-h-0' : ''}`}>
+        <div {...drop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
           {drop.isDragging && (
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
@@ -206,24 +209,23 @@ export default function ConverterApp({ initialMode }: Props) {
             onClear={handleClear}
             onCopy={() => handleCopyText(doc.text)}
             onDownload={() => handleDownloadText(doc.text, doc.filename)}
-            fullscreenable
           >
             <EditorTextarea
               value={doc.text}
               onInput={(v) => { actions.setText(v); setOutput(''); setError(''); }}
               placeholder="Paste source data here..."
               ariaLabel="Converter input"
+              fillHeight={isFullscreen}
             />
           </Panel>
         </div>
 
-        <div class="p-4 bg-[#fafafa] dark:bg-[#111215]">
+        <div class={`p-4 ${isFullscreen ? 'h-full min-h-0' : ''} bg-[#fafafa] dark:bg-[#111215]`}>
           <Panel
             title="Converted Target Data"
             lineCount={output ? output.split('\n').length : 0}
             onCopy={handleCopy}
             onDownload={handleDownloadOutput}
-            fullscreenable
           >
             <EditorTextarea
               value={output}
@@ -231,15 +233,18 @@ export default function ConverterApp({ initialMode }: Props) {
               onInput={() => {}}
               placeholder="Converted output will appear here..."
               ariaLabel="Converter output"
+              fillHeight={isFullscreen}
             />
           </Panel>
         </div>
       </div>
 
-      <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-        Files are read locally and never uploaded.
-      </p>
-    </div>
+      {!isFullscreen && (
+        <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
+          Files are read locally and never uploaded.
+        </p>
+      )}
+    </ToolWorkspace>
   );
 }
 

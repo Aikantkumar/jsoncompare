@@ -15,6 +15,7 @@ interface Props {
   readOnly?: boolean;
   placeholder?: string;
   ariaLabel?: string;
+  fillHeight?: boolean;
 }
 
 export default function EditorTextarea({
@@ -23,6 +24,7 @@ export default function EditorTextarea({
   readOnly = false,
   placeholder = '',
   ariaLabel = 'JSON editor',
+  fillHeight = false,
 }: Props) {
   const { isFullscreen } = usePanelFullscreen();
 
@@ -39,9 +41,10 @@ export default function EditorTextarea({
   const border = 'border-[#e5e5e5] dark:border-[#22242a]';
   const bg = 'bg-white dark:bg-[#121316]';
   const fg = 'text-[#111111] dark:text-[#f0f0f2]';
-  const resize = isFullscreen ? 'resize-none' : 'resize-y';
-  const height = isFullscreen ? 'h-full min-h-0' : 'h-auto';
-  const heightStyle = isFullscreen ? undefined : { minHeight: `${EDITOR_MIN_HEIGHT_PX}px` };
+  const shouldFill = isFullscreen || fillHeight;
+  const resize = shouldFill ? 'resize-none' : 'resize-y';
+  const height = shouldFill ? 'h-full min-h-0' : 'h-auto';
+  const heightStyle = shouldFill ? undefined : { minHeight: `${EDITOR_MIN_HEIGHT_PX}px` };
 
   return (
     <textarea

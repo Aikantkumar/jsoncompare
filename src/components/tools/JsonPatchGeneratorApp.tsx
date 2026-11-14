@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'preact/hooks';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'preact/hooks';
 import { safeParseJson, generateJsonPatch } from '../../utils/jsonDiff';
 import { useToast } from '../../hooks/useToast';
 import { formatBytes, readTextFile, isLargeText } from '../../utils/fileIO';
@@ -7,6 +7,8 @@ import { yieldToPaint } from '../../utils/async';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useTextDoc } from '../../hooks/useTextDoc';
 import { useFileDrop } from '../../hooks/useFileDrop';
+import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../components/shared/ToolWorkspace';
+import ResizeHandle from '../../components/shared/ResizeHandle';
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
@@ -14,6 +16,35 @@ import ResultPre from '../../components/shared/ResultPre';
 
 const ACCEPT_JSON_TXT = ['.json', '.txt'];
 const LARGE_BANNER = 'Large file mode: live patch generation disabled. Click “Generate” to create the patch.';
+
+const STORAGE_KEY = 'jsoncompare:json-patch-generator:topRatio';
+const DEFAULT_TOP_RATIO = 0.4;
+const MIN_TOP_RATIO = 0.15;
+const MAX_TOP_RATIO = 0.85;
+
+function getStoredTopRatio(): number {
+  if (typeof window === 'undefined') return DEFAULT_TOP_RATIO;
+  try {
+    const item = localStorage.getItem(STORAGE_KEY);
+    if (item !== null) {
+      const val = parseFloat(item);
+      if (!Number.isNaN(val) && val >= MIN_TOP_RATIO && val <= MAX_TOP_RATIO) {
+        return val;
+      }
+    }
+  } catch {
+    // localStorage not available
+  }
+  return DEFAULT_TOP_RATIO;
+}
+
+function setStoredTopRatio(ratio: number) {
+  try {
+    localStorage.setItem(STORAGE_KEY, ratio.toString());
+  } catch {
+    // ignore
+  }
+}
 
 export default function JsonPatchGeneratorApp() {
   const [sourceDoc, sourceActions] = useTextDoc(
@@ -23,13 +54,18 @@ export default function JsonPatchGeneratorApp() {
     JSON.stringify({ name: "ACME Corp", plan: "enterprise", seats: 50, active: true, customDomain: "acme.com" }, null, 2)
   );
   const [busy, setBusy] = useState<boolean>(false);
+  const [topRatio, setTopRatio] = useState<number>(getStoredTopRatio);
 
   const { message: toastMessage, show: showToast } = useToast(3000);
+  const { isFullscreen } = useToolWorkspace();
 
   const debouncedSource = useDebouncedValue(sourceDoc.text, 250);
   const debouncedTarget = useDebouncedValue(targetDoc.text, 250);
 
   const { patches, error } = useMemoCompute(debouncedSource, debouncedTarget);
+
+  const mainRef = useRef<HTMLDivElement>(null);
+  const [normalHeightPx, setNormalHeightPx] = useState<number | null>(null);
 
   const handleGenerate = useCallback(async () => {
     setBusy(true);
@@ -105,12 +141,37 @@ export default function JsonPatchGeneratorApp() {
     showToast("Cleared target");
   }, [targetActions, showToast]);
 
+  const handleResizeDrag = useCallback((clientY: number) => {
+    const container = mainRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const handleHalfHeight = 4;
+    const relativeY = clientY - rect.top - handleHalfHeight;
+    const rawRatio = relativeY / rect.height;
+    const clampedRatio = Math.min(MAX_TOP_RATIO, Math.max(MIN_TOP_RATIO, rawRatio));
+    setTopRatio(clampedRatio);
+    setStoredTopRatio(clampedRatio);
+  }, []);
+
+  const handleResizeReset = useCallback(() => {
+    setTopRatio(DEFAULT_TOP_RATIO);
+    setStoredTopRatio(DEFAULT_TOP_RATIO);
+  }, []);
+
+  const handleResizeKeyAdjust = useCallback((step: number) => {
+    setTopRatio((prev) => {
+      const next = Math.min(MAX_TOP_RATIO, Math.max(MIN_TOP_RATIO, prev + step));
+      setStoredTopRatio(next);
+      return next;
+    });
+  }, []);
+
   return (
-    <div class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
+    <ToolWorkspace class="w-full bg-white dark:bg-[#0c0d0e] rounded-2xl border border-[#e5e5e5] dark:border-[#22242a] overflow-hidden shadow-xs transition-colors">
       <Toast message={toastMessage} />
 
       {/* Toolbar */}
-      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3">
+      <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-2 text-xs">
           <span class="font-semibold text-[#111111] dark:text-[#f0f0f2]">
             RFC 6902 Patch Generator
@@ -142,17 +203,18 @@ export default function JsonPatchGeneratorApp() {
           >
             Download
           </button>
+          <FullscreenButton />
         </div>
       </div>
 
       {error && (
-        <div class="bg-[#fde8e8] dark:bg-[#451010]/40 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a]">
+        <div class="bg-[#fde8e8] dark:bg-[#451010]/40 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a] shrink-0">
           {error}
         </div>
       )}
 
       {sourceDoc.isLarge || targetDoc.isLarge && (
-        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
+        <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a] shrink-0">
           <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
             <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
             {LARGE_BANNER}
@@ -167,83 +229,105 @@ export default function JsonPatchGeneratorApp() {
         </div>
       )}
 
-      {/* Two inputs */}
-      <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] border-b border-[#e5e5e5] dark:border-[#22242a]">
-        <div {...sourceDrop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
-          {sourceDrop.isDragging && (
-            <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
-          )}
-          <Panel
-            title="Base / Source Document"
-            filename={sourceDoc.filename}
-            lineCount={sourceDoc.lineCount}
-            edited={sourceDoc.edited}
-            accept={ACCEPT_JSON_TXT}
-            onFile={applySourceFile}
-            onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for source document"
-            onClear={handleClearSource}
-            onCopy={() => handleCopyText(sourceDoc.text)}
-            onDownload={() => handleDownloadText(sourceDoc.text, sourceDoc.filename)}
-            fullscreenable
-          >
-            <EditorTextarea
-              value={sourceDoc.text}
-              onInput={(v) => sourceActions.setText(v)}
-              placeholder="Base / Source JSON..."
-              ariaLabel="Patch source editor"
-            />
-          </Panel>
+      {/* Main area: inputs on top, divider, result below */}
+      <div
+        ref={mainRef}
+        class={`flex flex-col ${isFullscreen ? 'h-full min-h-0 overflow-hidden' : ''}`}
+      >
+        {/* Two inputs */}
+        <div class="flex-1 min-h-0 overflow-hidden">
+          <div class={`grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#e5e5e5] dark:divide-[#22242a] border-b border-[#e5e5e5] dark:border-[#22242a] h-full`}>
+            <div {...sourceDrop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
+              {sourceDrop.isDragging && (
+                <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
+              )}
+              <Panel
+                title="Base / Source Document"
+                filename={sourceDoc.filename}
+                lineCount={sourceDoc.lineCount}
+                edited={sourceDoc.edited}
+                accept={ACCEPT_JSON_TXT}
+                onFile={applySourceFile}
+                onError={handleFileError}
+                fileLabel="Choose file"
+                fileAriaLabel="Choose file for source document"
+                onClear={handleClearSource}
+                onCopy={() => handleCopyText(sourceDoc.text)}
+                onDownload={() => handleDownloadText(sourceDoc.text, sourceDoc.filename)}
+              >
+                <EditorTextarea
+                  value={sourceDoc.text}
+                  onInput={(v) => sourceActions.setText(v)}
+                  placeholder="Base / Source JSON..."
+                  ariaLabel="Patch source editor"
+                  fillHeight={isFullscreen}
+                />
+              </Panel>
+            </div>
+
+            <div {...targetDrop.getDropProps()} class={`relative ${isFullscreen ? 'h-full min-h-0' : 'p-4'} bg-white dark:bg-[#0c0d0e]`}>
+              {targetDrop.isDragging && (
+                <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
+              )}
+              <Panel
+                title="Target / Desired Document"
+                filename={targetDoc.filename}
+                lineCount={targetDoc.lineCount}
+                edited={targetDoc.edited}
+                accept={ACCEPT_JSON_TXT}
+                onFile={applyTargetFile}
+                onError={handleFileError}
+                fileLabel="Choose file"
+                fileAriaLabel="Choose file for target document"
+                onClear={handleClearTarget}
+                onCopy={() => handleCopyText(targetDoc.text)}
+                onDownload={() => handleDownloadText(targetDoc.text, targetDoc.filename)}
+              >
+                <EditorTextarea
+                  value={targetDoc.text}
+                  onInput={(v) => targetActions.setText(v)}
+                  placeholder="Target / Desired JSON..."
+                  ariaLabel="Patch target editor"
+                  fillHeight={isFullscreen}
+                />
+              </Panel>
+            </div>
+          </div>
         </div>
 
-        <div {...targetDrop.getDropProps()} class="relative p-4 bg-white dark:bg-[#0c0d0e]">
-          {targetDrop.isDragging && (
-            <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
-          )}
+        {/* Draggable divider */}
+        <ResizeHandle
+          onDrag={handleResizeDrag}
+          onReset={handleResizeReset}
+          onKeyAdjust={handleResizeKeyAdjust}
+          valueNow={Math.round(topRatio * 100)}
+          valueMin={Math.round(MIN_TOP_RATIO * 100)}
+          valueMax={Math.round(MAX_TOP_RATIO * 100)}
+          label="Resize patch input and output areas"
+        />
+
+        {/* Generated Patch Output */}
+        <div class="flex-1 min-h-0 overflow-hidden">
           <Panel
-            title="Target / Desired Document"
-            filename={targetDoc.filename}
-            lineCount={targetDoc.lineCount}
-            edited={targetDoc.edited}
-            accept={ACCEPT_JSON_TXT}
-            onFile={applyTargetFile}
-            onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for target document"
-            onClear={handleClearTarget}
-            onCopy={() => handleCopyText(targetDoc.text)}
-            onDownload={() => handleDownloadText(targetDoc.text, targetDoc.filename)}
-            fullscreenable
+            title="RFC 6902 Operations Output"
           >
-            <EditorTextarea
-              value={targetDoc.text}
-              onInput={(v) => targetActions.setText(v)}
-              placeholder="Target / Desired JSON..."
-              ariaLabel="Patch target editor"
+            <ResultPre
+              value={JSON.stringify(patches, null, 2)}
+              title="RFC 6902 Operations Output"
+              copyLabel="Copy Patch"
+              downloadName="patch.json"
+              downloadMime="application/json"
             />
           </Panel>
         </div>
       </div>
 
-      {/* Generated Patch Output */}
-      <Panel
-        title="RFC 6902 Operations Output"
-        fullscreenable
-      >
-        <ResultPre
-          value={JSON.stringify(patches, null, 2)}
-          title="RFC 6902 Operations Output"
-          copyLabel="Copy Patch"
-          downloadName="patch.json"
-          downloadMime="application/json"
-        />
-      </Panel>
-
-      <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-        Files are read locally and never uploaded.
-      </p>
-    </div>
+      {!isFullscreen && (
+        <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
+          Files are read locally and never uploaded.
+        </p>
+      )}
+    </ToolWorkspace>
   );
 }
 
