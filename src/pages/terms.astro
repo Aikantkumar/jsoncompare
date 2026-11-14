@@ -1,0 +1,119 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://jsoncompareonline.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Terms & Conditions",
+      "item": "https://jsoncompareonline.com/terms"
+    }
+  ]
+};
+---
+
+<Layout
+  title="Terms & Conditions — JSON Compare Online"
+  description="Read the Terms and Conditions of JSON Compare Online. Free, open, client-side developer utilities with clear usage guidelines."
+  canonicalPath="/terms"
+  activeTab="terms"
+  structuredData={breadcrumbSchema}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#111111] dark:bg-[#f0f0f2]"></span>
+        Terms of Service
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
+        TERMS & CONDITIONS
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
+        Last updated: November 2026. Please review these terms governing your use of jsoncompareonline.com.
+      </p>
+    </div>
+
+    <!-- Terms Sections -->
+    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+      <!-- Section 1 -->
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          1. Agreement to Terms
+        </h2>
+        <p class="text-xs leading-relaxed">
+          By accessing and using JSON Compare Online (<a href="https://jsoncompareonline.com" class="underline text-[#111111] dark:text-[#f0f0f2]">jsoncompareonline.com</a>), you agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree to all terms and conditions, you should immediately cease use of our services.
+        </p>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          2. Permitted Use & Developer License
+        </h2>
+        <p class="text-xs leading-relaxed mb-3">
+          JSON Compare Online provides web-based developer utilities for formatting, validating, diffing, minifying, and converting data payloads. These tools are provided free of charge for both personal and commercial engineering projects.
+        </p>
+        <p class="text-xs leading-relaxed">
+          You agree not to misuse our website by attempting to disrupt its availability, injecting malicious scripts, or reverse-engineering protected assets in violation of applicable laws.
+        </p>
+      </section>
+
+      <!-- Section 3 -->
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          3. Ownership of Your Data
+        </h2>
+        <p class="text-xs leading-relaxed">
+          You retain 100% intellectual property ownership of all data, JSON strings, configurations, and files entered into any tool on this website. Because our tools execute purely inside your browser client without uploading files to our servers, we assert zero ownership, rights, or claims over your data or its diff outputs.
+        </p>
+      </section>
+
+      <!-- Section 4 -->
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          4. Disclaimer of Warranties
+        </h2>
+        <p class="text-xs leading-relaxed">
+          Our services and tools are provided on an <strong>"AS IS" and "AS AVAILABLE"</strong> basis without warranties of any kind, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement. While we endeavor to maintain strict accuracy in our diff, validation, and conversion algorithms, we do not warrant that results will be entirely error-free or uninterrupted.
+        </p>
+      </section>
+
+      <!-- Section 5 -->
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          5. Limitation of Liability
+        </h2>
+        <p class="text-xs leading-relaxed">
+          In no event shall JSON Compare Online, its contributors, or maintainers be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising from the use or inability to use our tools, including loss of data, production bugs, or business interruption, even if advised of the possibility of such damages.
+        </p>
+      </section>
+
+      <!-- Section 6 -->
+      <section class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+          6. Contact & Legal Inquiries
+        </h2>
+        <p class="text-xs leading-relaxed mb-3">
+          For any questions concerning these Terms and Conditions or licensing inquiries, please contact us:
+        </p>
+        <div class="flex items-center gap-4 text-xs font-mono">
+          <a href="/contact" class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors">
+            Contact Support Team
+          </a>
+          <span>or email: legal@jsoncompareonline.com</span>
+        </div>
+      </section>
+    </div>
+  </div>
+</Layout>
+

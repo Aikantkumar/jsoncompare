@@ -1,0 +1,89 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="404 — Page Not Found | JSON Compare Online"
+  description="The requested page could not be found. Explore our free online JSON compare, formatting, validation, and conversion tools."
+  canonicalPath="/404"
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 dark:bg-red-950/40 text-[11px] font-mono text-red-700 dark:text-red-400 mb-6 border border-red-200 dark:border-red-900/60">
+      <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+      HTTP 404 • Resource Not Found
+    </div>
+
+    <!-- Error Code & Title -->
+    <h1 class="text-6xl sm:text-7xl font-black tracking-tight text-[#111111] dark:text-[#f0f0f2] font-mono mb-4">
+      404
+    </h1>
+    <h2 class="text-xl sm:text-2xl font-bold text-[#111111] dark:text-[#f0f0f2] mb-3">
+      Page Lost in the Syntax Tree
+    </h2>
+    <p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] max-w-md mx-auto leading-relaxed mb-8">
+      The document or path you requested does not exist or may have been reorganized. Use the links below to return to our core developer utilities.
+    </p>
+
+    <!-- Terminal-like JSON error mock -->
+    <div class="max-w-md mx-auto mb-10 text-left font-mono text-xs p-4 rounded-xl bg-[#12141a] text-[#e4e4e7] border border-[#232630] shadow-lg">
+      <div class="text-[#71717a] mb-1">// 404_error_response.json</div>
+      <div>&#123;</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"status"</span>: <span class="text-[#f87171]">404</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"error"</span>: <span class="text-[#fbbf24]">"Not Found"</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"message"</span>: <span class="text-[#34d399]">"Requested URI node cannot be resolved."</span>,</div>
+      <div class="pl-4"><span class="text-[#60a5fa]">"suggestion"</span>: <span class="text-[#a78bfa]">"Return to main diff engine"</span></div>
+      <div>&#125;</div>
+    </div>
+
+    <!-- Quick Tool Links -->
+    <div class="mb-10">
+      <span class="text-xs uppercase tracking-wider font-mono text-[#707072] dark:text-[#8e8e93] block mb-4">
+        Popular Developer Tools
+      </span>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-semibold">
+        <a
+          href="/"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          JSON Compare
+        </a>
+        <a
+          href="/tools/json-formatter"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          JSON Formatter
+        </a>
+        <a
+          href="/tools/json-validator"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          JSON Validator
+        </a>
+        <a
+          href="/tools/json-to-typescript"
+          class="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#111111] dark:hover:border-[#f0f0f2] text-[#111111] dark:text-[#f0f0f2] transition-colors"
+        >
+          JSON to TS
+        </a>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-center gap-4">
+      <a
+        href="/"
+        class="px-6 py-2.5 rounded-full text-xs font-bold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors"
+      >
+        Go to Home Page
+      </a>
+      <a
+        href="/contact"
+        class="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#f5f5f5] dark:bg-[#18191d] text-[#111111] dark:text-[#f0f0f2] border border-[#cacacb] dark:border-[#2b2d35] hover:bg-[#e5e5e5] dark:hover:bg-[#252830] transition-colors"
+      >
+        Report Broken Link
+      </a>
+    </div>
+  </div>
+</Layout>
+

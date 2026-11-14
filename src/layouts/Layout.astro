@@ -6,18 +6,68 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
+  keywords?: string;
   activeTab?: string;
   canonicalPath?: string;
+  ogImage?: string;
+  ogType?: string;
+  structuredData?: Record<string, any> | Array<Record<string, any>>;
 }
 
 const {
-  title = 'JSON Compare Online — Fast, Semantic & Private JSON Diff Tool',
+  title = 'JSON Compare Online — Free, Semantic & Private JSON Diff Tool',
   description = 'Compare two JSON objects or files online with semantic diffing, key-order independence, RFC 6902 patch generation, and zero server upload privacy.',
+  keywords = 'json compare, json compare online, json compare tool, json compare diff, json formatter, json validator, json minifier, json patch, json to typescript, escape unescape, escapre/unescape, json schema validator, json key sorter, yaml to json, json to yaml, xml to json, json to xml, csv to json, json to csv',
   activeTab = '',
   canonicalPath = '/',
+  ogImage = '/og-image.png',
+  ogType = 'website',
+  structuredData,
 } = Astro.props;
 
-const canonicalUrl = `https://jsoncompareonline.com${canonicalPath}`;
+const canonicalUrl = `https://jsoncompareonline.com${canonicalPath === '/' ? '' : canonicalPath}`;
+const fullOgImageUrl = ogImage.startsWith('http')
+  ? ogImage
+  : `https://jsoncompareonline.com${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
+
+const baseWebApplicationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  'name': 'JSON Compare Online',
+  'alternateName': 'JSON Compare Tool & Diff Engine',
+  'url': 'https://jsoncompareonline.com',
+  'description': description,
+  'applicationCategory': 'DeveloperApplication',
+  'operatingSystem': 'All modern browsers (Chrome, Firefox, Safari, Edge, Opera)',
+  'browserRequirements': 'Requires JavaScript. Requires HTML5.',
+  'offers': {
+    '@type': 'Offer',
+    'price': '0',
+    'priceCurrency': 'USD'
+  },
+  'featureList': [
+    'Semantic JSON Compare',
+    'Online JSON Compare Tool',
+    'Key-Order Agnostic JSON Compare Diff',
+    'Array Alignment by Unique ID or Key',
+    'RFC 6902 JSON Patch Generator',
+    'JSON Formatter & Prettifier',
+    'JSON Validator & Syntax Inspector',
+    'JSON Minifier & Whitespace Compressor',
+    'JSON to TypeScript Interface Generator',
+    'JSON String Escape / Unescape Utility',
+    'JSON Schema Validator (Draft-07 & 2020-12)',
+    'JSON Key Sorter (Alphabetical Order)',
+    'YAML to JSON & JSON to YAML Converter',
+    'XML to JSON & JSON to XML Converter',
+    'CSV to JSON & JSON to CSV Converter',
+    '100% Client-Side Privacy with Zero Server Uploads'
+  ]
+};
+
+const structuredDataItems = structuredData
+  ? (Array.isArray(structuredData) ? [baseWebApplicationSchema, ...structuredData] : [baseWebApplicationSchema, structuredData])
+  : [baseWebApplicationSchema];
 ---
 
 <!doctype html>
@@ -26,26 +76,41 @@ const canonicalUrl = `https://jsoncompareonline.com${canonicalPath}`;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- SEO Meta Tags -->
+    <!-- Primary SEO Meta Tags -->
     <title>{title}</title>
+    <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
     <link rel="canonical" href={canonicalUrl} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#111111" />
+    <meta name="author" content="JSON Compare Online" />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:site_name" content="JSONCompareOnline" />
+    <meta property="og:site_name" content="JSON Compare Online" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={fullOgImageUrl} />
+    <meta property="og:image:secure_url" content={fullOgImageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalUrl} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullOgImageUrl} />
+    <meta name="twitter:image:alt" content={title} />
 
     <!-- Theme Initialization Script (Avoids Flash of Light/Dark Theme on Page Load) -->
     <script is:inline>
@@ -64,21 +129,10 @@ const canonicalUrl = `https://jsoncompareonline.com${canonicalPath}`;
       })();
     </script>
 
-    <!-- Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "JSONCompareOnline",
-      "url": "https://jsoncompareonline.com",
-      "description": description,
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    })} />
+    <!-- Schema.org Structured Data -->
+    {structuredDataItems.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
   </head>
   <body class="min-h-full flex flex-col bg-white text-[#111111] dark:bg-[#000000] dark:text-[#f0f0f2] antialiased transition-colors duration-150">
     <Navbar activeTab={activeTab} />

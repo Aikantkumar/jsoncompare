@@ -2,79 +2,238 @@
 const currentYear = 2026;
 ---
 
-<footer class="bg-white dark:bg-[#000000] border-t border-[#e5e5e5] dark:border-[#22242a] mt-16 text-xs text-[#707072] dark:text-[#8e8e93] transition-colors">
+<footer
+  class="bg-white dark:bg-[#000000] border-t border-[#e5e5e5] dark:border-[#22242a] mt-16 text-xs text-[#707072] dark:text-[#8e8e93] transition-colors"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-      <!-- Col 1: Brand & Philosophy -->
-      <div class="col-span-2">
-        <a href="/" class="flex items-center gap-2 mb-3">
-          <span class="w-6 h-6 rounded-full bg-[#111111] dark:bg-[#f0f0f2] text-white dark:text-[#111111] flex items-center justify-center font-mono font-bold text-xs">
-            {"{ }"}
-          </span>
-          <span class="font-bold text-sm tracking-tight text-[#111111] dark:text-[#f0f0f2]">
-            jsoncompare<span class="text-[#707072] dark:text-[#8e8e93] font-normal">online</span>
-          </span>
-        </a>
-        <p class="text-[#4b4b4d] dark:text-[#9ca3af] text-xs leading-relaxed max-w-sm mb-4">
-          High-performance, zero-latency semantic JSON comparison and developer tool suite. Built with 100% client-side Web Workers — your payloads and sensitive tokens never touch any remote server.
-        </p>
-        <div class="flex items-center gap-2 text-[11px] font-mono text-[#007d48] dark:text-[#34d399] bg-[#f5f5f5] dark:bg-[#16181d] px-3 py-1 rounded-full border border-[#cacacb]/40 dark:border-[#272a30] w-fit">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>
-          Zero-Knowledge Privacy Guaranteed
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 mb-12">
+        <!-- Col 1: Brand & Philosophy (spans 2 on lg) -->
+        <div class="col-span-2">
+          <a href="/" class="flex items-center gap-2 mb-3">
+            <span
+              class="w-6 h-6 rounded-full bg-[#111111] dark:bg-[#f0f0f2] text-white dark:text-[#111111] flex items-center justify-center font-mono font-bold text-xs"
+            >
+              {"{ }"}
+            </span>
+            <span
+              class="font-bold text-sm tracking-tight text-[#111111] dark:text-[#f0f0f2]"
+            >
+              jsoncompare<span
+                class="text-[#707072] dark:text-[#8e8e93] font-normal"
+                >online</span
+              >
+            </span>
+          </a>
+          <p
+            class="text-[#4b4b4d] dark:text-[#9ca3af] text-xs leading-relaxed max-w-sm mb-4"
+          >
+            High-performance, zero-latency semantic JSON comparison and
+            developer tool suite. Built with 100% client-side Web Workers — your
+            payloads and sensitive tokens never touch any remote server.
+          </p>
+          <div
+            class="flex items-center gap-2 text-[11px] font-mono text-[#007d48] dark:text-[#34d399] bg-[#f5f5f5] dark:bg-[#16181d] px-3 py-1 rounded-full border border-[#cacacb]/40 dark:border-[#272a30] w-fit"
+          >
+            <span
+              class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"
+            ></span>
+            Zero-Knowledge Privacy Guaranteed
+          </div>
+        </div>
+
+        <!-- Col 2: Diff & Compare -->
+        <div>
+          <h4
+            class="font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wider text-[11px] mb-3"
+          >
+            Diff & Compare
+          </h4>
+          <ul class="space-y-2">
+            <li>
+              <a
+                href="/"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >Semantic JSON Diff</a>
+            </li>
+            <li>
+              <a
+                href="/tools/json-patch-generator"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >RFC 6902 Patch Export</a>
+            </li>
+            <li>
+              <a
+                href="/tools/json-sorter"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >Alphabetical Key Sorter</a>
+            </li>
+            <li>
+              <a
+                href="/tools/json-to-typescript"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >TypeScript Generator</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Core Utilities -->
+        <div>
+          <h4
+            class="font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wider text-[11px] mb-3"
+          >
+            Core Utilities
+          </h4>
+          <ul class="space-y-2">
+            <li>
+              <a
+                href="/tools/json-formatter"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >JSON Formatter</a>
+            </li>
+            <li>
+              <a
+                href="/tools/json-validator"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >JSON Validator</a>
+            </li>
+            <li>
+              <a
+                href="/tools/json-minifier"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >JSON Minifier</a>
+            </li>
+            <li>
+              <a
+                href="/tools/json-escape-unescape"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >Escape / Unescape</a>
+            </li>
+            <li>
+              <a
+                href="/tools/json-schema-validator"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >Schema Validator</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Converters -->
+        <div>
+          <h4
+            class="font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wider text-[11px] mb-3"
+          >
+            Converters
+          </h4>
+          <ul class="space-y-2">
+            <li>
+              <a
+                href="/convert/yaml-to-json"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >YAML to JSON</a>
+            </li>
+            <li>
+              <a
+                href="/convert/json-to-yaml"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >JSON to YAML</a>
+            </li>
+            <li>
+              <a
+                href="/convert/xml-to-json"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >XML to JSON</a>
+            </li>
+            <li>
+              <a
+                href="/convert/json-to-xml"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >JSON to XML</a>
+            </li>
+            <li>
+              <a
+                href="/convert/csv-to-json"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >CSV to JSON</a>
+            </li>
+            <li>
+              <a
+                href="/convert/json-to-csv"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >JSON to CSV</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 5: Company & Legal -->
+        <div>
+          <h4
+            class="font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wider text-[11px] mb-3"
+          >
+            Company & Legal
+          </h4>
+          <ul class="space-y-2">
+            <li>
+              <a
+                href="/about"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >About Us</a>
+            </li>
+            <li>
+              <a
+                href="/contact"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >Contact Us</a>
+            </li>
+            <li>
+              <a
+                href="/privacy"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >Privacy Policy</a>
+            </li>
+            <li>
+              <a
+                href="/terms"
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+                >Terms & Conditions</a>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <!-- Col 2: Diff & Compare -->
-      <div>
-        <h4 class="font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wider text-[11px] mb-3">
-          Diff & Compare
-        </h4>
-        <ul class="space-y-2">
-          <li><a href="/" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">Semantic JSON Diff</a></li>
-          <li><a href="/tools/json-patch-generator" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">RFC 6902 Patch Export</a></li>
-          <li><a href="/tools/json-sorter" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">Alphabetical Key Sorter</a></li>
-          <li><a href="/tools/json-to-typescript" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">TypeScript Generator</a></li>
-        </ul>
-      </div>
-
-      <!-- Col 3: Code & Formatting -->
-      <div>
-        <h4 class="font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wider text-[11px] mb-3">
-          Core Utilities
-        </h4>
-        <ul class="space-y-2">
-          <li><a href="/tools/json-formatter" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">JSON Formatter</a></li>
-          <li><a href="/tools/json-validator" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">JSON Validator</a></li>
-          <li><a href="/tools/json-minifier" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">JSON Minifier</a></li>
-          <li><a href="/tools/json-escape-unescape" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">Escape / Unescape</a></li>
-          <li><a href="/tools/json-schema-validator" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">Schema Validator</a></li>
-        </ul>
-      </div>
-
-      <!-- Col 4: Converters -->
-      <div>
-        <h4 class="font-semibold text-[#111111] dark:text-[#f0f0f2] uppercase tracking-wider text-[11px] mb-3">
-          Converters
-        </h4>
-        <ul class="space-y-2">
-          <li><a href="/convert/yaml-to-json" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">YAML to JSON</a></li>
-          <li><a href="/convert/json-to-yaml" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">JSON to YAML</a></li>
-          <li><a href="/convert/xml-to-json" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">XML to JSON</a></li>
-          <li><a href="/convert/json-to-xml" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">JSON to XML</a></li>
-          <li><a href="/convert/csv-to-json" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">CSV to JSON</a></li>
-          <li><a href="/convert/json-to-csv" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">JSON to CSV</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Bottom Bar -->
-    <div class="border-t border-[#e5e5e5] dark:border-[#22242a] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
-      <div>
-        © {currentYear} jsoncompareonline.com. Free developer utilities. No cookies, no trackers.
-      </div>
-      <div class="flex items-center gap-6">
-        <a href="/privacy" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">Security & Privacy Proof</a>
-        <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors">Source Architecture</a>
+      <!-- Bottom Bar -->
+      <div
+        class="border-t border-[#e5e5e5] dark:border-[#22242a] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]"
+      >
+        <div>
+          © {currentYear} jsoncompareonline.com. Free developer utilities. No cookies,
+          no trackers.
+        </div>
+          <div class="flex items-center gap-5 flex-wrap justify-center">
+            <a
+              href="/about"
+              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >About</a
+            >
+            <span class="text-[#cacacb] dark:text-[#2b2d35]">•</span>
+            <a
+              href="/contact"
+              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >Contact</a
+            >
+            <span class="text-[#cacacb] dark:text-[#2b2d35]">•</span>
+            <a
+              href="/privacy"
+              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >Privacy Policy</a
+            >
+            <span class="text-[#cacacb] dark:text-[#2b2d35]">•</span>
+            <a
+              href="/terms"
+              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >Terms</a
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>

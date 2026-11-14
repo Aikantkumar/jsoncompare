@@ -1,63 +1,314 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://jsoncompareonline.com",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Privacy Policy",
+      item: "https://jsoncompareonline.com/privacy",
+    },
+  ],
+};
 ---
 
 <Layout
   title="Privacy & Security Guarantee — JSONCompareOnline Zero-Server Proof"
   description="Learn how JSONCompareOnline runs 100% in your local browser using Web Workers. No logs, no telemetry, no remote storage."
+  title="Privacy Policy — Zero Data Collection & In-Browser Security"
+  description="Read the official Privacy Policy of JSON Compare Online. Learn how our zero-server, client-side architecture guarantees your payload privacy."
+  canonicalPath="/privacy"
   activeTab="privacy"
   canonicalPath="/privacy"
+  structuredData={breadcrumbSchema}
 >
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
     <div class="mb-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#007d48] dark:text-[#34d399] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>
-        Client-Side Privacy Architecture
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#007d48] dark:text-[#34d399] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"
+        ></span>
+        Client-Side Privacy Architecture Zero-Knowledge Privacy Architecture
       </div>
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
-        PRIVACY & SECURITY GUARANTEE
+      <h1
+        class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase"
+      >
+        PRIVACY & SECURITY GUARANTEE PRIVACY POLICY
       </h1>
       <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
-        Why you can safely compare production API credentials, JWTs, user records, and sensitive JSON on JSONCompareOnline.
+        Why you can safely compare production API credentials, JWTs, user
+        records, and sensitive JSON on JSONCompareOnline. Last updated: November
+        2026. Why you can safely diff production API secrets, customer records,
+        and proprietary payloads.
       </p>
     </div>
 
-    <div class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed">
+    <!-- Content Sections -->
+    <div
+      class="space-y-8 text-sm text-[#39393b] dark:text-[#b5b5b8] leading-relaxed"
+    >
       <!-- Section 1 -->
-      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+      <div
+        class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+      >
         <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
           1. 100% In-Browser Execution (Zero Remote Processing)
-        </h2>
-        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
-          Unlike legacy diff tools that send your text to an API server or third-party cloud container to compute differences, JSONCompareOnline runs the entire parser, Myers LCS algorithm, and RFC 6902 patch generator inside your browser session using JavaScript Web Workers.
-        </p>
-      </div>
+          <section
+            class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+          >
+            <h2
+              class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3"
+            >
+              1. Core Commitment: Zero Server Data Ingestion
+            </h2>
+            <p
+              class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed"
+            >
+              Unlike legacy diff tools that send your text to an API server or
+              third-party cloud container to compute differences,
+              JSONCompareOnline runs the entire parser, Myers LCS algorithm, and
+              RFC 6902 patch generator inside your browser session using
+              JavaScript Web Workers.
+              <p class="text-xs leading-relaxed mb-3">
+                JSON Compare Online (<a
+                  href="https://jsoncompareonline.com"
+                  class="underline text-[#111111] dark:text-[#f0f0f2]"
+                  >jsoncompareonline.com</a
+                >) is engineered with an uncompromising <strong
+                  >zero-knowledge architecture</strong
+                >. Unlike traditional online text diffing services that transmit
+                your snippets to remote backend APIs, cloud servers, or
+                serverless functions, our utilities execute entirely inside your
+                local web browser session.
+              </p>
+            </p>
+            <p class="text-xs leading-relaxed">
+              When you paste, upload, diff, format, minify, or convert JSON,
+              YAML, XML, or CSV documents, your payload data is processed
+              strictly in-memory using client-side JavaScript and dedicated Web
+              Workers. <strong
+                >No payload data is ever transmitted, logged, cached, or stored
+                on our servers.</strong
+              >
+            </p>
+          </section>
 
-      <!-- Section 2 -->
-      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
-        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
-          2. How You Can Verify This Yourself
-        </h2>
-        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-3">
-          We encourage every security team and engineer to verify our privacy architecture independently:
-        </p>
-        <ol class="list-decimal list-inside text-xs text-[#4b4b4d] dark:text-[#9ca3af] space-y-1.5">
-          <li>Open your browser Developer Tools (<kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]">F12</kbd> or <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]">Cmd+Option+I</kbd>).</li>
-          <li>Navigate to the <strong>Network</strong> tab.</li>
-          <li>Paste any JSON payload into the left and right comparison panels and run a diff.</li>
-          <li>Observe that <strong>zero HTTP POST/PUT requests</strong> are dispatched.</li>
-        </ol>
-      </div>
+          <!-- Section 2 -->
+          <div
+            class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+          >
+            <h2
+              class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2"
+            >
+              2. How You Can Verify This Yourself
+              <section
+                class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+              >
+                <h2
+                  class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3"
+                >
+                  2. How to Independently Audit & Verify Zero Transmission
+                </h2>
+                <p
+                  class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-3"
+                >
+                  We encourage every security team and engineer to verify our
+                  privacy architecture independently:
+                  <p class="text-xs leading-relaxed mb-3">
+                    We believe privacy must be provable rather than merely
+                    claimed. You can independently verify our zero-server
+                    transmission guarantee using any browser developer tools:
+                  </p>
+                  <ol
+                    class="list-decimal list-inside text-xs text-[#4b4b4d] dark:text-[#9ca3af] space-y-1.5"
+                  >
+                    <li>
+                      Open your browser Developer Tools (<kbd
+                        class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]"
+                        >F12</kbd
+                      > or <kbd
+                        class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]"
+                        >Cmd+Option+I</kbd
+                      >).
+                    </li>
+                    <li>Navigate to the <strong>Network</strong> tab.</li>
+                    <li>
+                      Paste any JSON payload into the left and right comparison
+                      panels and run a diff.
+                    </li>
+                    <li>
+                      Observe that <strong>zero HTTP POST/PUT requests</strong> are
+                      dispatched.
+                    </li>
+                    <ol class="list-decimal list-inside text-xs space-y-2 mb-3">
+                      <li>
+                        Press <kbd
+                          class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]"
+                          >F12</kbd
+                        > (or <kbd
+                          class="px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[10px] font-mono text-[#111111] dark:text-[#f0f0f2]"
+                          >Cmd+Opt+I</kbd
+                        > on macOS) to open Developer Tools.
+                      </li>
+                      <li>
+                        Click the <strong>Network</strong> tab and verify the recording
+                        filter is enabled.
+                      </li>
+                      <li>
+                        Paste any JSON payload or load large files and trigger a
+                        comparison, format, or conversion.
+                      </li>
+                      <li>
+                        Observe that <strong
+                          >zero outbound HTTP POST, PUT, or WebSocket messages</strong
+                        > carrying your data are initiated.
+                      </li>
+                    </ol>
+                  </ol>
+                  <p class="text-xs leading-relaxed">
+                    Once the initial static website assets (HTML, CSS, JS) are
+                    loaded, all computations happen offline. You can even
+                    disconnect your internet connection and the tool will
+                    continue functioning fully.
+                  </p>
+                </p>
 
-      <!-- Section 3 -->
-      <div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
-        <h2 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2">
-          3. No Cookies, No Trackers, No Fingerprinting
+                <!-- Section 3 -->
+                <div
+                  class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+                >
+                  <h2
+                    class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-2"
+                  >
+                    3. No Cookies, No Trackers, No Fingerprinting
+                    <section
+                      class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+                    >
+                      <h2
+                        class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3"
+                      >
+                        3. Information We Collect (and Do Not Collect)
+                      </h2>
+                      <p
+                        class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed"
+                      >
+                        We do not store cookies on your device, use third-party
+                        behavioral trackers, or save state to remote databases.
+                        When you close or refresh the tab, your JSON data is
+                        completely wiped from browser memory.
+                        <div class="space-y-3 text-xs leading-relaxed">
+                          <p>
+                            <strong class="text-[#111111] dark:text-[#f0f0f2]"
+                              >Payload Data:</strong
+                            > We do not collect, view, store, sell, or inspect any
+                            text, code, configuration strings, or files entered into
+                            any tool on this site.
+                          </p>
+                          <p>
+                            <strong class="text-[#111111] dark:text-[#f0f0f2]"
+                              >Personal Information:</strong
+                            > We do not require user accounts, email registration,
+                            passwords, payment details, or phone numbers to use our
+                            services.
+                          </p>
+                          <p>
+                            <strong class="text-[#111111] dark:text-[#f0f0f2]"
+                              >Cookies & Tracking:</strong
+                            > We do not deploy advertising tracking cookies, behavioral
+                            tracking pixels, or cross-site fingerprinting scripts.
+                          </p>
+                          <p>
+                            <strong class="text-[#111111] dark:text-[#f0f0f2]"
+                              >Local Storage Usage:</strong
+                            > We utilize your browser's standard <code
+                              >localStorage</code
+                            > API solely to preserve your UI theme preference (<code
+                              >light</code
+                            > or <code>dark</code> mode). No payload contents are
+                            ever stored in <code>localStorage</code>.
+                          </p>
+                        </div>
+                      </p>
+
+                      <!-- Section 4 -->
+                      <section
+                        class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+                      >
+                        <h2
+                          class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3"
+                        >
+                          4. Global Regulatory Compliance (GDPR, CCPA, HIPAA)
+                        </h2>
+                        <p class="text-xs leading-relaxed mb-2">
+                          Because we never transmit, process, or store personal
+                          data on remote systems:
+                        </p>
+                      </section>
+                      <ul class="list-disc list-inside text-xs space-y-1.5">
+                        <li>
+                          <strong
+                            >EU GDPR (General Data Protection Regulation):</strong
+                          > We do not act as a data controller or data processor for
+                          any data pasted into the site. Your data remains solely
+                          within your browser perimeter.
+                        </li>
+                        <li>
+                          <strong
+                            >California Consumer Privacy Act (CCPA):</strong
+                          > We do not sell, share, or monetize consumer personal information.
+                        </li>
+                        <li>
+                          <strong>HIPAA & Confidentiality:</strong> Since healthcare
+                          information or protected data remains strictly inside the
+                          end-user's local browser instance, no Business Associate
+                          Agreement (BAA) is required for data transit.
+                        </li>
+                      </ul>
+                    </section>
+
+                    <!-- Section 5 -->
+                    <section
+                      class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]"
+                    >
+                      <h2
+                        class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] mb-3"
+                      >
+                        5. Contact for Privacy Inquiries
+                      </h2>
+                      <p class="text-xs leading-relaxed mb-3">
+                        If you have questions regarding this Privacy Policy, our
+                        browser security model, or enterprise compliance
+                        verification, please reach out through our official
+                        contact channels:
+                      </p>
+                      <div class="flex items-center gap-4 text-xs font-mono">
+                        <a
+                          href="/contact"
+                          class="px-4 py-2 rounded-xl bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors"
+                        >
+                          Contact Support & Privacy Officer
+                        </a>
+                        <span>or email: privacy@jsoncompareonline.com</span>
+                      </div>
+                    </section>
+                  </h2>
+                </div>
+              </section>
+            </h2>
+          </div>
         </h2>
-        <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">
-          We do not store cookies on your device, use third-party behavioral trackers, or save state to remote databases. When you close or refresh the tab, your JSON data is completely wiped from browser memory.
-        </p>
       </div>
     </div>
-  </div>
-</Layout>
+  </div></Layout
+>

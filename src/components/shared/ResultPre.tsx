@@ -7,6 +7,7 @@
 import { useState, useCallback } from 'preact/hooks';
 import { usePanelFullscreen } from './Panel';
 import { copyText, downloadText } from '../../utils/download';
+import { EDITOR_MIN_HEIGHT_PX } from './EditorTextarea';
 
 export const RESULT_PREVIEW_MAX_CHARS = 200_000;
 
@@ -16,7 +17,6 @@ interface Props {
   copyLabel?: string;
   downloadName?: string;
   downloadMime?: string;
-  rows?: number;
 }
 
 export default function ResultPre({
@@ -25,7 +25,6 @@ export default function ResultPre({
   copyLabel = 'Copy',
   downloadName = 'result.json',
   downloadMime = 'application/json',
-  rows = 12,
 }: Props) {
   const { isFullscreen } = usePanelFullscreen();
   const [showAll, setShowAll] = useState<boolean>(false);
@@ -48,7 +47,8 @@ export default function ResultPre({
   const border = 'border-[#e5e5e5] dark:border-[#22242a]';
   const bg = 'bg-white dark:bg-[#121316]';
   const fg = 'text-[#111111] dark:text-[#f0f0f2]';
-  const height = isFullscreen ? 'h-full min-h-0' : `h-auto min-h-[${rows * 28}px]`;
+  const height = isFullscreen ? 'h-full min-h-0' : 'h-auto';
+  const heightStyle = isFullscreen ? undefined : { minHeight: `${EDITOR_MIN_HEIGHT_PX}px` };
   const overflow = 'overflow-auto';
 
   return (
@@ -74,7 +74,10 @@ export default function ResultPre({
           </div>
         </div>
       )}
-      <pre class={`${base} ${border} ${bg} ${fg} ${height} ${overflow} whitespace-pre break-all`}>
+      <pre
+        class={`${base} ${border} ${bg} ${fg} ${height} ${overflow} whitespace-pre break-all`}
+        style={heightStyle}
+      >
         {display}
       </pre>
       {truncated && (

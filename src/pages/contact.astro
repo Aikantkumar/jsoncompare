@@ -1,0 +1,227 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://jsoncompareonline.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Contact Us",
+      "item": "https://jsoncompareonline.com/contact"
+    }
+  ]
+};
+
+const contactSchema = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact JSON Compare Online",
+  "url": "https://jsoncompareonline.com/contact",
+  "description": "Get in touch with the JSON Compare Online team for technical support, bug reports, feature suggestions, or security audits."
+};
+---
+
+<Layout
+  title="Contact Us — Technical Support & Feedback | JSON Compare Online"
+  description="Contact the JSON Compare Online team for bug reports, algorithm suggestions, feature requests, or enterprise compliance queries."
+  canonicalPath="/contact"
+  activeTab="contact"
+  structuredData={[breadcrumbSchema, contactSchema]}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-[11px] font-mono text-[#39393b] dark:text-[#b5b5b8] mb-3 border border-[#cacacb]/40 dark:border-[#272a30]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#007d48] dark:bg-[#34d399]"></span>
+        Developer Support
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2] uppercase">
+        CONTACT US
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-[#4b4b4d] dark:text-[#9ca3af]">
+        Have an edge-case JSON format bug, algorithm request, or security compliance inquiry? We’d love to hear from you.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Contact Cards Column (Left) -->
+      <div class="space-y-4">
+        <div class="p-5 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+          <div class="w-8 h-8 rounded-lg bg-white dark:bg-[#1c1f26] border border-[#cacacb] dark:border-[#2b2d35] flex items-center justify-center text-sm mb-3">
+            🐛
+          </div>
+          <h2 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">Bug Reports & Issues</h2>
+          <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-1 leading-relaxed">
+            Found an AST parser bug or an unhandled schema edge-case? Let us know with reproducible sample snippets.
+          </p>
+          <a href="mailto:bugs@jsoncompareonline.com" class="text-xs font-mono font-medium underline text-[#111111] dark:text-[#f0f0f2] mt-3 block">
+            bugs@jsoncompareonline.com
+          </a>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+          <div class="w-8 h-8 rounded-lg bg-white dark:bg-[#1c1f26] border border-[#cacacb] dark:border-[#2b2d35] flex items-center justify-center text-sm mb-3">
+            💡
+          </div>
+          <h2 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">Feature Requests</h2>
+          <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-1 leading-relaxed">
+            Want a new converter format, customized indent options, or specific JSONPath filtering logic?
+          </p>
+          <a href="mailto:features@jsoncompareonline.com" class="text-xs font-mono font-medium underline text-[#111111] dark:text-[#f0f0f2] mt-3 block">
+            features@jsoncompareonline.com
+          </a>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+          <div class="w-8 h-8 rounded-lg bg-white dark:bg-[#1c1f26] border border-[#cacacb] dark:border-[#2b2d35] flex items-center justify-center text-sm mb-3">
+            🛡️
+          </div>
+          <h2 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">Security & Privacy</h2>
+          <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mt-1 leading-relaxed">
+            For vulnerability disclosure, penetration testing inquiries, or enterprise privacy audits:
+          </p>
+          <a href="mailto:security@jsoncompareonline.com" class="text-xs font-mono font-medium underline text-[#111111] dark:text-[#f0f0f2] mt-3 block">
+            security@jsoncompareonline.com
+          </a>
+        </div>
+      </div>
+
+      <!-- Contact Form Column (Right) -->
+      <div class="md:col-span-2">
+        <div class="p-6 sm:p-8 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+          <h2 class="text-lg font-bold text-[#111111] dark:text-[#f0f0f2] mb-1">
+            Send Us a Message
+          </h2>
+          <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] mb-6">
+            Fill out the form below. Our developer team usually responds within 24 to 48 hours.
+          </p>
+
+          <form id="contact-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="contact-name" class="block text-xs font-medium text-[#111111] dark:text-[#f0f0f2] mb-1">
+                  Your Name *
+                </label>
+                <input
+                  type="text"
+                  id="contact-name"
+                  name="name"
+                  required
+                  placeholder="e.g. Alex Chen"
+                  class="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2] transition-colors"
+                />
+              </div>
+
+              <div>
+                <label for="contact-email" class="block text-xs font-medium text-[#111111] dark:text-[#f0f0f2] mb-1">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="contact-email"
+                  name="email"
+                  required
+                  placeholder="alex@company.com"
+                  class="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2] transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="contact-category" class="block text-xs font-medium text-[#111111] dark:text-[#f0f0f2] mb-1">
+                Topic / Category
+              </label>
+              <select
+                id="contact-category"
+                name="category"
+                class="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2] transition-colors"
+              >
+                <option value="General Feedback">General Feedback</option>
+                <option value="Bug Report">Bug Report / Parser Issue</option>
+                <option value="Feature Suggestion">Feature Suggestion</option>
+                <option value="Security & Compliance">Security & Compliance</option>
+                <option value="Partnership">Partnership / API Inquiry</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="contact-message" class="block text-xs font-medium text-[#111111] dark:text-[#f0f0f2] mb-1">
+                Your Message *
+              </label>
+              <textarea
+                id="contact-message"
+                name="message"
+                rows="5"
+                required
+                placeholder="Describe your question, feature idea, or error details..."
+                class="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-[#1a1c23] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2] transition-colors resize-y"
+              ></textarea>
+            </div>
+
+            <div id="contact-status" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+
+            <button
+              type="submit"
+              id="contact-submit"
+              class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
+            >
+              Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function() {
+      const form = document.getElementById('contact-form');
+      const statusBox = document.getElementById('contact-status');
+      const submitBtn = document.getElementById('contact-submit');
+
+      if (!form || !statusBox || !submitBtn) return;
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('contact-name').value.trim();
+        const email = document.getElementById('contact-email').value.trim();
+        const category = document.getElementById('contact-category').value;
+        const message = document.getElementById('contact-message').value.trim();
+
+        if (!name || !email || !message) {
+          statusBox.className = 'p-3 rounded-xl text-xs font-medium bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300 block';
+          statusBox.textContent = 'Please fill out all required fields.';
+          return;
+        }
+
+        // Show instant success feedback
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        setTimeout(() => {
+          statusBox.className = 'p-3 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 block';
+          statusBox.innerHTML = '<strong>Thank you!</strong> Your message has been prepared. If your mail client does not open automatically, you can email us directly at <a href="mailto:support@jsoncompareonline.com" class="underline font-bold">support@jsoncompareonline.com</a>.';
+
+          // Trigger mailto fallback
+          const subject = encodeURIComponent(`[${category}] From ${name}`);
+          const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCategory: ${category}\n\nMessage:\n${message}`);
+          window.location.href = `mailto:support@jsoncompareonline.com?subject=${subject}&body=${body}`;
+
+          form.reset();
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }, 600);
+      });
+    })();
+  </script>
+</Layout>
+

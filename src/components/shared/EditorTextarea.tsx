@@ -1,18 +1,19 @@
 /**
  * EditorTextarea.tsx - The single textarea used by every editor panel.
- * Inline: `rows` prop + resize-y. Fullscreen: h-full min-h-0 resize-none,
+ * Inline: default min-height + resize-y. Fullscreen: h-full min-h-0 resize-none,
  * filling the Panel body (Panel body is flex-1 min-h-0).
  * Light + dark variants on every element.
  */
 import { useCallback } from 'preact/hooks';
 import { usePanelFullscreen } from './Panel';
 
+export const EDITOR_MIN_HEIGHT_PX = 163;
+
 interface Props {
   value: string;
   onInput: (value: string) => void;
   readOnly?: boolean;
   placeholder?: string;
-  rows?: number;
   ariaLabel?: string;
 }
 
@@ -21,7 +22,6 @@ export default function EditorTextarea({
   onInput,
   readOnly = false,
   placeholder = '',
-  rows = 12,
   ariaLabel = 'JSON editor',
 }: Props) {
   const { isFullscreen } = usePanelFullscreen();
@@ -40,7 +40,8 @@ export default function EditorTextarea({
   const bg = 'bg-white dark:bg-[#121316]';
   const fg = 'text-[#111111] dark:text-[#f0f0f2]';
   const resize = isFullscreen ? 'resize-none' : 'resize-y';
-  const height = isFullscreen ? 'h-full min-h-0' : `h-auto min-h-[${rows * 28}px]`;
+  const height = isFullscreen ? 'h-full min-h-0' : 'h-auto';
+  const heightStyle = isFullscreen ? undefined : { minHeight: `${EDITOR_MIN_HEIGHT_PX}px` };
 
   return (
     <textarea
@@ -52,6 +53,7 @@ export default function EditorTextarea({
       aria-label={ariaLabel}
       spellcheck={false}
       class={`${base} ${border} ${bg} ${fg} ${resize} ${height}`}
+      style={heightStyle}
     />
   );
 }
