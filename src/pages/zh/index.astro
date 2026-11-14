@@ -89,6 +89,231 @@ const features = [
         <p class="text-sm sm:text-base leading-relaxed">在软件工程、分布式架构和 API 开发中，比较结构化数据是日常任务。开发人员经常依赖 Git diff 或 Unix diff 等传统工具时遇到令人沮丧的误报。标准文本差异将文档视为字符序列。如果 REST 端点返回的对象具有相同值但键重新排序，或使用制表符而非空格，文本比较会将每一行标记为修改。这时专用的 <strong>json 比较</strong> 引擎和 <strong>在线 json 比较</strong> 工具变得不可或缺。</p>
         <p class="text-sm sm:text-base leading-relaxed">我们的在线 <strong>json 比较工具</strong> 实现语义树比较。我们的差异引擎将两个输入解析为抽象语法树（AST），协调结构节点，并进行深度 <strong>json 差异</strong> 比较。无论您是在调试微服务契约不匹配、验证暂存与生产数据库转储，还是跟踪前端 Redux 存储的状态更改，语义化差异都会揭示真实的添加、删除和值修改，同时忽略任意空白、缩进差异和键顺序。</p>
       </header>
+      <!-- 第 2 节：JSON 比较工具的核心功能 -->
+      <section class="space-y-4">
+        <h3 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          终极 JSON 比较差异引擎的核心功能
+        </h3>
+        <p class="text-sm leading-relaxed">
+          从零开始为现代开发者工作流程设计，这个 <strong>json 比较工具</strong> 解决了结构化数据比较中最棘手的边界情况：
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">深度键归一化</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              JSON 对象按规范是无序键值对集合。我们的自动化 <strong>json key 排序</strong> 递归地在所有嵌套层级中按字母顺序排列对象键，然后再计算差异，消除因序列化特性导致的虚假变更。
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">按键智能匹配数组元素</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              当向数组开头插入元素时，标准差异工具会因所有后续索引移位而失效。我们的引擎支持按 <code>id</code>、<code>uuid</code> 或 <code>slug</code> 等唯一标识符属性匹配数组元素，使匹配记录保持完美对齐。
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">RFC 6902 JSON 补丁导出</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              一键生成标准操作变更集。将有效的 <strong>json 补丁</strong> 操作（<code>add</code>、<code>remove</code>、<code>replace</code>、<code>move</code>、<code>copy</code>、<code>test</code>）直接导出到剪贴板，用于 RESTful HTTP PATCH 请求、Kubernetes 变更 webhook 或自动化迁移脚本。
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">客户端零服务器上传</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              您的安全与隐私至关重要。与旧版云粘贴工具不同，我们的整个处理流程在 Web 浏览器中 100% 本地运行。身份验证令牌、客户 PII、内部环境配置和专有负载永远不会离开您的计算机。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 第 3 节：一体化开发者 JSON 套件 -->
+      <section class="space-y-6">
+        <h3 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          一体化开发者 JSON 套件：格式化、验证、压缩和转换
+        </h3>
+        <p class="text-sm leading-relaxed">
+          虽然 <strong>json 比较</strong> 是我们平台的核心，但软件工程涉及每天多次操作数据负载。因此我们提供一套相互关联的快速客户端工具，旨在简化您的开发生命周期：
+        </p>
+        <div class="space-y-4">
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-formatter" class="hover:underline">JSON 格式化与美化工具</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              处理紧凑、未格式化的 API 输出或混乱日志时，我们的在线 <a href="/zh/tools/json-formatter" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json 格式化</a> 可立即格式化和缩进您的 JSON 负载。可在 2 空格、4 空格或制表符缩进之间选择，带有语法着色和自动结构折叠。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-validator" class="hover:underline">JSON 验证器与实时语法诊断</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              无效的 JSON 会导致下游解析器和 API 网关崩溃。我们的 <a href="/zh/tools/json-validator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json 验证</a> 可精确定位到行号和列号的语法错误，高亮显示未加引号键、多余逗号或未闭合括号，并提供一键自动语法修复。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-minifier" class="hover:underline">JSON 压缩与实用工具</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              在将配置部署到生产环境或跨低带宽网络渠道发送负载之前，使用我们的 <a href="/zh/tools/json-minifier" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json 压缩</a> 减小文档大小。它消除空白、回车和换行符，而不改变语义数据完整性。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-patch-generator" class="hover:underline">RFC 6902 JSON 补丁生成器</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              使用我们专用的 <a href="/zh/tools/json-patch-generator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json 补丁</a> 生成器生成标准化补丁文档，以表示两个对象之间的原子更新。非常适合创建 RESTful HTTP PATCH 请求正文、测试微服务差响应以及构建类 Git 的事件源系统。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-to-typescript" class="hover:underline">JSON 到 TypeScript 类型定义生成器</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              消除 TypeScript 接口创建的样板代码。将任何示例 API 负载粘贴到我们的 <a href="/zh/tools/json-to-typescript" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json 转 typescript</a> 生成器中，即可瞬间合成强类型 TS 接口、类型别名和可选嵌套类型，并具有正确的字段空值能力。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-escape-unescape" class="hover:underline">JSON 字符串转义和反转义工具</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              对数据库字符串列中的双转义反斜杠、引号和换行符感到厌倦？使用我们的 <a href="/zh/tools/json-escape-unescape" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">转义/反转义</a>（也常搜索为 <a href="/zh/tools/json-escape-unescape" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">escapre/unescape</a>）转换器，将字符串化 JSON 转换为清晰可读的语法，或将原始 JSON 转义以嵌入字符串中。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-schema-validator" class="hover:underline">JSON Schema 验证器（Draft-07 &amp; 2020-12）</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              验证 API 请求正文和配置文件是否符合标准架构。我们的 <a href="/zh/tools/json-schema-validator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json schema 验证器</a> 提供高性能架构验证，支持 Draft-07 和 Draft 2020-12 规范。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/zh/tools/json-sorter" class="hover:underline">JSON Key 排序器</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              使用我们独立的 <a href="/zh/tools/json-sorter" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json key 排序</a> 标准化混乱的负载结构。它以升序或降序字母顺序深度排序键，使版本比较和代码审查干净高效。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 第 4 节：多格式序列化转换器 -->
+      <section class="space-y-4">
+        <h3 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          双向格式转换器：YAML、XML 和 CSV
+        </h3>
+        <p class="text-sm leading-relaxed">
+          现代工程堆栈很少存在于仅 JSON 的真空中。云基础设施配置通常依赖 YAML，企业旧系统使用 XML，商业报告管道输出表格式 CSV。我们的平台提供高精度双向转换器：
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">YAML 转换</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              在结构间翻译 Kubernetes、GitHub Actions 和 OpenAPI 配置。
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/zh/convert/yaml-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">yaml 转 json</a>
+              <span>•</span>
+              <a href="/zh/convert/json-to-yaml" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json 转 yaml</a>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">XML 转换</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              将 SOAP 端点、RSS 源和旧版企业负载转换为轻量级现代 JSON。
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/zh/convert/xml-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">xml 转 json</a>
+              <span>•</span>
+              <a href="/zh/convert/json-to-xml" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json 转 xml</a>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">CSV 转换</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              将电子表格数据和分析导出转换为数组对象，或将对象展平为表格行。
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/zh/convert/csv-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">csv 转 json</a>
+              <span>•</span>
+              <a href="/zh/convert/json-to-csv" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json 转 csv</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 第 5 节：如何比较 JSON 文件的分步指南 -->
+      <section class="space-y-4">
+        <h3 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          在线 4 步轻松比较 JSON 文件
+        </h3>
+        <p class="text-sm leading-relaxed">
+          使用我们的 <strong>在线 json 比较</strong> 工具入门只需几秒钟。请按照以下四个快速步骤定位差异：
+        </p>
+        <ol class="list-decimal list-inside space-y-3 text-sm leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">输入您的 JSON 负载：</strong>将基准（左侧）和修改后（右侧）的 JSON 文档直接粘贴到编辑器中，或单击“加载文件”从本地驱动器导入 <code>.json</code> 文档。
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">归一化键和格式：</strong>保持“排序键”开关打开以激活我们的递归 <strong>json key 排序</strong>。如果您的 JSON 有尾随逗号或单引号，单击“智能修复”使用我们内置的 <strong>json 验证</strong> 自动修复。
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">审查语义差异：</strong>在“并排”和“统一”视图模式之间切换。红色高亮表示删除的属性，绿色高亮表示添加的键，琥珀色高亮表示修改的值。
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">导出发现：</strong>单击“复制补丁”提取 RFC 6902 <strong>json 补丁</strong> 差异，或将格式化的 JSON 直接复制到项目仓库。
+          </li>
+        </ol>
+      </section>
+
+      <!-- 第 6 节：功能对比表 -->
+      <section class="space-y-4">
+        <h3 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          比较：标准文本差异 vs 语义 JSON 比较工具
+        </h3>
+        <div class="overflow-x-auto border border-[#e5e5e5] dark:border-[#22242a] rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#f5f5f5] dark:bg-[#16181d] text-[#111111] dark:text-[#f0f0f2] border-b border-[#e5e5e5] dark:border-[#22242a]">
+              <tr>
+                <th class="p-3 font-semibold">评估标准</th>
+                <th class="p-3 font-semibold">传统文本差异</th>
+                <th class="p-3 font-semibold text-[#007d48] dark:text-[#34d399]">我们的语义 JSON 比较工具</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#e5e5e5] dark:divide-[#22242a] text-[#4b4b4d] dark:text-[#9ca3af]">
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">键顺序敏感度</td>
+                <td class="p-3 text-red-600 dark:text-red-400">将重新排序的键标记为变更</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">通过语义 AST 排序忽略顺序</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">空白和制表符</td>
+                <td class="p-3 text-red-600 dark:text-red-400">因间距报告虚假差异</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">完全忽略；专注于纯数据</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">数组元素匹配</td>
+                <td class="p-3 text-red-600 dark:text-red-400">索引移位导致级联错误</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">按唯一标识符进行智能数组对齐</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">RFC 6902 补丁输出</td>
+                <td class="p-3">不支持（仅统一文本补丁）</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">一键原生 JSON 补丁导出</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">隐私和安全性</td>
+                <td class="p-3">通常将负载发送到远程服务器</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">100% 浏览器内执行，零追踪</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </article>
 </Layout>

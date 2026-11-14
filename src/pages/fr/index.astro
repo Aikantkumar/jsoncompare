@@ -36,7 +36,232 @@ const features = [
   </section>
   <article class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-[#39393b] dark:text-[#d1d5db]">
     <div class="space-y-12">
-      <header class="space-y-4"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-xs font-mono text-[#39393b] dark:text-[#b5b5b8] border border-[#e5e5e5] dark:border-[#22242a]">Guide complet pour développeurs</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2]">Comprendre JSON Compare : pourquoi le diff sémantique surpasse les outils de texte brut</h2><p class="text-sm sm:text-base leading-relaxed">En ingénierie logicielle, architectures distribuées et développement d'API, comparer des données structurées est une tâche quotidienne. Pourtant, les développeurs rencontrent fréquemment de faux positifs frustrants en s'appuyant sur des utilitaires de diff traditionnels comme Git diff ou Unix diff. Un diff de texte brut traite les documents comme des séquences de caractères. Si un point de terminaison REST renvoie un objet avec des valeurs identiques mais des clés réordonnées, ou utilise des tabulations au lieu d'espaces, une comparaison texte marque chaque ligne comme modifiée. C'est là qu'un <strong>comparateur JSON</strong> et un <strong>outil de comparaison JSON en ligne</strong> dédié deviennent indispensables.</p><p class="text-sm sm:text-base leading-relaxed">Notre <strong>outil de comparaison JSON en ligne</strong> implémente la comparaison d'arbre sémantique. Au lieu d'inspecter les positions de caractères, notre moteur de diff analyse les deux entrées en un Arbre de Syntaxe Abstraite (AST), réconcilie les noeuds structurels, et effectue un <strong>diff JSON profond</strong>. Que vous déboguiez des désaccords de contrat de microservice, validiez des dumps de base de données de staging contre production, ou suiviez les changements d'état dans les magasins Redux frontend, le diff sémantique expose les ajouts, suppressions et modifications de valeur réelles tout en ignorant les variations arbitraires d'espaces, les différences d'indentation et l'ordre des clés.</p></header>
+      <header class="space-y-4"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-xs font-mono text-[#39393b] dark:text-[#b5b5b8] border border-[#e5e5e5] dark:border-[#22242a]">Guide complet pour développeurs</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2]">Comprendre JSON Compare : pourquoi le diff sémantique surpasse les outils de texte brut</h2><p class="text-sm sm:text-base leading-relaxed">En ingénierie logicielle, architectures distribuées et développement d'API, comparer des données structurées est une tâche quotidienne. Pourtant, les développeurs rencontrent fréquemment de faux positifs frustrants en s'appuyant sur des utilitaires de diff traditionnels comme Git diff ou Unix diff. Un diff de texte brut traite les documents comme des séquences de caractères. Si un point de terminaison REST renvoie un objet avec des valeurs identiques mais des clés réordonnées, ou utilise des tabulations au lieu d'espaces, une comparaison texte marque chaque ligne comme modifiée. C'est là qu'un <strong>comparateur JSON</strong> et un <strong>outil de comparaison JSON en ligne</strong> dédié deviennent indispensables.</p><p class="text-sm sm:text-base leading-relaxed">Notre <strong>outil de comparaison JSON en ligne</strong> implémente la comparaison d'arbre sémantique. Au lieu d'inspecter les positions de caractères, notre moteur de diff analyse les deux entrées en un Arbre de Syntaxe Abstraite (AST), réconcilie les noeuds structurels, et effectue un <strong>diff JSON profond</strong>. Que vous déboguiez des désaccords de contrat de microservice, validiez des dumps de base de données de staging contre production, ou suiviez les changements d'état dans les magasins Redux frontend, le diff sémantique expose les ajouts, suppressions et modifications de valeur réelles tout en ignorant les variations arbitraires d'espaces, les différences d'indentation et l'ordre des clés.</p>      </header>
+      <!-- Section 2: Fonctionnalités clés -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          Fonctionnalités clés du moteur de diff JSON ultime
+        </h2>
+        <p class="text-sm leading-relaxed">
+          Conçu depuis le début pour les flux de travail des développeurs modernes, cet <strong>outil de comparaison JSON</strong> résout les cas extrêmes les plus difficiles de la comparaison de données structurées :
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">Normalisation approfondie des clés</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              Les objets JSON sont par spécification des collections clé-valeur non ordonnées. Notre <strong>trieur de clés JSON</strong> automatisé organise récursivement toutes les clés des objets par ordre alphabétique à travers chaque hiérarchie imbriquée avant de calculer la différence, éliminant les changements faux causés par les particularités de sérialisation.
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">Correspondance intelligente des éléments de tableau par clé</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              Les outils de diff traditionnels échouent lorsqu'un élément est prépendé à un tableau car tous les index suivants se décalent d'un. Notre moteur permet de faire correspondre les éléments de tableau par des propriétés d'identifiant unique telles que <code>id</code>, <code>uuid</code> ou <code>slug</code>, en maintenant les enregistrements correspondants parfaitement alignés.
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">Exportation de correctif RFC 6902 JSON</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              Générez des ensembles de changements opérationnels standards en 1 clic. Exportez des opérations de <strong>correctif JSON</strong> valides (<code>add</code>, <code>remove</code>, <code>replace</code>, <code>move</code>, <code>copy</code>, <code>test</code>) directement dans votre presse-papiers pour des requêtes HTTP PATCH RESTful, des webhooks de mutation Kubernetes, ou des scripts de migration automatisés.
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">Zéro upload serveur côté client</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              Votre sécurité et votre confidentialité sont primordiales. Contrairement aux anciens outils de collage cloud, notre pipeline de traitement entier s'exécute à 100 % localement dans votre navigateur web. Les jetons d'authentification, les PII client, les configurations d'environnement internes et les charges propriétaires ne quittent jamais votre ordinateur.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Suite tout-en-un -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          Suite tout-en-un de développeurs JSON : Formater, Valider, Minifier, Transformer
+        </h2>
+        <p class="text-sm leading-relaxed">
+          Alors que <strong>json compare</strong> est la pierre angulaire de notre plateforme, l'ingénierie logicielle implique de nombreuses manipulations quotidiennes de charges de données. C'est pourquoi nous fournissons un écosystème d'outils côté client rapides et interconnectés conçus pour rationaliser votre cycle de développement :
+        </p>
+        <div class="space-y-4">
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-formatter" class="hover:underline">Formateur JSON et embellisseur</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Lorsque vous traitez des sorties API compactes et non formatées ou des journaux désordonnés, notre <a href="/fr/tools/json-formatter" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">formateur JSON</a> en ligne formate et indente immédiatement vos charges JSON. Choisissez entre une indentation de 2 espaces, 4 espaces ou des tabulations avec coloration syntaxique et repli automatique de la structure.
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-validator" class="hover:underline">Validateur JSON et diagnostic de syntaxe en temps réel</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Un JSON invalide plantera les parsers et les passerelles API en aval. Notre <a href="/fr/tools/json-validator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">validateur JSON</a> identifie les erreurs de syntaxe jusqu'au numéro de ligne et de colonne exact, en surlignant les clés non entre guillemets, les virgules en trop, ou les crochets non fermés, et fournit une réparation de syntaxe automatique en 1 clic.
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-minifier" class="hover:underline">Minificateur JSON et utilitaire de compression</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Avant de déployer des configurations dans des environnements de production ou d'envoyer des charges sur des canaux réseau à bande passante réduite, réduisez la taille des documents avec notre <a href="/fr/tools/json-minifier" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">minificateur JSON</a>. Il élimine les espaces, les retours chariot et les sauts de ligne sans modifier l'intégrité des données sémantiques.
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-patch-generator" class="hover:underline">Générateur de correctif RFC 6902 JSON</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Générez des documents de correctif standardisés pour représenter des mises à jour atomiques entre deux objets à l'aide de notre générateur dédié de <a href="/fr/tools/json-patch-generator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">correctif JSON</a>. Parfait pour créer des corps de requête HTTP PATCH RESTful, tester les réponses delta de microservices, et construire des systèmes d'approvisionnement événementiel de type Git.
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-to-typescript" class="hover:underline">Générateur de définition de type JSON vers TypeScript</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Éliminez le code de création d'interface TypeScript boilerplate. Collez n'importe quelle charge utile d'API d'exemple dans notre <a href="/fr/tools/json-to-typescript" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json vers typescript</a> pour synthétiser instantanément des interfaces TS fortement typées, des alias de type et des types imbriqués optionnels avec la nullabilité de champ correcte.
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-escape-unescape" class="hover:underline">Outil d'échappement et déséchappement de chaîne JSON</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Fatigué des antislashs, guillemets et caractères de nouvelle ligne doublement échappés dans les colonnes de chaîne de base de données ? Utilisez notre convertisseur d'<a href="/fr/tools/json-escape-unescape" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">échappement/déséchappement</a> (également communément recherché sous <a href="/fr/tools/json-escape-unescape" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">escapre/unescape</a>) pour déséchapper le JSON stringifié en syntaxe propre et lisible, ou échapper le JSON brut pour l'intégrer dans des chaînes.
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-schema-validator" class="hover:underline">Validateur de schéma JSON (Draft-07 &amp; 2020-12)</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Vérifiez la conformité contractuelle des corps de requête API et des fichiers de configuration contre des schémas standardisés. Notre <a href="/fr/tools/json-schema-validator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">validateur de schéma JSON</a> fournit une validation de schéma hautes performances prenant en charge les spécifications Draft-07 et Draft 2020-12.
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/fr/tools/json-sorter" class="hover:underline">Trieur de clés JSON</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              Standardisez les structures de charge désordonnées avec notre <a href="/fr/tools/json-sorter" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">trieur de clés JSON</a> autonome. Il trie profondément les clés par ordre alphabétique ascendant ou descendant, rendant les comparaisons de versions et les revues de code propres et sans effort.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Convertisseurs bidirectionnels -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          Convertisseurs de formats bidirectionnels : YAML, XML et CSV
+        </h2>
+        <p class="text-sm leading-relaxed">
+          Les stacks d'ingénierie modernes n'existent rarement dans un vide uniquement JSON. Les configurations d'infrastructure cloud reposent souvent sur YAML, les systèmes d'entreprise hérités consomment du XML, et les pipelines de reporting commerciaux produisent des CSV tabulaires. Notre plateforme fournit des convertisseurs bidirectionnels de haute précision :
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">Conversion YAML</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              Traduisez les configurations Kubernetes, GitHub Actions et OpenAPI entre les structures de sérialisation.
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/fr/convert/yaml-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">yaml vers json</a>
+              <span>•</span>
+              <a href="/fr/convert/json-to-yaml" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json vers yaml</a>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">Conversion XML</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              Faites le pont entre les points de terminaison SOAP, les flux RSS, et les charges d'entreprise héritées vers du JSON moderne et léger.
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/fr/convert/xml-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">xml vers json</a>
+              <span>•</span>
+              <a href="/fr/convert/json-to-xml" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json vers xml</a>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">Conversion CSV</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              Transformez les données de feuille de calcul et les exports analytiques en objets de tableau, ou aplatissez les objets en lignes tabulaires.
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/fr/convert/csv-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">csv vers json</a>
+              <span>•</span>
+              <a href="/fr/convert/json-to-csv" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json vers csv</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Guide étape par étape -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          Comment comparer des fichiers JSON en ligne en 4 étapes faciles
+        </h2>
+        <p class="text-sm leading-relaxed">
+          Démarrer avec notre <strong>outil de comparaison JSON en ligne</strong> ne prend que quelques secondes. Suivez ces quatre étapes rapides pour identifier les différences :
+        </p>
+        <ol class="list-decimal list-inside space-y-3 text-sm leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Saisissez vos charges JSON :</strong> Collez vos documents JSON de référence (Gauche) et modifiés (Droite) directement dans les éditeurs, ou cliquez sur « Charger le fichier » pour importer des documents <code>.json</code> depuis votre disque local.
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Normalisez les clés et le formatage :</strong> Maintenez l'option « Trier les clés » activée pour activer notre <strong>trieur de clés JSON</strong> récursif. Si votre JSON contient des virgules finales ou des guillemets simples, cliquez sur « Réparation intelligente » pour les réparer automatiquement avec notre <strong>validateur JSON</strong> intégré.
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Révisez le diff sémantique :</strong> Basculez entre les modes d'affichage « Côte à côte » et « Unifié ». Les surlignages rouges indiquent les propriétés supprimées, les surlignages verts indiquent les clés ajoutées, et les surlignages ambrés indiquent les valeurs modifiées.
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">Exportez les résultats :</strong> Cliquez sur « Copier le correctif » pour extraire le delta de <strong>correctif JSON</strong> RFC 6902, ou copiez le JSON formaté directement dans votre dépôt de projet.
+          </li>
+        </ol>
+      </section>
+
+      <!-- Section 6: Tableau comparatif -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          Comparaison : Diff de texte standard vs Outil de comparaison JSON sémantique
+        </h2>
+        <div class="overflow-x-auto border border-[#e5e5e5] dark:border-[#22242a] rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#f5f5f5] dark:bg-[#16181d] text-[#111111] dark:text-[#f0f0f2] border-b border-[#e5e5e5] dark:border-[#22242a]">
+              <tr>
+                <th class="p-3 font-semibold">Critère d'évaluation</th>
+                <th class="p-3 font-semibold">Diff de texte traditionnel</th>
+                <th class="p-3 font-semibold text-[#007d48] dark:text-[#34d399]">Notre outil de comparaison JSON sémantique</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#e5e5e5] dark:divide-[#22242a] text-[#4b4b4d] dark:text-[#9ca3af]">
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">Sensibilité à l'ordre des clés</td>
+                <td class="p-3 text-red-600 dark:text-red-400">Marque les clés réordonnées comme des modifications</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">Indépendant de l'ordre via le tri AST sémantique</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">Espaces et tabulations</td>
+                <td class="p-3 text-red-600 dark:text-red-400">Signale de fausses disparitions pour l'espacement</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">Complètement ignoré ; se concentre sur les données pures</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">Correspondance des éléments de tableau</td>
+                <td class="p-3 text-red-600 dark:text-red-400">Le décalage d'index provoque des erreurs en cascade</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">Alignement intelligent de tableau par identifiant unique</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">Sortie de correctif RFC 6902</td>
+                <td class="p-3">Non supporté (Uniquement un diff de texte unifié)</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">Exportation native de correctif JSON en 1 clic</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">Confidentialité et sécurité</td>
+                <td class="p-3">Envoie souvent les charges vers des serveurs distants</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">Exécution 100 % dans le navigateur avec zéro traçage</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </article>
 </Layout>

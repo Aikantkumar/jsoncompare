@@ -36,7 +36,232 @@ const features = [
   </section>
   <article class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-[#39393b] dark:text-[#d1d5db]">
     <div class="space-y-12">
-      <header class="space-y-4"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-xs font-mono text-[#39393b] dark:text-[#b5b5b8] border border-[#e5e5e5] dark:border-[#22242a]">開発者向け完全ガイド</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2]">JSON Compare の理解：なぜセマンティック差分がプレーンテキストツールを上回るのか</h2><p class="text-sm sm:text-base leading-relaxed">ソフトウェアエンジニアリング、分散アーキテクチャ、API 開発では、構造化データの比較は日常業務です。しかし、Git diff や Unix diff などの従来ツールに依存すると、開発者は頻繁にイライラする誤検出に直面します。標準テキスト差分はドキュメントを文字のシーケンスとして扱います。REST エンドポイントが同じ値だがキーの順序が異なるオブジェクトを返した場合、またはタブではなくスペースを使用した場合、テキスト比較はすべての行を変更とフラグします。ここで専用の <strong>json 比較</strong> エンジンと <strong>オンライン json 比較</strong> ツールが不可欠になります。</p><p class="text-sm sm:text-base leading-relaxed">当社のオンライン <strong>json 比較ツール</strong> はセマンティックツリー比較を実装します。文字位置を検査する代わりに、差分エンジンは両方の入力を抽象構文木（AST）にパースし、構造ノードを調整し、深い <strong>json 差分</strong> を実行します。マイクロサービス契約の不一致をデバッグしたり、ステージングと本番のデータベースダンプを検証したり、フロントエンド Redux ストアの状態変更を追跡したりする場合、セマンティック差分は実際の追加、削除、値変更を露呈し、任意の空白、インデントの違い、キー順序を無視します。</p></header>
+      <header class="space-y-4"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5f5f5] dark:bg-[#16181d] text-xs font-mono text-[#39393b] dark:text-[#b5b5b8] border border-[#e5e5e5] dark:border-[#22242a]">開発者向け完全ガイド</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111111] dark:text-[#f0f0f2]">JSON Compare の理解：なぜセマンティック差分がプレーンテキストツールを上回るのか</h2><p class="text-sm sm:text-base leading-relaxed">ソフトウェアエンジニアリング、分散アーキテクチャ、API 開発では、構造化データの比較は日常業務です。しかし、Git diff や Unix diff などの従来ツールに依存すると、開発者は頻繁にイライラする誤検出に直面します。標準テキスト差分はドキュメントを文字のシーケンスとして扱います。REST エンドポイントが同じ値だがキーの順序が異なるオブジェクトを返した場合、またはタブではなくスペースを使用した場合、テキスト比較はすべての行を変更とフラグします。ここで専用の <strong>json 比較</strong> エンジンと <strong>オンライン json 比較</strong> ツールが不可欠になります。</p><p class="text-sm sm:text-base leading-relaxed">当社のオンライン <strong>json 比較ツール</strong> はセマンティックツリー比較を実装します。文字位置を検査する代わりに、差分エンジンは両方の入力を抽象構文木（AST）にパースし、構造ノードを調整し、深い <strong>json 差分</strong> を実行します。マイクロサービス契約の不一致をデバッグしたり、ステージングと本番のデータベースダンプを検証したり、フロントエンド Redux ストアの状態変更を追跡したりする場合、セマンティック差分は実際の追加、削除、値変更を露呈し、任意の空白、インデントの違い、キー順序を無視します。</p>      </header>
+      <!-- セクション 2: 主要機能 -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          究極の JSON 比較差分エンジンの主要機能
+        </h2>
+        <p class="text-sm leading-relaxed">
+          現代の開発者ワークフローのためにゼロから設計され、この <strong>json 比較ツール</strong> は構造化データ比較の最も困難なエッジケースを解決します：
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">ディープキー正規化</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              JSON オブジェクトは仕様上、順序付けられていないキー値ペアのコレクションです。当社の自動化された <strong>json キーソーター</strong> は、差分を計算する前にすべてのネスト階層にわたってオブジェクトキーをアルファベット順に再帰的に配置し、シリアル化のクセによる誤った変更を排除します。
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">キーによるインテリジェントな配列整合</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              項目が配列の先頭に追加されると、標準の差分ツールは後続のインデックスがすべて一つずつずれるため失敗します。当社のエンジンは、<code>id</code>、<code>uuid</code>、または <code>slug</code> などの一意の識別子プロパティによって配列要素を整合させ、一致したレコードを完璧に並べたままにします。
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">RFC 6902 JSON パッチエクスポート</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              1 クリックで標準的な操作変更セットを生成します。有効な <strong>json パッチ</strong> 操作（<code>add</code>、<code>remove</code>、<code>replace</code>、<code>move</code>、<code>copy</code>、<code>test</code>）を直接クリップボードにエクスポートし、RESTful HTTP PATCH リクエスト、Kubernetes ミューティング Webhook、または自動化移行スクリプトに使用します。
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-sm text-[#111111] dark:text-[#f0f0f2] mb-1">クライアントサイドゼロサーバーアップロード</h4>
+            <p class="text-xs leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+              お客様のセキュリティとプライバシーが最優先です。従来のクラウドペーストツールとは異なり、当社の処理パイプライン全体は Web ブラウザ内で 100% ローカルに実行されます。認証トークン、顧客 PII、社内環境設定、独自のペイロードは決してお客様のコンピュータから外出しません。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- セクション 3: オールインワン開発者 JSON スイート -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          オールインワン開発者 JSON スイート：形式化、検証、ミニファイ、変換
+        </h2>
+        <p class="text-sm leading-relaxed">
+          <strong>json 比較</strong> は当社プラットフォームの中心pieceですが、ソフトウェアエンジニアリングではデータペイロードの日常的な操作が複数含まれます。だからこそ、開発ライフサイクルを効率化するために設計された高速クライアントサイドツールの相互接続エコシステムを提供します：
+        </p>
+        <div class="space-y-4">
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-formatter" class="hover:underline">JSON フォーマッタ &amp; ビューティファイア</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              コンパクトでフォーマットされていない API 出力や乱雑なログを扱う際、当社のオンライン <a href="/ja/tools/json-formatter" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json フォーマッタ</a> は JSON ペイロードを即座にフォーマットしインデントします。2 スペース、4 スペース、またはタブインデントの間で選択でき、構文着色と自動構造折りたたみ機能を備えています。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-validator" class="hover:underline">JSON バリダター &amp; リアルタイム構文診断</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              無効な JSON は下流パーサーや API ゲートウェイをクラッシュさせます。当社の <a href="/ja/tools/json-validator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json バリダター</a> は構文エラーを正確な行番号と列番号まで特定し、未クォートキー、迷惑カンマ、閉じ括弧なしをハイライトし、1 クリックの自動構文修復を提供します。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-minifier" class="hover:underline">JSON ミニファイア &amp; 圧縮ユーティリティ</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              本番環境への設定デプロイ前や低帯域幅ネットワークチャンネルを通じたペイロード送信前に、当社の <a href="/ja/tools/json-minifier" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json ミニファイア</a> でドキュメントサイズを削減します。意味データの整合性を変更することなく、空白、キャリッジリターン、改行を削除します。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-patch-generator" class="hover:underline">RFC 6902 JSON パッチジェネレーター</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              2 つのオブジェクト間の原子更新を表す標準化パッチドキュメントを、当社の専用の <a href="/ja/tools/json-patch-generator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json パッチ</a> ジェネレーターで生成します。RESTful HTTP PATCH リクエストボディの作成、マイクロサービスデルタレスポンスのテスト、Git のようなイベントソーシングシステムの構築に最適です。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-to-typescript" class="hover:underline">JSON から TypeScript 型定義ジェネレーター</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              TypeScript インターフェイス作成のボイラープレートを排除します。任意のサンプル API ペイロードを当社の <a href="/ja/tools/json-to-typescript" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json から TypeScript</a> ジェネレーターに貼り付け、強力に型付けされた TS インターフェイス、型エイリアス、オプションのネスト型をフィールドの nullability 正しく瞬時に合成します。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-escape-unescape" class="hover:underline">JSON 文字列エスケープ・アンescape ツール</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              データベース文字列列での二重エスケープされたバックスラッシュ、引用符、改行文字にうんざりですか？ 当社の <a href="/ja/tools/json-escape-unescape" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">エスケープ/アンescape</a>（一般的に <a href="/ja/tools/json-escape-unescape" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">escapre/unescape</a> としても検索されます）コンバーターを使用して、文字列化された JSON をクリーンで読みやすい構文にアンescape したり、生の JSON を文字列に埋め込むためにエスケープしたりします。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-schema-validator" class="hover:underline">JSON スキーマバリダター（ドラフト 07 &amp; 2020-12）</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              API リクエストボディや設定ファイルの標準スキーマに対する契約準拠を検証します。当社の <a href="/ja/tools/json-schema-validator" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json スキーマバリダター</a> はドラフト 07 とドラフト 2020-12 仕様をサポートする高性能スキーマ検証を提供します。
+            </p>
+          </div>
+          <div class="border-l-2 border-[#111111] dark:border-[#f0f0f2] pl-4 space-y-1">
+            <h4 class="text-sm font-bold text-[#111111] dark:text-[#f0f0f2]">
+              <a href="/ja/tools/json-sorter" class="hover:underline">JSON キーソーター</a>
+            </h4>
+            <p class="text-xs leading-relaxed">
+              混乱したペイロード構造を当社のスタンドアロンの <a href="/ja/tools/json-sorter" class="text-[#111111] dark:text-[#f0f0f2] font-semibold underline">json キーソーター</a> で標準化します。昇順または降順のアルファベット順でキーを深くソートし、バージョン比較とコードレビューをクリーンかつ簡単にします。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- セクション 4: 双方向形式コンバータ -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          双方向形式コンバータ：YAML、XML、CSV
+        </h2>
+        <p class="text-sm leading-relaxed">
+          最新のエンジニアリングスタックはめったに JSON のみの真空状態には存在しません。クラウドインフラストラクチャ設定はしばしば YAML に依存し、エンタープライズレガシーシステムは XML を消費し、ビジネスレポートパイプラインは表形式の CSV を出力します。当社プラットフォームは高精度の双方向コンバータを提供します：
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">YAML 変換</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              Kubernetes、GitHub Actions、OpenAPI 設定をシリアル化構造間で翻訳します。
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/ja/convert/yaml-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">yaml から json</a>
+              <span>•</span>
+              <a href="/ja/convert/json-to-yaml" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json から yaml</a>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">XML 変換</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              SOAP エンドポイント、RSS フィード、レガシーエンタープライズペイロードを軽量な最新 JSON に橋渡しします。
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/ja/convert/xml-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">xml から json</a>
+              <span>•</span>
+              <a href="/ja/convert/json-to-xml" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json から xml</a>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a]">
+            <h4 class="font-bold text-xs uppercase text-[#111111] dark:text-[#f0f0f2] mb-1">CSV 変換</h4>
+            <p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed mb-2">
+              スプレッドシートデータや分析エクスポートを配列オブジェクトに変換するか、オブジェクトを表形式行にフラット化します。
+            </p>
+            <div class="flex gap-2 text-xs">
+              <a href="/ja/convert/csv-to-json" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">csv から json</a>
+              <span>•</span>
+              <a href="/ja/convert/json-to-csv" class="underline font-semibold text-[#111111] dark:text-[#f0f0f2]">json から csv</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- セクション 5: ステップバイステップガイド -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          オンラインで JSON ファイルを 4 つの簡単なステップで比較する方法
+        </h2>
+        <p class="text-sm leading-relaxed">
+          当社の <strong>オンライン json 比較</strong> ツールを使い始めるのに数秒しかかかりません。違いを特定するには、この 4 つの簡単なステップに従ってください：
+        </p>
+        <ol class="list-decimal list-inside space-y-3 text-sm leading-relaxed text-[#4b4b4d] dark:text-[#9ca3af]">
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">JSON ペイロードを入力：</strong>ベースライン（左）と変更済み（右）の JSON ドキュメントを直接エディターに貼り付けるか、「ファイルの読み込み」をクリックしてローカルドライブから <code>.json</code> ドキュメントをインポートします。
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">キーと書式を正規化：</strong>「キーをソート」の切り替えをオンにして、再帰的な <strong>json キーソーター</strong> を有効にします。JSON に末尾カンマや単一引用符がある場合は、「スマート修復」をクリックして内蔵の <strong>json バリダター</strong> で自動的に修復します。
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">セマンティック差分を確認：</strong>「サイドバイサイド」と「統一」の表示モードを切り替えます。赤のハイライトは削除されたプロパティ、緑は追加されたキー、琥珀色は変更された値を示します。
+          </li>
+          <li>
+            <strong class="text-[#111111] dark:text-[#f0f0f2]">調査結果をエクスポート：</strong>「パッチのコピー」をクリックして RFC 6902 <strong>json パッチ</strong> 差分を抽出するか、フォーマット済みの JSON をプロジェクトリポジトリに直接コピーします。
+          </li>
+        </ol>
+      </section>
+
+      <!-- セクション 6: 機能比較表 -->
+      <section class="space-y-4">
+        <h2 class="text-xl font-bold text-[#111111] dark:text-[#f0f0f2]">
+          比較：標準テキスト差分 vs セマンティック JSON 比較ツール
+        </h2>
+        <div class="overflow-x-auto border border-[#e5e5e5] dark:border-[#22242a] rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#f5f5f5] dark:bg-[#16181d] text-[#111111] dark:text-[#f0f0f2] border-b border-[#e5e5e5] dark:border-[#22242a]">
+              <tr>
+                <th class="p-3 font-semibold">評価基準</th>
+                <th class="p-3 font-semibold">従来のテキスト差分</th>
+                <th class="p-3 font-semibold text-[#007d48] dark:text-[#34d399]">当社のセマンティック JSON 比較ツール</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#e5e5e5] dark:divide-[#22242a] text-[#4b4b4d] dark:text-[#9ca3af]">
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">キー順序感度</td>
+                <td class="p-3 text-red-600 dark:text-red-400">キーの再順序化を変更としてフラグ</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">セマンティック AST ソートによる順序非依存</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">空白とタブ</td>
+                <td class="p-3 text-red-600 dark:text-red-400">間隔に対する誤差を報告</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">完全に無視；純粋なデータに焦点</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">配列要素の整合</td>
+                <td class="p-3 text-red-600 dark:text-red-400">インデックスのずれがカスケードエラーを引き起こす</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">一意の識別子によるスマート配列整合</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">RFC 6902 パッチ出力</td>
+                <td class="p-3">サポートなし（統一テキストパッチのみ）</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">1 クリックでネイティブ JSON パッチエクスポート</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-medium text-[#111111] dark:text-[#f0f0f2]">プライバシーとセキュリティ</td>
+                <td class="p-3">多くの場合ペイロードをリモートサーバーに送信</td>
+                <td class="p-3 text-[#007d48] dark:text-[#34d399] font-medium">100% ブラウザ内実行、追跡ゼロ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </article>
 </Layout>
