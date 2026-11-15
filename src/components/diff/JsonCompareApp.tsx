@@ -20,6 +20,7 @@ import Toast from '../../components/shared/Toast';
 import Panel, { PanelFullscreenContext, usePanelFullscreen } from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
 import ResizeHandle from '../../components/shared/ResizeHandle';
+import { LangProvider, useT, useFormatNumber } from '../../components/shared/LangContext';
 
 const SAMPLES = {
   apiResponse: {
@@ -63,7 +64,6 @@ const SAMPLES = {
 };
 
 const ACCEPT_JSON_TXT = ['.json', '.txt'];
-const LARGE_FILE_MODE_BANNER = 'Large file mode: live comparison disabled. Click “Compare” to diff.';
 const DIFF_ROW_CAP = 3000;
 const FOLD_THRESHOLD = 6;
 
@@ -148,17 +148,17 @@ function DiffTable(props: {
               {view === 'split' && (
                 <>
                   <th class="w-12 px-2 py-1.5 text-right font-normal">#</th>
-                  <th class="w-1/2 px-3 py-1.5 font-normal border-r border-[#e5e5e5] dark:border-[#22242a]">Original Value</th>
+                  <th class="w-1/2 px-3 py-1.5 font-normal border-r border-[#e5e5e5] dark:border-[#22242a]">{t('compare.colOriginal')}</th>
                   <th class="w-12 px-2 py-1.5 text-right font-normal">#</th>
-                  <th class="w-1/2 px-3 py-1.5 font-normal">Modified Value</th>
+                  <th class="w-1/2 px-3 py-1.5 font-normal">{t('compare.colModified')}</th>
                 </>
               )}
               {view === 'unified' && (
                 <>
-                  <th class="w-12 px-2 py-1.5 text-right font-normal">L</th>
-                  <th class="w-12 px-2 py-1.5 text-right font-normal">R</th>
-                  <th class="w-8 px-2 py-1.5 text-center font-normal">Op</th>
-                  <th class="px-3 py-1.5 font-normal">Content</th>
+                  <th class="w-12 px-2 py-1.5 text-right font-normal">{t('compare.colL')}</th>
+                  <th class="w-12 px-2 py-1.5 text-right font-normal">{t('compare.colR')}</th>
+                  <th class="w-8 px-2 py-1.5 text-center font-normal">{t('compare.colOp')}</th>
+                  <th class="px-3 py-1.5 font-normal">{t('compare.colContent')}</th>
                 </>
               )}
             </tr>
@@ -173,9 +173,9 @@ function DiffTable(props: {
                     onClick={() => toggleFold(item.foldId!)}
                   >
                     <td colSpan={4} class="px-3 py-1.5 text-[11px] text-[#707072] dark:text-[#8e8e93] border-l border-[#e5e5e5] dark:border-[#22242a]">
-                      {item.foldCount} unchanged lines{' '}
+                      {formatNumber(item.foldCount)} {t(item.foldCount === 1 ? 'compare.foldUnchangedOne' : 'compare.foldUnchangedOther', { n: formatNumber(item.foldCount) })}{' '}
                       <span class="ml-2 text-[#1151ff] dark:text-[#60a5fa] hover:underline cursor-pointer">
-                        {expandedFolds.has(item.foldId!) ? 'show less' : 'show'}
+                        {expandedFolds.has(item.foldId!) ? t('compare.foldShowLess') : t('compare.foldShow')}
                       </span>
                     </td>
                   </tr>
@@ -185,7 +185,7 @@ function DiffTable(props: {
                 return (
                   <tr key="showmore">
                     <td colSpan={4} class="px-3 py-1.5 text-center text-[11px] text-[#1151ff] dark:text-[#60a5fa] cursor-pointer hover:underline" onClick={handleShowMore}>
-                      Show more (+{item.remaining} rows)
+                      {t('compare.showMore', { n: formatNumber(item.remaining) })}
                     </td>
                   </tr>
                 );
@@ -257,7 +257,7 @@ function DiffTable(props: {
       </div>
         {remaining > 0 && (
           <button type="button" onClick={handleShowMore} class="px-3 py-1.5 text-[11px] text-[#1151ff] dark:text-[#60a5fa] hover:underline cursor-pointer mt-2">
-            Show more (+{remaining} rows)
+            {t('compare.showMore', { n: formatNumber(remaining) })}
           </button>
         )}
       </>
@@ -321,7 +321,17 @@ function setStoredNormalHeight(height: number | null) {
   }
 }
 
-export default function JsonCompareApp() {
+export default function JsonCompareApp({ lang = 'en' }: { lang?: string } = {}) {
+  return (
+    <LangProvider lang={lang}>
+      <JsonCompareAppInner />
+    </LangProvider>
+  );
+}
+
+function JsonCompareAppInner() {
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [leftDoc, leftActions] = useTextDoc(SAMPLES.apiResponse.left);
   const [rightDoc, rightActions] = useTextDoc(SAMPLES.apiResponse.right);
   const [activeView, setActiveView] = useState<AppView>('split');
@@ -582,17 +592,19 @@ export default function JsonCompareApp() {
   // ---- File handling ----
   const applyLeftFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     leftActions.loadFile(result);
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [leftActions, showToast]);
 
   const applyRightFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     rightActions.loadFile(result);
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [rightActions, showToast]);
 
-  const handleFileError = useCallback((msg: string) => {
-    showToast(msg);
-  }, [showToast]);
+  const handleFileError = useCallback((err: unknown) => {
+    const e = err as Error & { code?: string; params?: Record<string, string> };
+    const translated = e.code ? t(`error.file.${e.code}`, e.params) : null;
+    showToast(translated ?? (e instanceof Error ? e.message : String(err)));
+  }, [t, showToast]);
 
   const handleDropFiles = useCallback((files: FileList, preferredSide: 'left' | 'right') => {
     const arr = Array.from(files);
@@ -676,30 +688,30 @@ export default function JsonCompareApp() {
     // Re-apply edited flags after setText (which marks edited by default).
     setLeftEdited(tmpEdited);
     setRightEdited(leftDoc.edited);
-    showToast("Swapped left and right JSON");
+    showToast(t('compare.toastSwapped'));
   };
 
   // Use local edited flags since useTextDoc resets edited on loadFile/setText default.
   const handleClearLeft = () => {
     leftActions.clear();
     setLeftEdited(false);
-    showToast("Cleared left side");
+    showToast(t('compare.toastClearedLeft'));
   };
   const handleClearRight = () => {
     rightActions.clear();
     setRightEdited(false);
-    showToast("Cleared right side");
+    showToast(t('compare.toastClearedRight'));
   };
 
-  const handleCopy = async (text: string, label: string) => {
+  const handleCopy = async (text: string, side: 'left' | 'right') => {
     const ok = await copyText(text);
-    showToast(ok ? `Copied ${label}!` : `Copy failed`);
+    showToast(ok ? t(side === 'left' ? 'compare.toastCopiedLeft' : 'compare.toastCopiedRight') : t('common.copyFailed'));
   };
 
   const handleDownload = (text: string, sourceName: string | null, fallback: string) => {
     const name = deriveDownloadName(sourceName, '.json', fallback);
     downloadText(text, name, 'application/json');
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   };
 
   const handleFormatBoth = () => {
@@ -714,9 +726,9 @@ export default function JsonCompareApp() {
         rightActions.setText(JSON.stringify(rp, null, 2));
         setRightEdited(true);
       }
-      showToast("Formatted both JSONs");
+      showToast(t('compare.toastFormattedBoth'));
     } catch {
-      showToast("Could not format: check for syntax errors");
+      showToast(t('compare.toastFormatFailed'));
     }
   };
 
@@ -727,7 +739,7 @@ export default function JsonCompareApp() {
     rightActions.setText(repairedRight);
     setLeftEdited(true);
     setRightEdited(true);
-    showToast("Smart repair applied to both inputs");
+    showToast(t('compare.toastSmartRepairBoth'));
   };
 
   const handleCopyDiffReport = async () => {
@@ -737,7 +749,7 @@ export default function JsonCompareApp() {
       patches: patchResult,
     };
     const ok = await copyText(JSON.stringify(report, null, 2));
-    showToast(ok ? "Copied diff summary & patch to clipboard!" : "Copy failed");
+    showToast(ok ? t('compare.toastCopiedDiffReport') : t('common.copyFailed'));
   };
 
   const stats = diffResult ? diffResult.stats : { added: 0, removed: 0, modified: 0, unchanged: 0, totalChanges: 0 };
@@ -747,33 +759,33 @@ export default function JsonCompareApp() {
     <div class="flex items-center gap-1 bg-white dark:bg-[#18191d] p-1 rounded-full border border-[#cacacb]/60 dark:border-[#2b2d35] shadow-xs">
       <button
         onClick={() => setActiveView('split')}
-        class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+        class={`px-3.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap transition-all cursor-pointer ${
           active === 'split'
             ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
             : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
         }`}
       >
-        Split View
+        {t('compare.viewSplit')}
       </button>
       <button
         onClick={() => setActiveView('unified')}
-        class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+        class={`px-3.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap transition-all cursor-pointer ${
           active === 'unified'
             ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
             : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
         }`}
       >
-        Unified Diff
+        {t('compare.viewUnified')}
       </button>
       <button
         onClick={() => setActiveView('patch')}
-        class={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
+        class={`px-3.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap transition-all cursor-pointer ${
           active === 'patch'
             ? 'bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111] shadow-xs'
             : 'text-[#707072] dark:text-[#8e8e93] hover:text-[#111111] dark:hover:text-[#f0f0f2]'
         }`}
       >
-        RFC 6902 Patch ({patchResult.length})
+        {t('compare.viewPatch', { n: formatNumber(patchResult.length) })}
       </button>
     </div>
   );
@@ -808,46 +820,46 @@ export default function JsonCompareApp() {
             <div class="flex items-center gap-1.5">
               <button
                 onClick={handleSwap}
-                title="Swap Left and Right"
+                title={t('compare.titleSwap')}
                 class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
               >
-                ↔ Swap
+                ↔ {t('common.swap')}
               </button>
               <button
                 onClick={handleFormatBoth}
-                title="Format and beautify both inputs"
+                title={t('compare.titlePrettify')}
                 class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
               >
-                Prettify
+                {t('compare.btnPrettify')}
               </button>
               <button
                 onClick={handleSmartRepairBoth}
-                title="Fix syntax errors, trailing commas, single quotes"
+                title={t('compare.titleSmartFix')}
                 class="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#1151ff] dark:text-[#60a5fa] hover:bg-[#1151ff] hover:text-white dark:hover:bg-[#1151ff] dark:hover:text-white transition-colors cursor-pointer"
               >
-                ✨ Smart Fix
+                ✨ {t('compare.btnSmartFix')}
               </button>
               <button
                 onClick={handleCopyDiffReport}
                 class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
               >
-                Copy Report
+                {t('compare.btnCopyReport')}
               </button>
             </div>
 
             <div class="flex items-center gap-2 text-xs font-mono">
               <span class="px-2.5 py-0.5 rounded-full bg-white dark:bg-[#18191d] border border-[#e5e5e5] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-semibold">
-                {stats.totalChanges === 0 ? "Identical" : `${stats.totalChanges} changes`}
+                {stats.totalChanges === 0 ? t('compare.identical') : `${formatNumber(stats.totalChanges)} ${t(stats.totalChanges === 1 ? 'compare.changesOne' : 'compare.changesOther', { n: formatNumber(stats.totalChanges) })}`}
               </span>
-              <span class="px-2 py-0.5 rounded-full bg-[#007d48]/10 text-[#007d48] dark:bg-[#1eaa52]/20 dark:text-[#34d399] font-medium">
-                +{stats.added}
-              </span>
-              <span class="px-2 py-0.5 rounded-full bg-[#d30005]/10 text-[#d30005] dark:bg-[#f87171]/20 dark:text-[#f87171] font-medium">
-                -{stats.removed}
-              </span>
-              <span class="px-2 py-0.5 rounded-full bg-[#1151ff]/10 text-[#1151ff] dark:bg-[#60a5fa]/20 dark:text-[#60a5fa] font-medium">
-                ~{stats.modified}
-              </span>
+                <span class="px-2 py-0.5 rounded-full bg-[#007d48]/10 text-[#007d48] dark:bg-[#1eaa52]/20 dark:text-[#34d399] font-medium">
+                  {t('compare.added', { n: formatNumber(stats.added) })}
+                </span>
+                <span class="px-2 py-0.5 rounded-full bg-[#d30005]/10 text-[#d30005] dark:bg-[#f87171]/20 dark:text-[#f87171] font-medium">
+                  {t('compare.removed', { n: formatNumber(stats.removed) })}
+                </span>
+                <span class="px-2 py-0.5 rounded-full bg-[#1151ff]/10 text-[#1151ff] dark:bg-[#60a5fa]/20 dark:text-[#60a5fa] font-medium">
+                  {t('compare.modified', { n: formatNumber(stats.modified) })}
+                </span>
             </div>
 
             {viewPills(activeView)}
@@ -862,7 +874,7 @@ export default function JsonCompareApp() {
                   onChange={(e: any) => setIgnoreKeyOrder((e.target as HTMLInputElement).checked)}
                   class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
                 />
-                <span class="font-medium">Ignore Key Order</span>
+                <span class="font-medium">{t('compare.ignoreKeyOrder')}</span>
               </label>
               <label class="flex items-center gap-1.5 cursor-pointer select-none">
                 <input
@@ -871,7 +883,7 @@ export default function JsonCompareApp() {
                   onChange={(e: any) => setIgnoreArrayOrder((e.target as HTMLInputElement).checked)}
                   class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
                 />
-                <span class="font-medium">Ignore Array Order</span>
+                <span class="font-medium">{t('compare.ignoreArrayOrder')}</span>
               </label>
               <label class="flex items-center gap-1.5 cursor-pointer select-none">
                 <input
@@ -880,7 +892,7 @@ export default function JsonCompareApp() {
                   onChange={(e: any) => setMatchArrayById((e.target as HTMLInputElement).checked)}
                   class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] focus:ring-0"
                 />
-                <span class="font-medium">Align Array by Key:</span>
+                <span class="font-medium">{t('compare.alignArrayByKey')}</span>
                 <input
                   type="text"
                   value={arrayIdKey}
@@ -892,12 +904,12 @@ export default function JsonCompareApp() {
 
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-1.5 bg-white dark:bg-[#18191d] px-2.5 py-1 rounded-full border border-[#cacacb]/80 dark:border-[#2b2d35]">
-                <span class="font-mono text-[11px] text-[#707072] dark:text-[#8e8e93]">Filter:</span>
+                <span class="font-mono text-[11px] text-[#707072] dark:text-[#8e8e93]">{t('compare.filterLabel')}</span>
                 <input
                   type="text"
                   value={jsonPathFilter}
                   onInput={(e: any) => setJsonPathFilter((e.target as HTMLInputElement).value)}
-                  placeholder="$.users[*] (Optional)"
+                  placeholder={t('compare.filterPlaceholder')}
                   class="font-mono text-xs text-[#111111] dark:text-[#f0f0f2] outline-none w-36 bg-transparent"
                 />
                 {jsonPathFilter && (
@@ -914,15 +926,15 @@ export default function JsonCompareApp() {
                 ref={fullscreenTriggerRef}
                 type="button"
                 onClick={toggleWorkspaceFullscreen}
-                aria-label="Toggle workspace fullscreen"
+                aria-label={t('a11y.toggleFullscreen')}
                 aria-pressed={workspaceFullscreen}
                 class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
               >
-                {workspaceFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                {workspaceFullscreen ? t('common.exitFullscreen') : t('common.fullscreen')}
               </button>
 
               <div class="flex items-center gap-1 text-[11px]">
-                <span class="text-[#707072] dark:text-[#8e8e93]">Samples:</span>
+                <span class="text-[#707072] dark:text-[#8e8e93]">{t('compare.samples')}</span>
                 <button
                   onClick={() => {
                     leftActions.setText(SAMPLES.apiResponse.left, { markEdited: false });
@@ -931,11 +943,11 @@ export default function JsonCompareApp() {
                     rightActions.setFilename(null);
                     setLeftEdited(false);
                     setRightEdited(false);
-                    showToast("Loaded Sample API Response");
+                    showToast(t('compare.toastLoadedSampleApi'));
                   }}
                   class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
                 >
-                  API
+                  {t('compare.sampleApi')}
                 </button>
                 <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
                 <button
@@ -946,11 +958,11 @@ export default function JsonCompareApp() {
                     rightActions.setFilename(null);
                     setLeftEdited(false);
                     setRightEdited(false);
-                    showToast("Loaded Key Order Sample");
+                    showToast(t('compare.toastLoadedSampleKeyOrder'));
                   }}
                   class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
                 >
-                  Key Order
+                  {t('compare.sampleKeyOrder')}
                 </button>
                 <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
                 <button
@@ -959,11 +971,11 @@ export default function JsonCompareApp() {
                     rightActions.clear();
                     setLeftEdited(false);
                     setRightEdited(false);
-                    showToast("Cleared both sides");
+                    showToast(t('compare.toastClearedBoth'));
                   }}
                   class="hover:underline text-[#d30005] dark:text-[#f87171] cursor-pointer"
                 >
-                  Clear
+                  {t('compare.sampleClear')}
                 </button>
               </div>
             </div>
@@ -973,14 +985,14 @@ export default function JsonCompareApp() {
             <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a]">
               <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
-                {LARGE_FILE_MODE_BANNER}
+                {t('compare.largeBanner')}
               </div>
               <button
                 onClick={handleCompare}
                 disabled={largeComparePending}
                 class="ml-auto px-3 py-1 rounded-full text-xs font-semibold border border-[#b45309] dark:border-[#fde047] text-[#b45309] dark:text-[#fde047] hover:bg-[#b45309] dark:hover:bg-[#fde047] hover:text-white dark:hover:text-[#111111] transition-colors cursor-pointer"
               >
-                {largeComparePending ? 'Comparing…' : 'Compare'}
+                {largeComparePending ? t('compare.btnComparing') : t('compare.btnCompare')}
               </button>
             </div>
           )}
@@ -989,7 +1001,7 @@ export default function JsonCompareApp() {
             <div class="px-4 sm:px-6 py-2 bg-[#fde8e8] dark:bg-[#451010]/40 border border-[#e5e5e5] dark:border-[#7a1f1f]">
               <div class="flex items-center gap-2 text-[11px] font-medium text-[#d30005] dark:text-[#fca5a5]">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#d30005] dark:bg-[#fca5a5]"></span>
-                Diff simplified: files are very large or very different. Showing approximate alignment.
+                {t('compare.degradedBanner')}
               </div>
             </div>
           )}
@@ -1023,15 +1035,14 @@ export default function JsonCompareApp() {
                   <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
                 )}
                 <Panel
-                  title="Original JSON (Left / Base)"
+                  title={t('compare.titleLeft')}
                   filename={leftDoc.filename}
                   lineCount={leftDoc.lineCount}
                   edited={leftEdited}
                   accept={ACCEPT_JSON_TXT}
                   onFile={applyLeftFile}
                   onError={handleFileError}
-                  fileLabel="Choose file"
-                  fileAriaLabel="Choose file for Original JSON"
+                  fileAriaLabel={t('compare.ariaChooseFileLeft')}
                   onClear={handleClearLeft}
                   onCopy={() => handleCopy(leftDoc.text, 'left JSON')}
                   onDownload={() => handleDownload(leftDoc.text, leftDoc.filename, 'left')}
@@ -1040,8 +1051,8 @@ export default function JsonCompareApp() {
                   <EditorTextarea
                     value={leftDoc.text}
                     onInput={(v) => { leftActions.setText(v); setLeftEdited(true); }}
-                    placeholder="Paste original JSON here..."
-                    ariaLabel="Original JSON editor"
+                    placeholder={t('compare.placeholderLeft')}
+                    ariaLabel={t('compare.ariaEditorLeft')}
                     fillHeight={workspaceFullscreen || normalHeightPx !== null}
                   />
                 </Panel>
@@ -1052,15 +1063,14 @@ export default function JsonCompareApp() {
                   <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
                 )}
                 <Panel
-                  title="Modified JSON (Right / Target)"
+                  title={t('compare.titleRight')}
                   filename={rightDoc.filename}
                   lineCount={rightDoc.lineCount}
                   edited={rightEdited}
                   accept={ACCEPT_JSON_TXT}
                   onFile={applyRightFile}
                   onError={handleFileError}
-                  fileLabel="Choose file"
-                  fileAriaLabel="Choose file for Modified JSON"
+                  fileAriaLabel={t('compare.ariaChooseFileRight')}
                   onClear={handleClearRight}
                   onCopy={() => handleCopy(rightDoc.text, 'right JSON')}
                   onDownload={() => handleDownload(rightDoc.text, rightDoc.filename, 'right')}
@@ -1069,8 +1079,8 @@ export default function JsonCompareApp() {
                   <EditorTextarea
                     value={rightDoc.text}
                     onInput={(v) => { rightActions.setText(v); setRightEdited(true); }}
-                    placeholder="Paste modified JSON here..."
-                    ariaLabel="Modified JSON editor"
+                    placeholder={t('compare.placeholderRight')}
+                    ariaLabel={t('compare.ariaEditorRight')}
                     fillHeight={workspaceFullscreen || normalHeightPx !== null}
                   />
                 </Panel>
@@ -1090,15 +1100,15 @@ export default function JsonCompareApp() {
             />
 
             {/* Visual Diff Output Viewport */}
-            <Panel
-              title="Difference Inspector"
-              lineCount={lines.length}
+              <Panel
+                title={t('compare.titleDiff')}
+                lineCount={lines.length}
               actions={viewPills(activeView)}
               onCopy={handleCopyDiffReport}
               onDownload={() => {
                 const report = { timestamp: new Date().toISOString(), stats, patches: patchResult };
                 downloadText(JSON.stringify(report, null, 2), 'diff-report.json', 'application/json');
-                showToast("Downloaded diff-report.json");
+                showToast(t('compare.toastDownloadedReport'));
               }}
               class={workspaceFullscreen ? 'flex-1 min-h-0 overflow-hidden' : ''}
             >
@@ -1108,22 +1118,22 @@ export default function JsonCompareApp() {
                   <div class={`p-4 sm:p-6 bg-[#fafafa] dark:bg-[#111215] transition-colors ${workspaceFullscreen ? 'h-full flex flex-col min-h-0' : ''}`}>
                     <div class="flex items-center justify-between mb-3 shrink-0">
                       <span class="text-xs font-semibold text-[#111111] dark:text-[#f0f0f2]">
-                        RFC 6902 Compliant JSON Patch Document ({patchResult.length} operations)
+                        {t('compare.patchTitle', { n: formatNumber(patchResult.length) })}
                       </span>
                       <button
                         onClick={async () => {
                           const ok = await copyText(JSON.stringify(patchResult, null, 2));
-                          showToast(ok ? "Patch operations copied!" : "Copy failed");
+                          showToast(ok ? t('compare.toastPatchCopied') : t('common.copyFailed'));
                         }}
                         class="px-3 py-1 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer"
                       >
-                        Copy Patch JSON
+                        {t('compare.btnCopyPatch')}
                       </button>
                     </div>
                     <pre class={`p-4 rounded-xl bg-white dark:bg-[#121316] border border-[#e5e5e5] dark:border-[#22242a] font-mono text-xs overflow-x-auto text-[#111111] dark:text-[#f0f0f2] ${workspaceFullscreen ? 'flex-1 min-h-0 overflow-auto' : 'max-h-[500px]'}`}>
                       {patchResult.length > 0
                         ? JSON.stringify(patchResult, null, 2)
-                        : '// Both JSON documents are semantically identical. No patch required.'}
+                        : t('compare.patchNone')}
                     </pre>
                   </div>
                 )}
@@ -1135,3 +1145,4 @@ export default function JsonCompareApp() {
     </>
   );
 }
+

@@ -20,6 +20,7 @@
   --color-info-deep: #0034e3;
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-cjk: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK JP", "Noto Sans CJK KR", "Noto Sans CJK SC", "Microsoft YaHei", "SimSun", "Gulim", "Malgun Gothic", "PingFang SC", "Hiragino Sans GB", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -30,6 +31,14 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  html[lang="ja"] body,
+  html[lang="ko"] body,
+  html[lang="zh-Hans"] body,
+  html[lang="zh"] body {
+    font-family: var(--font-cjk);
+    line-height: 1.6;
   }
 
   /* Custom subtle scrollbar */

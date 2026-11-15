@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect, useContext } from 'preact/hooks';
 import { createContext } from 'preact';
 import { PanelFullscreenContext } from './Panel';
+import { useT } from './LangContext';
 
 export interface ToolWorkspaceContextValue {
   isFullscreen: boolean;
@@ -203,15 +204,16 @@ export default function ToolWorkspace({ children, class: className = '' }: ToolW
 
 export function FullscreenButton() {
   const { isFullscreen, toggleFullscreen } = useToolWorkspace();
+  const t = useT();
   return (
     <button
       type="button"
       onClick={toggleFullscreen}
-      aria-label="Toggle workspace fullscreen"
+      aria-label={t('a11y.toggleFullscreen')}
       aria-pressed={isFullscreen}
       class={FULLSCREEN_BTN_CLASS}
     >
-      {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+      {isFullscreen ? t('common.exitFullscreen') : t('common.fullscreen')}
     </button>
   );
 }

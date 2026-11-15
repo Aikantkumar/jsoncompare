@@ -11,9 +11,22 @@ import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../compone
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
+import { LangProvider, useT, useFormatNumber } from '../../components/shared/LangContext';
 
 const ACCEPT_JSON_TXT = ['.json', '.txt'];
-const LARGE_BANNER = 'Large file mode: live sorting disabled. Click “Sort” to sort.';
+
+export default function JsonSorterApp({ lang = 'en' }: { lang?: string } = {}) {
+  return (
+    <LangProvider lang={lang}>
+      <JsonSorterAppInner />
+    </LangProvider>
+  );
+}
+
+function JsonSorterAppInner() {
+  const t = useT();
+  const formatNumber = useFormatNumber();
+  const [doc, actions] = useTextDoc(JSON.stringify(SAMPLE_UNSORTED, null, 2));
 
 type SortOrder = 'asc' | 'desc' | 'length-asc' | 'length-desc';
 
@@ -130,7 +143,7 @@ export default function JsonSorterApp() {
       const sorted = sortKeysCustom(res.data, order, deep, sortArrays);
       const output = JSON.stringify(sorted, null, indent);
       setSortedManual(output);
-      showToast("Sorted JSON copied to clipboard!");
+      showToast(t('sorter.toastSorted'));
     } catch (e: any) {
       setSortedManual('');
     } finally {
@@ -141,29 +154,31 @@ export default function JsonSorterApp() {
   const handleSmartRepair = useCallback(() => {
     const fixed = repairJsonString(doc.text);
     actions.setText(fixed);
-    showToast("Repaired JSON syntax");
+    showToast(t('sorter.toastRepaired'));
   }, [doc.text, actions, showToast]);
 
   const handleCopy = useCallback(async () => {
     const ok = await copyText(displaySorted || doc.text);
-    showToast(ok ? "Sorted JSON copied to clipboard!" : "Copy failed");
+    showToast(ok ? t('sorter.toastSorted') : t('common.copyFailed'));
   }, [displaySorted, doc.text, showToast]);
 
   const handleDownload = useCallback(() => {
     const name = deriveDownloadName(doc.filename, ".sorted", "sorted");
     downloadText(displaySorted || doc.text, name, 'application/json');
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [displaySorted, doc.text, doc.filename, showToast]);
 
   const applyFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     actions.loadFile(result);
     setSortedManual('');
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [actions, showToast]);
 
-  const handleFileError = useCallback((msg: string) => {
-    showToast(msg);
-  }, [showToast]);
+  const handleFileError = useCallback((err: unknown) => {
+    const e = err as Error & { code?: string; params?: Record<string, string> };
+    const translated = e.code ? t(`error.file.${e.code}`, e.params) : null;
+    showToast(translated ?? (e instanceof Error ? e.message : String(err)));
+  }, [t, showToast]);
 
   const handleDropFiles = useCallback((files: FileList) => {
     const arr = Array.from(files);
@@ -176,7 +191,7 @@ export default function JsonSorterApp() {
   const handleClear = useCallback(() => {
     actions.clear();
     setSortedManual('');
-    showToast("Cleared");
+    showToast(t('sorter.toastCleared'));
   }, [actions, showToast]);
 
   return (
@@ -187,16 +202,16 @@ export default function JsonSorterApp() {
       <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div class="flex flex-wrap items-center gap-4 text-xs">
           <label class="flex items-center gap-1.5 font-medium text-[#111111] dark:text-[#f0f0f2]">
-            <span>Order:</span>
+            <span>{t('sorter.labelOrder')}</span>
             <select
               value={order}
               onChange={(e) => setOrder((e.target as HTMLSelectElement).value as SortOrder)}
               class="px-2.5 py-1 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-white dark:bg-[#18191d] text-xs outline-none cursor-pointer text-[#111111] dark:text-[#f0f0f2]"
             >
-              <option value="asc">A to Z (Alphabetical)</option>
-              <option value="desc">Z to A (Reverse)</option>
-              <option value="length-asc">Key Length (Shortest first)</option>
-              <option value="length-desc">Key Length (Longest first)</option>
+              <option value="asc">{t('sorter.optAsc')}</option>
+              <option value="desc">{t('sorter.optDesc')}</option>
+              <option value="length-asc">{t('sorter.optLenAsc')}</option>
+              <option value="length-desc">{t('sorter.optLenDesc')}</option>
             </select>
           </label>
 
@@ -207,7 +222,7 @@ export default function JsonSorterApp() {
               onChange={(e) => setDeep((e.target as HTMLInputElement).checked)}
               class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2]"
             />
-            <span>Deep Recursive</span>
+            <span>{t('sorter.labelDeep')}</span>
           </label>
 
           <label class="flex items-center gap-1.5 font-medium text-[#111111] dark:text-[#f0f0f2] cursor-pointer select-none">
@@ -217,11 +232,11 @@ export default function JsonSorterApp() {
               onChange={(e) => setSortArrays((e.target as HTMLInputElement).checked)}
               class="rounded border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2]"
             />
-            <span>Sort Array Values</span>
+            <span>{t('sorter.labelSortArrays')}</span>
           </label>
 
           <label class="flex items-center gap-1.5 font-medium text-[#111111] dark:text-[#f0f0f2]">
-            <span>Indent:</span>
+            <span>{t('sorter.labelIndent')}</span>
             <select
               value={indent}
               onChange={(e) => setIndent(Number((e.target as HTMLSelectElement).value))}
@@ -240,30 +255,30 @@ export default function JsonSorterApp() {
               onClick={handleSmartRepair}
               disabled={busy}
               class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white text-[#1151ff] border border-[#1151ff] hover:bg-[#1151ff] hover:text-white transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
-            >
-              {busy ? 'Working…' : '✨ Fix Syntax'}
-            </button>
+          >
+            {busy ? t('common.working') : t('sorter.btnFixSyntax')}
+          </button>
           )}
           <button
             onClick={handleSort}
             disabled={busy || !doc.text.trim()}
             class={`px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            {busy ? 'Working…' : 'Sort'}
+            {busy ? t('common.working') : t('sorter.btnSort')}
           </button>
           <button
             onClick={handleCopy}
             disabled={busy || !displaySorted}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Copy Sorted
+            {t('sorter.btnCopySorted')}
           </button>
           <button
             onClick={handleDownload}
             disabled={busy || !displaySorted}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Download
+            {t('common.download')}
           </button>
           <FullscreenButton />
         </div>
@@ -273,23 +288,23 @@ export default function JsonSorterApp() {
         <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a] shrink-0">
           <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
             <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
-            {LARGE_BANNER}
+            {t('sorter.largeBanner')}
           </div>
           <button
             onClick={handleSort}
             disabled={busy}
             class="ml-auto px-3 py-1 rounded-full text-xs font-semibold border border-[#b45309] dark:border-[#fde047] text-[#b45309] dark:text-[#fde047] hover:bg-[#b45309] dark:hover:bg-[#fde047] hover:text-white dark:hover:text-[#111111] transition-colors cursor-pointer"
           >
-            {busy ? 'Sorting…' : 'Sort'}
+            {busy ? t('sorter.btnSorting') : t('sorter.btnSort')}
           </button>
         </div>
       )}
 
       {error && (
         <div class="bg-[#fde8e8] dark:bg-[#451010]/40 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a] flex items-center justify-between shrink-0">
-          <span>Syntax Error: {error}</span>
+          <span>{t('error.syntaxPrefix')} {error}</span>
           <button onClick={handleSmartRepair} disabled={busy} class={`underline font-semibold ml-4 ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}>
-            Click to auto-repair
+            {t('formatter.btnAutoRepair')}
           </button>
         </div>
       )}
@@ -300,28 +315,27 @@ export default function JsonSorterApp() {
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
           <Panel
-            title="Original JSON (Unsorted)"
+            title={t('sorter.titleInput')}
             filename={doc.filename}
             lineCount={doc.lineCount}
             edited={doc.edited}
             accept={ACCEPT_JSON_TXT}
             onFile={applyFile}
             onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for JSON sorter input"
+            fileAriaLabel={t('sorter.ariaChooseFile')}
             onClear={handleClear}
-            onCopy={() => copyText(doc.text).then((ok) => showToast(ok ? "Copied input to clipboard!" : "Copy failed"))}
+            onCopy={() => copyText(doc.text).then((ok) => showToast(ok ? t('sorter.toastCopiedInput') : t('common.copyFailed')))}
             onDownload={() => {
               const name = deriveDownloadName(doc.filename, ".json", "input");
               downloadText(doc.text, name, 'application/json');
-              showToast(`Downloaded ${name}`);
+              showToast(t('common.downloadedFile', { name }));
             }}
           >
             <EditorTextarea
               value={doc.text}
               onInput={(v) => { actions.setText(v); setSortedManual(''); }}
-              placeholder="Paste JSON to sort..."
-              ariaLabel="JSON sorter input"
+              placeholder={t('sorter.placeholderInput')}
+              ariaLabel={t('sorter.ariaInput')}
               fillHeight={isFullscreen}
             />
           </Panel>
@@ -329,7 +343,7 @@ export default function JsonSorterApp() {
 
         <div class={`p-4 ${isFullscreen ? 'h-full min-h-0' : ''} bg-[#fafafa] dark:bg-[#111215]`}>
           <Panel
-            title="Sorted JSON Output"
+            title={t('sorter.titleOutput')}
             lineCount={displaySorted ? displaySorted.split('\n').length : 0}
             onCopy={handleCopy}
             onDownload={handleDownload}
@@ -338,20 +352,20 @@ export default function JsonSorterApp() {
               value={displaySorted}
               readOnly
               onInput={() => { }}
-              placeholder="Sorted JSON will appear here..."
-              ariaLabel="JSON sorter output"
+              placeholder={t('sorter.placeholderOutput')}
+              ariaLabel={t('sorter.ariaOutput')}
               fillHeight={isFullscreen}
             />
           </Panel>
           <div class="text-[11px] font-mono text-[#007d48] dark:text-[#34d399] px-4 pt-1">
-            {keyCount} keys sorted
+            {keyCount === 1 ? t('sorter.keysSortedOne', { n: formatNumber(keyCount) }) : t('sorter.keysSortedOther', { n: formatNumber(keyCount) })}
           </div>
         </div>
       </div>
 
       {!isFullscreen && (
         <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-          Files are read locally and never uploaded.
+          {t('common.privacyFootnote')}
         </p>
       )}
     </ToolWorkspace>

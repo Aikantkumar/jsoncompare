@@ -16,6 +16,7 @@ import { useState, useRef, useEffect, useCallback, useContext } from 'preact/hoo
 import { createContext } from 'preact';
 import type { JSX } from 'preact';
 import FileButton from './FileButton';
+import { useT, useFormatNumber } from './LangContext';
 
 // Only one panel may be fullscreen at a time.
 let fullscreenOwner: { id: string; close: () => void } | null = null;
@@ -39,7 +40,7 @@ interface Props {
   edited?: boolean;
   accept?: string[];
   onFile?: (result: { name: string; size: number; text: string; large: boolean }) => void;
-  onError?: (message: string) => void;
+  onError?: (err: unknown) => void;
   fileLabel?: string;
   fileAriaLabel?: string;
   onClear?: () => void;
@@ -60,7 +61,7 @@ export default function Panel({
   accept,
   onFile,
   onError,
-  fileLabel = 'Choose file',
+  fileLabel,
   fileAriaLabel,
   onClear,
   onCopy,
@@ -72,6 +73,9 @@ export default function Panel({
   class: className = '',
 }: Props) {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const t = useT();
+  const formatNumber = useFormatNumber();
+  const resolvedFileLabel = t('common.chooseFile');
   const [spacerHeight, setSpacerHeight] = useState<number>(0);
   const panelRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
@@ -214,32 +218,32 @@ export default function Panel({
           {filename && (
             <span class={chipClasses}>
               {filename}
-              {edited ? ' · edited' : ''}
+              {edited ? t('common.edited') : ''}
             </span>
           )}
           {lineCount !== undefined && (
-            <span class={lineCountClasses}>{lineCount} lines</span>
+            <span class={lineCountClasses}>{t('common.lines', { n: formatNumber(lineCount) })}</span>
           )}
         </div>
 
         <div class={controlsClasses}>
           {actions}
           {accept && onFile && (
-            <FileButton accept={accept} onFile={onFile} onError={onError!} label={fileLabel} ariaLabel={fileAriaLabel} />
+            <FileButton accept={accept} onFile={onFile} onError={onError!} label={resolvedFileLabel} ariaLabel={fileAriaLabel} />
           )}
           {onClear && (
             <button type="button" onClick={onClear} class={pillSecondary}>
-              Clear
+              {t('common.clear')}
             </button>
           )}
           {onCopy && (
             <button type="button" onClick={onCopy} class={pillSecondary}>
-              Copy
+              {t('common.copy')}
             </button>
           )}
           {onDownload && (
             <button type="button" onClick={onDownload} class={pillSecondary}>
-              Download
+              {t('common.download')}
             </button>
           )}
           {fullscreenable && (
@@ -247,11 +251,11 @@ export default function Panel({
               ref={triggerRef}
               type="button"
               onClick={enterFullscreen}
-              aria-label="Toggle fullscreen"
+              aria-label={t('a11y.panelFullscreen')}
               aria-pressed={isFullscreen}
               class={pillPrimary}
             >
-              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              {isFullscreen ? t('common.exitFullscreen') : t('common.fullscreen')}
             </button>
           )}
         </div>

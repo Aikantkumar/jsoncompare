@@ -23,7 +23,7 @@ const features = [
       </div>
     </div>
   </section>
-  <section class="bg-white dark:bg-[#000000] transition-colors"><JsonCompareApp client:load /></section>
+  <section class="bg-white dark:bg-[#000000] transition-colors"><JsonCompareApp client:load lang="fr" /></section>
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="mb-10 text-center max-w-2xl mx-auto"><span class="text-xs font-mono uppercase tracking-widest text-[#707072] dark:text-[#8e8e93]">Conçu pour les développeurs modernes</span><h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] dark:text-[#f0f0f2] mt-1">Conçu pour surpasser les outils de diff génériques</h2><p class="text-sm text-[#4b4b4d] dark:text-[#9ca3af] mt-2">Comparez des fichiers de configuration, déboguez des réponses de microservices, et générez des correctifs conformes RFC sans faux positifs.</p></div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{features.map((feat) => (<div class="p-6 rounded-2xl bg-[#f5f5f5] dark:bg-[#14161b] border border-[#e5e5e5] dark:border-[#22242a] hover:border-[#cacacb] dark:hover:border-[#383d47] transition-all flex flex-col justify-between"><div><div class="flex items-center justify-between mb-3"><span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1c1f26] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] font-medium">{feat.badge}</span></div><h3 class="text-base font-bold text-[#111111] dark:text-[#f0f0f2] tracking-tight mb-2">{feat.title}</h3><p class="text-xs text-[#4b4b4d] dark:text-[#9ca3af] leading-relaxed">{feat.desc}</p></div></div>))}</div>

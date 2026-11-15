@@ -8,6 +8,7 @@ import { useState, useCallback } from 'preact/hooks';
 import { usePanelFullscreen } from './Panel';
 import { copyText, downloadText } from '../../utils/download';
 import { EDITOR_MIN_HEIGHT_PX } from './EditorTextarea';
+import { useT, useFormatNumber } from './LangContext';
 
 export const RESULT_PREVIEW_MAX_CHARS = 200_000;
 
@@ -21,13 +22,17 @@ interface Props {
 
 export default function ResultPre({
   value,
-  title = 'Result Output',
-  copyLabel = 'Copy',
+  title,
+  copyLabel,
   downloadName = 'result.json',
   downloadMime = 'application/json',
 }: Props) {
   const { isFullscreen } = usePanelFullscreen();
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [showAll, setShowAll] = useState<boolean>(false);
+  const resolvedTitle = title ?? t('common.resultOutput');
+  const resolvedCopyLabel = copyLabel ?? t('common.copy');
 
   const truncated = value.length > RESULT_PREVIEW_MAX_CHARS && !showAll;
   const display = truncated ? value.slice(0, RESULT_PREVIEW_MAX_CHARS) : value;
@@ -53,23 +58,23 @@ export default function ResultPre({
 
   return (
     <div class="flex flex-col min-h-0">
-      {title && (
+      {resolvedTitle && (
         <div class="flex items-center justify-between mb-1.5 px-3">
           <span class="text-[11px] font-semibold text-[#707072] dark:text-[#8e8e93] uppercase tracking-wide">
-            {title}
+            {resolvedTitle}
           </span>
           <div class="flex items-center gap-2">
             <button
               onClick={handleCopy}
               class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
             >
-              {copyLabel}
+              {resolvedCopyLabel}
             </button>
             <button
               onClick={handleDownload}
               class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
             >
-              Download
+              {t('common.download')}
             </button>
           </div>
         </div>
@@ -82,12 +87,12 @@ export default function ResultPre({
       </pre>
       {truncated && (
         <div class="px-3 py-1.5 text-[10px] text-[#b45309] dark:text-[#fde047] bg-[#fff4e5] dark:bg-[#3d2305]/20 border border-[#e5e5e5] dark:border-[#5c3a0a] rounded-t-none rounded-b-xl">
-          Showing first {RESULT_PREVIEW_MAX_CHARS.toLocaleString()} of {value.length.toLocaleString()} characters{' '}
+          {t('result.showing', { n: formatNumber(RESULT_PREVIEW_MAX_CHARS), m: formatNumber(value.length) })} '
           <button
             onClick={() => setShowAll(true)}
             class="underline font-medium ml-1 hover:text-white dark:hover:text-white"
           >
-            Show all
+            {t('result.showAll')}
           </button>
         </div>
       )}

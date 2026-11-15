@@ -11,6 +11,7 @@ import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../compone
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
+import { LangProvider, useT, useFormatNumber } from '../../components/shared/LangContext';
 import {
   acceptForMode,
   downloadExtForMode,
@@ -21,6 +22,7 @@ import {
 
 interface Props {
   initialMode: ConverterMode;
+  lang?: string;
 }
 
 const INITIAL_INPUT: Record<ConverterMode, string> = {
@@ -35,7 +37,17 @@ const INITIAL_INPUT: Record<ConverterMode, string> = {
   'csv-to-json': 'id,name,score\n1,Alpha,95\n2,Beta,88',
 };
 
-export default function ConverterApp({ initialMode }: Props) {
+export default function ConverterApp({ initialMode, lang = 'en' }: Props) {
+  return (
+    <LangProvider lang={lang}>
+      <ConverterAppInner initialMode={initialMode} />
+    </LangProvider>
+  );
+}
+
+function ConverterAppInner({ initialMode }: Props) {
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [mode, setMode] = useState<ConverterMode>(initialMode);
   const [doc, actions] = useTextDoc(INITIAL_INPUT[initialMode]);
   const [output, setOutput] = useState<string>('');
@@ -75,7 +87,7 @@ export default function ConverterApp({ initialMode }: Props) {
       }
       setOutput(result);
       setOutputName(`converted${downloadExtForMode(mode)}`);
-      showToast("Converted successfully!");
+      showToast(t('converter.toastConverted'));
     } catch (err: any) {
       setError(err.message || 'Error converting data');
       setOutput('');
@@ -87,21 +99,21 @@ export default function ConverterApp({ initialMode }: Props) {
 
   const handleCopy = useCallback(async () => {
     const ok = await copyText(output);
-    showToast(ok ? "Copied to clipboard!" : "Copy failed");
+    showToast(ok ? t('converter.toastCopied') : t('common.copyFailed'));
   }, [output, showToast]);
 
   const handleDownload = useCallback(() => {
     if (!output) return;
     const name = deriveDownloadName(doc.filename, downloadExtForMode(mode), outputName || 'converted');
     downloadText(output, name, downloadMimeForMode(mode));
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [output, doc.filename, mode, outputName, showToast]);
 
   const handleDownloadOutput = useCallback(() => {
     if (!output) return;
     const name = deriveDownloadName(doc.filename, downloadExtForMode(mode), outputName || 'converted');
     downloadText(output, name, downloadMimeForMode(mode));
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [output, doc.filename, mode, outputName, showToast]);
 
   const handleModeChange = useCallback((next: ConverterMode) => {
@@ -117,13 +129,16 @@ export default function ConverterApp({ initialMode }: Props) {
     setOutput('');
     setOutputName('');
     setError('');
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [actions, showToast]);
 
-  const handleFileError = useCallback((msg: string) => {
+  const handleFileError = useCallback((err: unknown) => {
+    const e = err as Error & { code?: string; params?: Record<string, string> };
+    const translated = e.code ? t(`error.file.${e.code}`, e.params) : null;
+    const msg = translated ?? (e instanceof Error ? e.message : String(err));
     setError(msg);
     showToast(msg);
-  }, [showToast]);
+  }, [t, showToast]);
 
   const handleDropFiles = useCallback((files: FileList) => {
     const arr = Array.from(files);
@@ -138,7 +153,7 @@ export default function ConverterApp({ initialMode }: Props) {
     setOutput('');
     setOutputName('');
     setError('');
-    showToast("Cleared");
+    showToast(t('converter.toastCleared'));
   }, [actions, showToast]);
 
   return (
@@ -153,8 +168,10 @@ export default function ConverterApp({ initialMode }: Props) {
             onChange={(e) => handleModeChange((e.target as HTMLSelectElement).value as ConverterMode)}
             class="px-3 py-1.5 rounded-full border border-[#cacacb] dark:border-[#2b2d35] bg-white dark:bg-[#18191d] text-xs font-semibold text-[#111111] dark:text-[#f0f0f2] outline-none"
           >
-            {Object.entries(MODE_LABELS).map(([value, label]) => (
-              <option key={value} value={value as ConverterMode}>{label}</option>
+            {Object.entries(MODE_LABELS).map(([value]) => (
+              <option key={value} value={value as ConverterMode}>
+                {t(`converter.mode.${value}`)}
+              </option>
             ))}
           </select>
         </div>
@@ -165,21 +182,21 @@ export default function ConverterApp({ initialMode }: Props) {
             disabled={busy || !doc.text.trim()}
             class={`px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            {busy ? 'Working…' : 'Convert Now'}
+            {busy ? t('common.working') : t('converter.btnConvert')}
           </button>
           <button
             onClick={handleCopy}
             disabled={busy || !output}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Copy Result
+            {t('converter.btnCopyResult')}
           </button>
           <button
             onClick={handleDownload}
             disabled={busy || !output}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Download
+            {t('common.download')}
           </button>
           <FullscreenButton />
         </div>
@@ -187,7 +204,7 @@ export default function ConverterApp({ initialMode }: Props) {
 
       {error && (
         <div class="bg-[#fde8e8] dark:bg-[#451010]/50 text-[#d30005] dark:text-[#fca5a5] px-6 py-2 text-xs font-mono border-b border-[#e5e5e5] dark:border-[#22242a] shrink-0">
-          Conversion Error: {error}
+          {t('converter.toastConversionError', { detail: error })}
         </div>
       )}
 
@@ -197,15 +214,14 @@ export default function ConverterApp({ initialMode }: Props) {
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
           <Panel
-            title="Input Source Data"
+            title={t('converter.titleInput')}
             filename={doc.filename}
             lineCount={doc.lineCount}
             edited={doc.edited}
             accept={acceptForMode(mode)}
             onFile={applyFile}
             onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel={`Choose file for ${MODE_LABELS[mode]}`}
+            fileAriaLabel={t('converter.ariaChooseFile', { mode: t(`converter.mode.${mode}`) })}
             onClear={handleClear}
             onCopy={() => handleCopyText(doc.text)}
             onDownload={() => handleDownloadText(doc.text, doc.filename)}
@@ -213,8 +229,8 @@ export default function ConverterApp({ initialMode }: Props) {
             <EditorTextarea
               value={doc.text}
               onInput={(v) => { actions.setText(v); setOutput(''); setError(''); }}
-              placeholder="Paste source data here..."
-              ariaLabel="Converter input"
+              placeholder={t('converter.placeholderInput')}
+              ariaLabel={t('converter.ariaInput')}
               fillHeight={isFullscreen}
             />
           </Panel>
@@ -222,7 +238,7 @@ export default function ConverterApp({ initialMode }: Props) {
 
         <div class={`p-4 ${isFullscreen ? 'h-full min-h-0' : ''} bg-[#fafafa] dark:bg-[#111215]`}>
           <Panel
-            title="Converted Target Data"
+            title={t('converter.titleOutput')}
             lineCount={output ? output.split('\n').length : 0}
             onCopy={handleCopy}
             onDownload={handleDownloadOutput}
@@ -231,8 +247,8 @@ export default function ConverterApp({ initialMode }: Props) {
               value={output}
               readOnly
               onInput={() => {}}
-              placeholder="Converted output will appear here..."
-              ariaLabel="Converter output"
+              placeholder={t('converter.placeholderOutput')}
+              ariaLabel={t('converter.ariaOutput')}
               fillHeight={isFullscreen}
             />
           </Panel>
@@ -241,7 +257,7 @@ export default function ConverterApp({ initialMode }: Props) {
 
       {!isFullscreen && (
         <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-          Files are read locally and never uploaded.
+          {t('common.privacyFootnote')}
         </p>
       )}
     </ToolWorkspace>

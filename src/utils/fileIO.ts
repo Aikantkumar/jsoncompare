@@ -69,19 +69,27 @@ export async function readTextFile(
   const normalizedExt = normalizeExt(ext);
 
   if (!normalizedAccept.includes(normalizedExt)) {
-    throw new Error(
+    const err = new Error(
       `Unsupported file type "${ext || '(none)'}". Accepted: ${normalizedAccept.join(', ')}`
     );
+    (err as any).code = 'error.fileUnsupportedType';
+    (err as any).params = { ext: ext || '(none)', accepted: normalizedAccept.join(', ') };
+    throw err;
   }
 
   if (file.size === 0) {
-    throw new Error('The file is empty. Please select a non-empty file.');
+    const err = new Error('The file is empty. Please select a non-empty file.');
+    (err as any).code = 'error.fileEmpty';
+    throw err;
   }
 
   if (file.size > MAX_FILE_BYTES) {
-    throw new Error(
+    const err = new Error(
       `File is too large (${formatBytes(file.size)}). Maximum allowed is ${formatBytes(MAX_FILE_BYTES)}.`
     );
+    (err as any).code = 'error.fileTooLarge';
+    (err as any).params = { size: formatBytes(file.size), max: formatBytes(MAX_FILE_BYTES) };
+    throw err;
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -94,9 +102,11 @@ export async function readTextFile(
   }
 
   if (text.includes('\0')) {
-    throw new Error(
+    const err = new Error(
       'The file appears to be binary (contains NUL bytes) and cannot be read as text.'
     );
+    (err as any).code = 'error.fileBinary';
+    throw err;
   }
 
   return {

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'preact/hooks';
+import { useT } from './LangContext';
 
 export interface ResizeHandleProps {
   onDrag: (clientY: number, deltaY: number, e: PointerEvent) => void;
@@ -23,10 +24,12 @@ export default function ResizeHandle({
   valueNow,
   valueMin = 15,
   valueMax = 85,
-  label = 'Resize editors and difference inspector',
+  label,
   onDragStart,
   onDragEnd,
 }: ResizeHandleProps) {
+  const t = useT();
+  const resolvedLabel = label ?? t('a11y.resizeHandle');
   const [isDragging, setIsDragging] = useState(false);
   const handleRef = useRef<HTMLDivElement>(null);
   const lastYRef = useRef<number>(0);
@@ -145,7 +148,7 @@ export default function ResizeHandle({
         ref={handleRef}
         role="separator"
         aria-orientation="horizontal"
-        aria-label={label}
+        aria-label={resolvedLabel}
         aria-valuenow={valueNow}
         aria-valuemin={valueMin}
         aria-valuemax={valueMax}

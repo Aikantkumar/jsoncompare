@@ -11,6 +11,7 @@ import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../compone
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
+import { LangProvider, useT, useFormatNumber } from '../../components/shared/LangContext';
 
 function jsonToTypeScript(json: any, rootName = 'Root'): string {
   const interfaces: Map<string, string> = new Map();
@@ -71,7 +72,17 @@ function jsonToTypeScript(json: any, rootName = 'Root'): string {
 
 const ACCEPT_JSON = ['.json'];
 
-export default function JsonToTypeScriptApp() {
+export default function JsonToTypeScriptApp({ lang = 'en' }: { lang?: string } = {}) {
+  return (
+    <LangProvider lang={lang}>
+      <JsonToTypeScriptAppInner />
+    </LangProvider>
+  );
+}
+
+function JsonToTypeScriptAppInner() {
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [doc, actions] = useTextDoc(
     JSON.stringify(
       {
@@ -117,46 +128,48 @@ export default function JsonToTypeScriptApp() {
     await yieldToPaint();
     const res = safeParseJson(doc.text);
     if (res.error) {
-      setTsManual(`// Error parsing JSON:\n// ${res.error}`);
+      setTsManual(t('tsgen.errorParse', { detail: res.error }));
       setBusy(false);
       return;
     }
     if (res.data === null || res.data === undefined) {
-      setTsManual('// Enter valid JSON to generate TypeScript interfaces');
+      setTsManual(t('tsgen.errorEmpty'));
       setBusy(false);
       return;
     }
     setTsManual(jsonToTypeScript(res.data, rootInterfaceName || 'Root'));
-    showToast("TypeScript types generated!");
+      showToast(t('tsgen.toastGenerated'));
     setBusy(false);
   }, [doc.text, rootInterfaceName, showToast]);
 
   const handleCopy = useCallback(async () => {
     const ok = await copyText(displayTs);
-    showToast(ok ? "TypeScript types copied to clipboard!" : "Copy failed");
+    showToast(ok ? t('tsgen.toastCopied') : t('common.copyFailed'));
   }, [displayTs, showToast]);
 
   const handleDownloadTs = useCallback(() => {
     const name = `${rootInterfaceName || 'Root'}.ts`;
     downloadText(displayTs, name, 'text/plain');
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [displayTs, rootInterfaceName, showToast]);
 
   const handleDownloadInput = useCallback(() => {
     const name = deriveDownloadName(doc.filename, ".json", "input");
     downloadText(doc.text, name, 'application/json');
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [doc.text, doc.filename, showToast]);
 
   const applyFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     actions.loadFile(result);
     setTsManual('');
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [actions, showToast]);
 
-  const handleFileError = useCallback((msg: string) => {
-    showToast(msg);
-  }, [showToast]);
+  const handleFileError = useCallback((err: unknown) => {
+    const e = err as Error & { code?: string; params?: Record<string, string> };
+    const translated = e.code ? t(`error.file.${e.code}`, e.params) : null;
+    showToast(translated ?? (e instanceof Error ? e.message : String(err)));
+  }, [t, showToast]);
 
   const handleDropFiles = useCallback((files: FileList) => {
     const arr = Array.from(files);
@@ -169,7 +182,7 @@ export default function JsonToTypeScriptApp() {
   const handleClear = useCallback(() => {
     actions.clear();
     setTsManual('');
-    showToast("Cleared");
+    showToast(t('tsgen.toastCleared'));
   }, [actions, showToast]);
 
   return (
@@ -179,7 +192,7 @@ export default function JsonToTypeScriptApp() {
       {/* Toolbar */}
       <div class="p-3 sm:px-6 bg-[#f5f5f5] dark:bg-[#14161b] border-b border-[#e5e5e5] dark:border-[#22242a] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-2 text-xs">
-          <span class="font-medium text-[#111111] dark:text-[#f0f0f2]">Root Interface:</span>
+          <span class="font-medium text-[#111111] dark:text-[#f0f0f2]">{t('tsgen.labelRoot')}</span>
           <input
             type="text"
             value={rootInterfaceName}
@@ -194,21 +207,21 @@ export default function JsonToTypeScriptApp() {
             disabled={busy || !doc.text.trim()}
             class={`px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            {busy ? 'Working…' : 'Generate'}
+            {busy ? t('common.working') : t('tsgen.btnGenerate')}
           </button>
           <button
             onClick={handleCopy}
             disabled={busy || !displayTs}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Copy TypeScript
+            {t('tsgen.btnCopyTs')}
           </button>
           <button
             onClick={handleDownloadTs}
             disabled={busy || !displayTs}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Download
+            {t('common.download')}
           </button>
           <FullscreenButton />
         </div>
@@ -236,15 +249,14 @@ export default function JsonToTypeScriptApp() {
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
           <Panel
-            title="Input JSON Payload"
-            filename={doc.filename}
-            lineCount={doc.lineCount}
-            edited={doc.edited}
-            accept={ACCEPT_JSON}
-            onFile={applyFile}
-            onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for TypeScript input"
+          title={t('tsgen.titleInput')}
+          filename={doc.filename}
+          lineCount={doc.lineCount}
+          edited={doc.edited}
+          accept={ACCEPT_JSON}
+          onFile={applyFile}
+          onError={handleFileError}
+          fileAriaLabel={t('tsgen.ariaChooseFile')}
             onClear={handleClear}
             onCopy={handleCopy}
             onDownload={handleDownloadInput}
@@ -252,8 +264,8 @@ export default function JsonToTypeScriptApp() {
             <EditorTextarea
               value={doc.text}
               onInput={(v) => { actions.setText(v); setTsManual(''); }}
-              placeholder="Paste JSON payload..."
-              ariaLabel="JSON to TypeScript input"
+              placeholder={t('tsgen.placeholderInput')}
+              ariaLabel={t('tsgen.ariaInput')}
               fillHeight={isFullscreen}
             />
           </Panel>
@@ -261,7 +273,7 @@ export default function JsonToTypeScriptApp() {
 
         <div class={`p-4 ${isFullscreen ? 'h-full min-h-0' : ''} bg-[#fafafa] dark:bg-[#111215]`}>
           <Panel
-            title="Generated TypeScript Types"
+            title={t('tsgen.titleOutput')}
             lineCount={displayTs ? displayTs.split('\n').length : 0}
             onCopy={handleCopy}
             onDownload={handleDownloadTs}
@@ -270,8 +282,8 @@ export default function JsonToTypeScriptApp() {
               value={displayTs}
               readOnly
               onInput={() => {}}
-              placeholder="TypeScript types will appear here..."
-              ariaLabel="TypeScript output"
+              placeholder={t('tsgen.placeholderOutput')}
+              ariaLabel={t('tsgen.ariaOutput')}
               fillHeight={isFullscreen}
             />
           </Panel>
@@ -280,7 +292,7 @@ export default function JsonToTypeScriptApp() {
 
       {!isFullscreen && (
         <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-          Files are read locally and never uploaded.
+          {t('common.privacyFootnote')}
         </p>
       )}
     </ToolWorkspace>

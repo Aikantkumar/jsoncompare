@@ -11,9 +11,22 @@ import ToolWorkspace, { useToolWorkspace, FullscreenButton } from '../../compone
 import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
+import { LangProvider, useT, useFormatNumber } from '../../components/shared/LangContext';
 
 const ACCEPT_JSON_TXT = ['.json', '.txt'];
-const LARGE_BANNER = 'Large file mode: live validation disabled. Click “Validate” to check.';
+
+export default function JsonValidatorApp({ lang = 'en' }: { lang?: string } = {}) {
+  return (
+    <LangProvider lang={lang}>
+      <JsonValidatorAppInner />
+    </LangProvider>
+  );
+}
+
+function JsonValidatorAppInner() {
+  const t = useT();
+  const formatNumber = useFormatNumber();
+  const [doc, actions] = useTextDoc(
 
 interface Validation {
   isValid: boolean | null;
@@ -90,30 +103,33 @@ export default function JsonValidatorApp() {
   const handleSmartRepair = useCallback(async () => {
     const fixed = repairJsonString(doc.text);
     actions.setText(fixed);
-    showToast("Smart repair applied!");
+    showToast(t('validator.toastRepaired'));
   }, [doc.text, actions, showToast]);
 
   const handleCopy = useCallback(async () => {
     const ok = await copyText(doc.text);
-    showToast(ok ? "Copied to clipboard!" : "Copy failed");
+    showToast(ok ? t('validator.toastCopied') : t('common.copyFailed'));
   }, [doc.text, showToast]);
 
   const handleDownload = useCallback(() => {
     const name = deriveDownloadName(doc.filename, ".validated", "validated");
     downloadText(doc.text, name, 'application/json');
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [doc.text, doc.filename, showToast]);
 
   const applyFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     actions.loadFile(result);
     setError('');
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [actions, showToast]);
 
-  const handleFileError = useCallback((msg: string) => {
+  const handleFileError = useCallback((err: unknown) => {
+    const e = err as Error & { code?: string; params?: Record<string, string> };
+    const translated = e.code ? t(`error.file.${e.code}`, e.params) : null;
+    const msg = translated ?? (e instanceof Error ? e.message : String(err));
     setError(msg);
     showToast(msg);
-  }, [showToast]);
+  }, [t, showToast]);
 
   const handleDropFiles = useCallback((files: FileList) => {
     const arr = Array.from(files);
@@ -126,7 +142,7 @@ export default function JsonValidatorApp() {
   const handleClear = useCallback(() => {
     actions.clear();
     setError('');
-    showToast("Cleared");
+    showToast(t('validator.toastCleared'));
   }, [actions, showToast]);
 
   return (
@@ -148,10 +164,14 @@ export default function JsonValidatorApp() {
             {validationResult.isValid === true ? '✓' : validationResult.isValid === false ? '✕' : '•'}
           </span>
           <span class="text-xs font-semibold">
-            {validationResult.message}
+            {validationResult.isValid === true
+              ? t('validator.statusValid')
+              : validationResult.isValid === false
+              ? t('error.invalidJson', { detail: validationResult.message })
+              : t('validator.statusEnter')}
             {validationResult.line && (
               <span class="font-mono ml-2 font-normal">
-                [Line {validationResult.line}, Col {validationResult.col}]
+                {t('validator.lineCol', { n: formatNumber(validationResult.line), m: formatNumber(validationResult.col) })}
               </span>
             )}
           </span>
@@ -164,7 +184,7 @@ export default function JsonValidatorApp() {
               disabled={busy}
               class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white text-[#d30005] border border-[#d30005] hover:bg-[#d30005] hover:text-white transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              {busy ? 'Working…' : '✨ Auto-Fix Errors'}
+              {busy ? t('common.working') : t('validator.btnAutoFix')}
             </button>
           )}
           <button
@@ -172,14 +192,14 @@ export default function JsonValidatorApp() {
             disabled={busy || !doc.text.trim()}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Copy
+            {t('common.copy')}
           </button>
           <button
             onClick={handleDownload}
             disabled={busy || !doc.text.trim()}
             class={`px-3.5 py-1.5 rounded-full text-xs font-medium bg-white border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer ${busy ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            Download
+            {t('common.download')}
           </button>
           <FullscreenButton />
         </div>
@@ -189,14 +209,14 @@ export default function JsonValidatorApp() {
         <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a] shrink-0">
           <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
             <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
-            {LARGE_BANNER}
+            {t('validator.largeBanner')}
           </div>
           <button
             onClick={handleValidate}
             disabled={busy}
             class="ml-auto px-3 py-1 rounded-full text-xs font-semibold border border-[#b45309] dark:border-[#fde047] text-[#b45309] dark:text-[#fde047] hover:bg-[#b45309] dark:hover:bg-[#fde047] hover:text-white dark:hover:text-[#111111] transition-colors cursor-pointer"
           >
-            {busy ? 'Validating…' : 'Validate'}
+            {busy ? t('validator.btnValidating') : t('validator.btnValidate')}
           </button>
         </div>
       )}
@@ -207,15 +227,14 @@ export default function JsonValidatorApp() {
           <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
         )}
         <Panel
-          title="JSON to Validate"
+          title={t('validator.titleInput')}
           filename={doc.filename}
           lineCount={doc.lineCount}
           edited={doc.edited}
           accept={ACCEPT_JSON_TXT}
           onFile={applyFile}
           onError={handleFileError}
-          fileLabel="Choose file"
-          fileAriaLabel="Choose file for JSON validation"
+          fileAriaLabel={t('validator.ariaChooseFile')}
           onClear={handleClear}
           onCopy={handleCopy}
           onDownload={handleDownload}
@@ -223,14 +242,14 @@ export default function JsonValidatorApp() {
           <EditorTextarea
             value={doc.text}
             onInput={(v) => { actions.setText(v); setError(''); }}
-            placeholder="Paste JSON payload to validate..."
-            ariaLabel="JSON validator input"
+            placeholder={t('validator.placeholder')}
+            ariaLabel={t('validator.ariaInput')}
             fillHeight={isFullscreen}
           />
         </Panel>
         {!isFullscreen && (
           <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1">
-            Files are read locally and never uploaded.
+            {t('common.privacyFootnote')}
           </p>
         )}
       </div>

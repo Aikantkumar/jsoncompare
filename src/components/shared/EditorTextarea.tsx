@@ -6,6 +6,7 @@
  */
 import { useCallback } from 'preact/hooks';
 import { usePanelFullscreen } from './Panel';
+import { useT } from './LangContext';
 
 export const EDITOR_MIN_HEIGHT_PX = 163;
 
@@ -23,10 +24,12 @@ export default function EditorTextarea({
   onInput,
   readOnly = false,
   placeholder = '',
-  ariaLabel = 'JSON editor',
+  ariaLabel,
   fillHeight = false,
 }: Props) {
   const { isFullscreen } = usePanelFullscreen();
+  const t = useT();
+  const resolvedAriaLabel = ariaLabel ?? t('a11y.jsonEditor');
 
   const handleInput = useCallback(
     (e: Event) => {
@@ -53,7 +56,7 @@ export default function EditorTextarea({
       value={value}
       onInput={handleInput}
       placeholder={placeholder}
-      aria-label={ariaLabel}
+      aria-label={resolvedAriaLabel}
       spellcheck={false}
       class={`${base} ${border} ${bg} ${fg} ${resize} ${height}`}
       style={heightStyle}

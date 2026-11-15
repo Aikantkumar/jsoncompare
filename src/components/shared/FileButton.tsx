@@ -5,6 +5,7 @@
  */
 import { useRef, useCallback } from 'preact/hooks';
 import { readTextFile } from '../../utils/fileIO';
+import { useT } from './LangContext';
 
 interface Props {
   accept: string[];
@@ -14,7 +15,9 @@ interface Props {
   ariaLabel?: string;
 }
 
-export default function FileButton({ accept, onFile, onError, label = 'Choose file', ariaLabel }: Props) {
+export default function FileButton({ accept, onFile, onError, label, ariaLabel }: Props) {
+  const t = useT();
+  const resolvedLabel = label ?? t('common.chooseFile');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const open = useCallback(() => {
@@ -29,7 +32,7 @@ export default function FileButton({ accept, onFile, onError, label = 'Choose fi
         const result = await readTextFile(file, { accept });
         onFile(result);
       } catch (err: unknown) {
-        onError(err instanceof Error ? err.message : 'Failed to read file');
+        onError(err);
       } finally {
         // Reset so re-selecting the same file fires onChange again.
         if (e.target) {

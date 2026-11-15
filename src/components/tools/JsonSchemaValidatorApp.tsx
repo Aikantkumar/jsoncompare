@@ -12,6 +12,7 @@ import Toast from '../../components/shared/Toast';
 import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
 import ResultPre from '../../components/shared/ResultPre';
+import { LangProvider, useT, useFormatNumber } from '../../components/shared/LangContext';
 
 // Sample Schema and Data
 const SAMPLE_SCHEMA = {
@@ -63,6 +64,7 @@ const SAMPLE_DATA = {
 interface ValidationError {
   path: string;
   message: string;
+  params?: Record<string, string>;
   keyword: string;
 }
 
@@ -84,14 +86,15 @@ function validateJsonSchema(data: any, schema: any, path = ''): ValidationError[
       if (t === 'integer') return typeof data === 'number' && Number.isInteger(data);
       return t === actualType;
     });
-    if (!matchesType) {
-      errors.push({
-        path: path || '/',
-        message: `Expected type ${expectedTypes.join(' or ')}, but received ${actualType}`,
-        keyword: 'type'
-      });
-      return errors;
-    }
+      if (!matchesType) {
+        errors.push({
+          path: path || '/',
+          message: 'schema.errType',
+          params: { expected: expectedTypes.join(' or '), actual: actualType },
+          keyword: 'type'
+        });
+        return errors;
+      }
   }
 
   if (Array.isArray(schema.enum)) {
@@ -99,7 +102,8 @@ function validateJsonSchema(data: any, schema: any, path = ''): ValidationError[
     if (!matched) {
       errors.push({
         path: path || '/',
-        message: `Value must be one of: [${schema.enum.map((v: any) => JSON.stringify(v)).join(', ')}]`,
+        message: 'schema.errEnum',
+        params: { values: schema.enum.map((v: any) => JSON.stringify(v)).join(', ') },
         keyword: 'enum'
       });
     }
@@ -107,42 +111,42 @@ function validateJsonSchema(data: any, schema: any, path = ''): ValidationError[
 
   if (typeof data === 'string') {
     if (typeof schema.minLength === 'number' && data.length < schema.minLength) {
-      errors.push({ path: path || '/', message: `String length (${data.length}) is shorter than minimum allowed (${schema.minLength})`, keyword: 'minLength' });
+      errors.push({ path: path || '/', message: 'schema.errMinLength', params: { length: String(data.length), minimum: String(schema.minLength) }, keyword: 'minLength' });
     }
     if (typeof schema.maxLength === 'number' && data.length > schema.maxLength) {
-      errors.push({ path: path || '/', message: `String length (${data.length}) exceeds maximum allowed (${schema.maxLength})`, keyword: 'maxLength' });
+      errors.push({ path: path || '/', message: 'schema.errMaxLength', params: { length: String(data.length), maximum: String(schema.maxLength) }, keyword: 'maxLength' });
     }
     if (schema.pattern) {
       try {
         const regex = new RegExp(schema.pattern);
         if (!regex.test(data)) {
-          errors.push({ path: path || '/', message: `String does not match required regex pattern: ${schema.pattern}`, keyword: 'pattern' });
+          errors.push({ path: path || '/', message: 'schema.errPattern', params: { pattern: schema.pattern }, keyword: 'pattern' });
         }
       } catch {}
     }
     if (schema.format === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(data)) {
-        errors.push({ path: path || '/', message: `String is not a valid email address`, keyword: 'format' });
+        errors.push({ path: path || '/', message: 'schema.errFormatEmail', keyword: 'format' });
       }
     }
   }
 
   if (typeof data === 'number') {
     if (typeof schema.minimum === 'number' && data < schema.minimum) {
-      errors.push({ path: path || '/', message: `Value (${data}) is less than minimum (${schema.minimum})`, keyword: 'minimum' });
+      errors.push({ path: path || '/', message: 'schema.errMinimum', params: { value: String(data), minimum: String(schema.minimum) }, keyword: 'minimum' });
     }
     if (typeof schema.maximum === 'number' && data > schema.maximum) {
-      errors.push({ path: path || '/', message: `Value (${data}) exceeds maximum (${schema.maximum})`, keyword: 'maximum' });
+      errors.push({ path: path || '/', message: 'schema.errMaximum', params: { value: String(data), maximum: String(schema.maximum) }, keyword: 'maximum' });
     }
   }
 
   if (Array.isArray(data)) {
     if (typeof schema.minItems === 'number' && data.length < schema.minItems) {
-      errors.push({ path: path || '/', message: `Array has ${data.length} items, minimum required is ${schema.minItems}`, keyword: 'minItems' });
+      errors.push({ path: path || '/', message: 'schema.errMinItems', params: { n: String(data.length), minimum: String(schema.minItems) }, keyword: 'minItems' });
     }
     if (typeof schema.maxItems === 'number' && data.length > schema.maxItems) {
-      errors.push({ path: path || '/', message: `Array has ${data.length} items, maximum allowed is ${schema.maxItems}`, keyword: 'maxItems' });
+      errors.push({ path: path || '/', message: 'schema.errMaxItems', params: { n: String(data.length), maximum: String(schema.maxItems) }, keyword: 'maxItems' });
     }
     if (schema.items) {
       data.forEach((item, idx) => {
@@ -156,7 +160,7 @@ function validateJsonSchema(data: any, schema: any, path = ''): ValidationError[
     if (Array.isArray(schema.required)) {
       for (const reqKey of schema.required) {
         if (!(reqKey in data)) {
-          errors.push({ path: `${path}/${reqKey}`, message: `Missing required property "${reqKey}"`, keyword: 'required' });
+          errors.push({ path: `${path}/${reqKey}`, message: 'schema.errMissingRequired', params: { key: reqKey }, keyword: 'required' });
         }
       }
     }
@@ -172,7 +176,7 @@ function validateJsonSchema(data: any, schema: any, path = ''): ValidationError[
       const allowedKeys = new Set(Object.keys(schema.properties));
       for (const key of Object.keys(data)) {
         if (!allowedKeys.has(key)) {
-          errors.push({ path: `${path}/${key}`, message: `Unrecognized property "${key}" is not allowed by schema`, keyword: 'additionalProperties' });
+          errors.push({ path: `${path}/${key}`, message: 'schema.errAdditionalProperties', params: { key }, keyword: 'additionalProperties' });
         }
       }
     }
@@ -190,7 +194,17 @@ function getJsonType(val: any): string {
 const ACCEPT_SCHEMA = ['.json'];
 const ACCEPT_DATA = ['.json', '.txt'];
 
-export default function JsonSchemaValidatorApp() {
+export default function JsonSchemaValidatorApp({ lang = 'en' }: { lang?: string } = {}) {
+  return (
+    <LangProvider lang={lang}>
+      <JsonSchemaValidatorAppInner />
+    </LangProvider>
+  );
+}
+
+function JsonSchemaValidatorAppInner() {
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [schemaDoc, schemaActions] = useTextDoc(JSON.stringify(SAMPLE_SCHEMA, null, 2));
   const [dataDoc, dataActions] = useTextDoc(JSON.stringify(SAMPLE_DATA, null, 2));
   const [busy, setBusy] = useState<boolean>(false);
@@ -212,7 +226,7 @@ export default function JsonSchemaValidatorApp() {
   const handleLoadSample = useCallback(() => {
     schemaActions.setText(JSON.stringify(SAMPLE_SCHEMA, null, 2), { markEdited: false });
     dataActions.setText(JSON.stringify(SAMPLE_DATA, null, 2), { markEdited: false });
-    showToast("Loaded sample Schema and Data");
+    showToast(t('schema.toastLoadedSample'));
   }, [schemaActions, dataActions, showToast]);
 
   const handleFormatBoth = useCallback(() => {
@@ -224,44 +238,46 @@ export default function JsonSchemaValidatorApp() {
       const d = JSON.parse(dataDoc.text);
       dataActions.setText(JSON.stringify(d, null, 2));
     } catch {}
-    showToast("Formatted both inputs");
+    showToast(t('schema.toastFormattedBoth'));
   }, [schemaDoc.text, dataDoc.text, schemaActions, dataActions, showToast]);
 
   const handleCopySchema = useCallback(async () => {
     const ok = await copyText(schemaDoc.text);
-    showToast(ok ? "Copied schema to clipboard!" : "Copy failed");
+    showToast(ok ? t('schema.toastCopiedSchema') : t('common.copyFailed'));
   }, [schemaDoc.text, showToast]);
 
   const handleCopyData = useCallback(async () => {
     const ok = await copyText(dataDoc.text);
-    showToast(ok ? "Copied data to clipboard!" : "Copy failed");
+    showToast(ok ? t('schema.toastCopiedData') : t('common.copyFailed'));
   }, [dataDoc.text, showToast]);
 
   const handleDownloadSchema = useCallback(() => {
     const name = deriveDownloadName(schemaDoc.filename, ".schema", "schema");
     downloadText(schemaDoc.text, name, 'application/json');
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [schemaDoc.text, schemaDoc.filename, showToast]);
 
   const handleDownloadData = useCallback(() => {
     const name = deriveDownloadName(dataDoc.filename, ".data", "data");
     downloadText(dataDoc.text, name, 'application/json');
-    showToast(`Downloaded ${name}`);
+    showToast(t('common.downloadedFile', { name }));
   }, [dataDoc.text, dataDoc.filename, showToast]);
 
   const applySchemaFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     schemaActions.loadFile(result);
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [schemaActions, showToast]);
 
   const applyDataFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     dataActions.loadFile(result);
-    showToast(`Loaded ${result.name} (${formatBytes(result.size)})`);
+    showToast(t('common.loadedFile', { name: result.name, size: formatBytes(result.size) }));
   }, [dataActions, showToast]);
 
-  const handleFileError = useCallback((msg: string) => {
-    showToast(msg);
-  }, [showToast]);
+  const handleFileError = useCallback((err: unknown) => {
+    const e = err as Error & { code?: string; params?: Record<string, string> };
+    const translated = e.code ? t(`error.file.${e.code}`, e.params) : null;
+    showToast(translated ?? (e instanceof Error ? e.message : String(err)));
+  }, [t, showToast]);
 
   const handleDropSchema = useCallback((files: FileList) => {
     const arr = Array.from(files);
@@ -280,12 +296,12 @@ export default function JsonSchemaValidatorApp() {
 
   const handleClearSchema = useCallback(() => {
     schemaActions.clear();
-    showToast("Cleared schema");
+    showToast(t('schema.toastClearedSchema'));
   }, [schemaActions, showToast]);
 
   const handleClearData = useCallback(() => {
     dataActions.clear();
-    showToast("Cleared data");
+    showToast(t('schema.toastClearedData'));
   }, [dataActions, showToast]);
 
   const { status, message, errors } = validationResult;
@@ -312,7 +328,17 @@ export default function JsonSchemaValidatorApp() {
           <span class="w-4 h-4 rounded-full flex items-center justify-center font-bold text-xs border border-current">
             {status === 'valid' ? '✓' : status === 'invalid' ? '✕' : '!'}
           </span>
-          <span class="text-xs font-semibold">{message}</span>
+          <span class="text-xs font-semibold">
+            {status === 'valid'
+              ? t('schema.statusValid')
+              : status === 'invalid'
+              ? t(errors.length === 1 ? 'schema.statusInvalidOne' : 'schema.statusInvalidOther', { n: formatNumber(errors.length) })
+              : status === 'schema_error'
+              ? t('schema.statusSchemaError', { detail: message })
+              : status === 'data_error'
+              ? t('schema.statusDataError', { detail: message })
+              : t('schema.statusEmpty')}
+          </span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -320,13 +346,13 @@ export default function JsonSchemaValidatorApp() {
             onClick={handleLoadSample}
             class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
           >
-            Load Sample
+            {t('schema.btnLoadSample')}
           </button>
           <button
             onClick={handleFormatBoth}
             class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-[#18191d] border border-[#cacacb] dark:border-[#2b2d35] text-[#111111] dark:text-[#f0f0f2] hover:bg-[#111111] hover:text-white dark:hover:bg-[#f0f0f2] dark:hover:text-[#111111] transition-colors cursor-pointer"
           >
-            Prettify Both
+            {t('schema.btnPrettifyBoth')}
           </button>
           <FullscreenButton />
         </div>
@@ -336,14 +362,14 @@ export default function JsonSchemaValidatorApp() {
         <div class="px-4 sm:px-6 py-2 bg-[#fff4e5] dark:bg-[#3d2305]/40 border border-[#e5e5e5] dark:border-[#5c3a0a] shrink-0">
           <div class="flex items-center gap-2 text-[11px] font-medium text-[#b45309] dark:text-[#fde047]">
             <span class="w-1.5 h-1.5 rounded-full bg-[#b45309] dark:bg-[#fde047]"></span>
-            Large file mode: live validation disabled. Click "Validate against schema" to check.
+            {t('schema.largeBanner')}
           </div>
           <button
             onClick={handleValidate}
             disabled={busy}
             class="ml-auto px-3 py-1 rounded-full text-xs font-semibold border border-[#b45309] dark:border-[#fde047] text-[#b45309] dark:text-[#fde047] hover:bg-[#b45309] dark:hover:bg-[#fde047] hover:text-white dark:hover:text-[#111111] transition-colors cursor-pointer"
           >
-            {busy ? 'Validating…' : 'Validate against schema'}
+            {busy ? t('schema.btnValidating') : t('schema.btnValidate')}
           </button>
         </div>
       )}
@@ -351,18 +377,18 @@ export default function JsonSchemaValidatorApp() {
       {/* Error Details List if Invalid */}
       {displayedErrors.length > 0 && (
         <div class="bg-[#fef2f2] dark:bg-[#451010]/20 border-b border-[#fca5a5] dark:border-[#7a1f1f] p-4 text-xs font-mono text-[#991b1b] dark:text-[#fca5a5] shrink-0">
-          <div class="font-bold mb-2 uppercase tracking-wide text-[11px]">Violations Breakdown:</div>
+          <div class="font-bold mb-2 uppercase tracking-wide text-[11px]">{t('schema.violationsBreakdown')}</div>
           <ul class="space-y-1 max-h-[400px] overflow-y-auto">
             {displayedErrors.map((err, i) => (
               <li key={i} class="flex items-start gap-2">
                 <span class="font-bold text-[#b91c1c] dark:text-[#fca5a5]">{err.path}:</span>
-                <span>{err.message}</span>
+                <span>{t(err.message as string, err.params)}</span>
                 <span class="text-[10px] bg-[#fee2e2] dark:bg-[#451010]/30 px-1.5 py-0.2 rounded border border-[#fca5a5] dark:border-[#7a1f1f]">[{err.keyword}]</span>
               </li>
             ))}
             {hiddenCount > 0 && (
               <li class="text-[10px] text-[#707072] dark:text-[#8e8e93] italic">
-                …and {hiddenCount} more violation{hiddenCount !== 1 ? 's' : ''} (counts remain exact)
+                {hiddenCount === 1 ? t('schema.andMoreOne', { n: formatNumber(hiddenCount) }) : t('schema.andMoreOther', { n: formatNumber(hiddenCount) })}
               </li>
             )}
           </ul>
@@ -376,15 +402,14 @@ export default function JsonSchemaValidatorApp() {
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
           <Panel
-            title="JSON Schema (Draft-07 / 2020-12)"
+            title={t('schema.titleSchema')}
             filename={schemaDoc.filename}
             lineCount={schemaDoc.lineCount}
             edited={schemaDoc.edited}
             accept={ACCEPT_SCHEMA}
             onFile={applySchemaFile}
             onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for JSON Schema"
+            fileAriaLabel={t('schema.ariaChooseFileSchema')}
             onClear={handleClearSchema}
             onCopy={handleCopySchema}
             onDownload={handleDownloadSchema}
@@ -392,8 +417,8 @@ export default function JsonSchemaValidatorApp() {
             <EditorTextarea
               value={schemaDoc.text}
               onInput={(v) => schemaActions.setText(v)}
-              placeholder="Paste JSON Schema..."
-              ariaLabel="Schema editor"
+              placeholder={t('schema.placeholderSchema')}
+              ariaLabel={t('schema.ariaSchema')}
               fillHeight={isFullscreen}
             />
           </Panel>
@@ -404,15 +429,14 @@ export default function JsonSchemaValidatorApp() {
             <div class="absolute inset-0 border-2 border-dashed border-[#111111] dark:border-[#f0f0f2] rounded-xl pointer-events-none z-20" />
           )}
           <Panel
-            title="Target JSON Data"
+            title={t('schema.titleData')}
             filename={dataDoc.filename}
             lineCount={dataDoc.lineCount}
             edited={dataDoc.edited}
             accept={ACCEPT_DATA}
             onFile={applyDataFile}
             onError={handleFileError}
-            fileLabel="Choose file"
-            fileAriaLabel="Choose file for JSON Data"
+            fileAriaLabel={t('schema.ariaChooseFileData')}
             onClear={handleClearData}
             onCopy={handleCopyData}
             onDownload={handleDownloadData}
@@ -420,8 +444,8 @@ export default function JsonSchemaValidatorApp() {
             <EditorTextarea
               value={dataDoc.text}
               onInput={(v) => dataActions.setText(v)}
-              placeholder="Paste JSON data..."
-              ariaLabel="Data editor"
+              placeholder={t('schema.placeholderData')}
+              ariaLabel={t('schema.ariaData')}
               fillHeight={isFullscreen}
             />
           </Panel>
@@ -430,7 +454,7 @@ export default function JsonSchemaValidatorApp() {
 
       {!isFullscreen && (
         <p class="text-[10px] text-[#707072] dark:text-[#8e8e93] px-4 pt-1 pb-4">
-          Files are read locally and never uploaded.
+          {t('common.privacyFootnote')}
         </p>
       )}
     </ToolWorkspace>
@@ -442,10 +466,10 @@ function useMemoCompute(schemaText: string, dataText: string) {
   const d = safeParseJson(dataText, false);
 
   if (s.error) {
-    return { status: 'schema_error' as const, message: `Schema Syntax Error: ${s.error}`, errors: [] as ValidationError[] };
+    return { status: 'schema_error' as const, message: s.error, errors: [] as ValidationError[] };
   }
   if (d.error) {
-    return { status: 'data_error' as const, message: `Data Syntax Error: ${d.error}`, errors: [] as ValidationError[] };
+    return { status: 'data_error' as const, message: d.error, errors: [] as ValidationError[] };
   }
   if (!s.data || !d.data) {
     return { status: 'empty' as const, message: 'Enter both Schema and Data to validate', errors: [] as ValidationError[] };
