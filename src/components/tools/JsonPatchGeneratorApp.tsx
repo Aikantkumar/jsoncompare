@@ -17,19 +17,6 @@ import { LangProvider, useT, useFormatNumber } from '../../components/shared/Lan
 
 const ACCEPT_JSON_TXT = ['.json', '.txt'];
 
-export default function JsonPatchGeneratorApp({ lang = 'en' }: { lang?: string } = {}) {
-  return (
-    <LangProvider lang={lang}>
-      <JsonPatchGeneratorAppInner />
-    </LangProvider>
-  );
-}
-
-function JsonPatchGeneratorAppInner() {
-  const t = useT();
-  const formatNumber = useFormatNumber();
-  const [sourceDoc, sourceActions] = useTextDoc(
-
 const STORAGE_KEY = 'jsoncompare:json-patch-generator:topRatio';
 const DEFAULT_TOP_RATIO = 0.4;
 const MIN_TOP_RATIO = 0.15;
@@ -59,7 +46,17 @@ function setStoredTopRatio(ratio: number) {
   }
 }
 
-export default function JsonPatchGeneratorApp() {
+export default function JsonPatchGeneratorApp({ lang = 'en' }: { lang?: string } = {}) {
+  return (
+    <LangProvider lang={lang}>
+      <JsonPatchGeneratorAppInner />
+    </LangProvider>
+  );
+}
+
+function JsonPatchGeneratorAppInner() {
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [sourceDoc, sourceActions] = useTextDoc(
     JSON.stringify({ name: "ACME Corp", plan: "starter", seats: 5, active: true }, null, 2)
   );

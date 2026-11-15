@@ -114,6 +114,8 @@ function DiffTable(props: {
 }) {
   const { lines, view } = props;
   const { isFullscreen } = usePanelFullscreen();
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [expandedFolds, setExpandedFolds] = useState<Set<number>>(new Set());
   const [rowCap, setRowCap] = useState<number>(DIFF_ROW_CAP);
 

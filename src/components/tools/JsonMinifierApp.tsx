@@ -26,9 +26,7 @@ export default function JsonMinifierApp({ lang = 'en' }: { lang?: string } = {})
 function JsonMinifierAppInner() {
   const t = useT();
   const formatNumber = useFormatNumber();
-  const [doc, actions] = useTextDoc(SAMPLE_INPUT);
-
-const SAMPLE_INPUT = JSON.stringify(
+  const SAMPLE_INPUT = JSON.stringify(
   {
     application: "JSON Minifier Online",
     compression: "lossless",
@@ -43,7 +41,6 @@ const SAMPLE_INPUT = JSON.stringify(
   2
 );
 
-export default function JsonMinifierApp() {
   const [doc, actions] = useTextDoc(SAMPLE_INPUT);
   const [busy, setBusy] = useState<boolean>(false);
   const [manualMinified, setManualMinified] = useState<string>('');

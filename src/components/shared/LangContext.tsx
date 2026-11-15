@@ -5,7 +5,8 @@
  * page (there is no runtime language switching inside components). Unknown or
  * missing `lang` falls back to 'en'.
  */
-import { createContext, useContext, useCallback, useMemo } from 'preact';
+import { createContext } from 'preact';
+import { useContext, useCallback, useMemo } from 'preact/hooks';
 import { LANGUAGES, DEFAULT_LANG } from '../../i18n';
 import en from '../../locales/en';
 import es from '../../locales/es';
@@ -45,12 +46,12 @@ export const LangContext = createContext<LangContextValue>(DEFAULT_CTX);
 
 export function LangProvider({ lang, children }: { lang?: string; children: unknown }) {
   const resolved = LANGUAGES[lang] !== undefined ? lang : DEFAULT_LANG;
-  const dict = LOCALES[resolved] ?? LOCALES[DEFAULT_LANG];
+  const dict = LOCALES[resolved] ?? LOCALES[DEFAULT_LANG] ?? {};
   const locale = LANGUAGES[resolved]?.locale ?? LANGUAGES[DEFAULT_LANG].locale;
 
   const t = useCallback(
     (key: string, params?: Record<string, string>): string => {
-      let text = dict[key] ?? LOCALES[DEFAULT_LANG][key] ?? key;
+      let text = dict[key] ?? LOCALES[DEFAULT_LANG]?.[key] ?? key;
       if (params) {
         text = text.replace(/\{([a-zA-Z0-9_]+)\}/g, (_match, name) => {
           return Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : `{${name}}`;

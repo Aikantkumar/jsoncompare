@@ -13,21 +13,6 @@ import Panel from '../../components/shared/Panel';
 import EditorTextarea from '../../components/shared/EditorTextarea';
 import { LangProvider, useT, useFormatNumber } from '../../components/shared/LangContext';
 
-const ACCEPT_JSON_TXT = ['.json', '.txt'];
-
-export default function JsonValidatorApp({ lang = 'en' }: { lang?: string } = {}) {
-  return (
-    <LangProvider lang={lang}>
-      <JsonValidatorAppInner />
-    </LangProvider>
-  );
-}
-
-function JsonValidatorAppInner() {
-  const t = useT();
-  const formatNumber = useFormatNumber();
-  const [doc, actions] = useTextDoc(
-
 interface Validation {
   isValid: boolean | null;
   message: string;
@@ -49,7 +34,19 @@ function findLineCol(input: string, pos: number): { line: number; col: number } 
   return { line, col };
 }
 
-export default function JsonValidatorApp() {
+const ACCEPT_JSON_TXT = ['.json', '.txt'];
+
+export default function JsonValidatorApp({ lang = 'en' }: { lang?: string } = {}) {
+  return (
+    <LangProvider lang={lang}>
+      <JsonValidatorAppInner />
+    </LangProvider>
+  );
+}
+
+function JsonValidatorAppInner() {
+  const t = useT();
+  const formatNumber = useFormatNumber();
   const [doc, actions] = useTextDoc(
     `{\n  "service": "payments-api",\n  "status": "active",\n  "version": 2.4,\n  "endpoints": [\n    "/charge",\n    "/refund",\n  ] // note: trailing comma will test validation\n}`
   );

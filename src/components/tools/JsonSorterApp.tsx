@@ -109,8 +109,7 @@ const SAMPLE_UNSORTED = {
   }
 };
 
-export default function JsonSorterApp() {
-  const [doc, actions] = useTextDoc(JSON.stringify(SAMPLE_UNSORTED, null, 2));
+const SAMPLE_UNSORTED = {
   const [order, setOrder] = useState<SortOrder>('asc');
   const [deep, setDeep] = useState<boolean>(true);
   const [sortArrays, setSortArrays] = useState<boolean>(false);
