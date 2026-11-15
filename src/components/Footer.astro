@@ -1,4 +1,11 @@
 ---
+import { localizedPath } from '../i18n';
+
+interface Props {
+  lang?: string;
+}
+
+const { lang = 'en' } = Astro.props;
 const currentYear = 2026;
 ---
 
@@ -9,7 +16,7 @@ const currentYear = 2026;
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 mb-12">
       <!-- Col 1: Brand and Philosophy (spans 2 on lg) -->
       <div class="col-span-2">
-        <a href="/" class="flex items-center gap-2 mb-3">
+        <a href={localizedPath(lang, '/')} class="flex items-center gap-2 mb-3">
           <span
             class="w-6 h-6 rounded-full bg-[#111111] dark:bg-[#f0f0f2] text-white dark:text-[#111111] flex items-center justify-center font-mono font-bold text-xs"
           >
@@ -49,36 +56,36 @@ const currentYear = 2026;
         </h4>
         <ul class="space-y-2">
           <li>
-            <a
-              href="/"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              Semantic JSON Diff
-            </a>
+              <a
+                href={localizedPath(lang, '/')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                Semantic JSON Diff
+              </a>
           </li>
           <li>
-            <a
-              href="/tools/json-patch-generator"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              RFC 6902 Patch Export
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-patch-generator')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                RFC 6902 Patch Export
+              </a>
           </li>
           <li>
-            <a
-              href="/tools/json-sorter"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              Alphabetical Key Sorter
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-sorter')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                Alphabetical Key Sorter
+              </a>
           </li>
           <li>
-            <a
-              href="/tools/json-to-typescript"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              TypeScript Generator
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-to-typescript')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                TypeScript Generator
+              </a>
           </li>
         </ul>
       </div>
@@ -92,44 +99,44 @@ const currentYear = 2026;
         </h4>
         <ul class="space-y-2">
           <li>
-            <a
-              href="/tools/json-formatter"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              JSON Formatter
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-formatter')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                JSON Formatter
+              </a>
           </li>
           <li>
-            <a
-              href="/tools/json-validator"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              JSON Validator
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-validator')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                JSON Validator
+              </a>
           </li>
           <li>
-            <a
-              href="/tools/json-minifier"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              JSON Minifier
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-minifier')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                JSON Minifier
+              </a>
           </li>
           <li>
-            <a
-              href="/tools/json-escape-unescape"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              Escape / Unescape
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-escape-unescape')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                Escape / Unescape
+              </a>
           </li>
           <li>
-            <a
-              href="/tools/json-schema-validator"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              Schema Validator
-            </a>
+              <a
+                href={localizedPath(lang, '/tools/json-schema-validator')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                Schema Validator
+              </a>
           </li>
         </ul>
       </div>
@@ -143,52 +150,52 @@ const currentYear = 2026;
         </h4>
         <ul class="space-y-2">
           <li>
-            <a
-              href="/convert/yaml-to-json"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              YAML to JSON
-            </a>
+              <a
+                href={localizedPath(lang, '/convert/yaml-to-json')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                YAML to JSON
+              </a>
           </li>
           <li>
-            <a
-              href="/convert/json-to-yaml"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              JSON to YAML
-            </a>
+              <a
+                href={localizedPath(lang, '/convert/json-to-yaml')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                JSON to YAML
+              </a>
           </li>
           <li>
-            <a
-              href="/convert/xml-to-json"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              XML to JSON
-            </a>
+              <a
+                href={localizedPath(lang, '/convert/xml-to-json')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                XML to JSON
+              </a>
           </li>
           <li>
-            <a
-              href="/convert/json-to-xml"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              JSON to XML
-            </a>
+              <a
+                href={localizedPath(lang, '/convert/json-to-xml')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                JSON to XML
+              </a>
           </li>
           <li>
-            <a
-              href="/convert/csv-to-json"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              CSV to JSON
-            </a>
+              <a
+                href={localizedPath(lang, '/convert/csv-to-json')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                CSV to JSON
+              </a>
           </li>
           <li>
-            <a
-              href="/convert/json-to-csv"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              JSON to CSV
-            </a>
+              <a
+                href={localizedPath(lang, '/convert/json-to-csv')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                JSON to CSV
+              </a>
           </li>
         </ul>
       </div>
@@ -202,36 +209,36 @@ const currentYear = 2026;
         </h4>
         <ul class="space-y-2">
           <li>
-            <a
-              href="/about"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              About Us
-            </a>
+              <a
+                href={localizedPath(lang, '/about')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                About Us
+              </a>
           </li>
           <li>
-            <a
-              href="/contact"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              Contact Us
-            </a>
+              <a
+                href={localizedPath(lang, '/contact')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                Contact Us
+              </a>
           </li>
           <li>
-            <a
-              href="/privacy"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              Privacy Policy
-            </a>
+              <a
+                href={localizedPath(lang, '/privacy')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                Privacy Policy
+              </a>
           </li>
           <li>
-            <a
-              href="/terms"
-              class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
-            >
-              Terms &amp; Conditions
-            </a>
+              <a
+                href={localizedPath(lang, '/terms')}
+                class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
+              >
+                Terms &amp; Conditions
+              </a>
           </li>
         </ul>
       </div>
@@ -247,28 +254,28 @@ const currentYear = 2026;
       </div>
       <div class="flex items-center gap-5 flex-wrap justify-center">
         <a
-          href="/about"
+          href={localizedPath(lang, '/about')}
           class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
         >
           About
         </a>
         <span class="text-[#cacacb] dark:text-[#2b2d35]">•</span>
         <a
-          href="/contact"
+          href={localizedPath(lang, '/contact')}
           class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
         >
           Contact
         </a>
         <span class="text-[#cacacb] dark:text-[#2b2d35]">•</span>
         <a
-          href="/privacy"
+          href={localizedPath(lang, '/privacy')}
           class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
         >
           Privacy Policy
         </a>
         <span class="text-[#cacacb] dark:text-[#2b2d35]">•</span>
         <a
-          href="/terms"
+          href={localizedPath(lang, '/terms')}
           class="hover:text-[#111111] dark:hover:text-[#f0f0f2] transition-colors"
         >
           Terms

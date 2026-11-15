@@ -9,7 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node --experimental-strip-types --test src/utils/__tests__/jsonDiff.test.ts src/utils/__tests__/fileIO.test.ts src/utils/__tests__/pureFunctions.test.ts src/utils/__tests__/locales.test.ts",
+    "test": "node --experimental-strip-types --test src/utils/__tests__/jsonDiff.test.ts src/utils/__tests__/fileIO.test.ts src/utils/__tests__/pureFunctions.test.ts src/utils/__tests__/locales.test.ts src/utils/__tests__/docStorage.test.ts src/utils/__tests__/i18n.test.ts",
     "check:i18n": "node --experimental-strip-types scripts/check-i18n.mjs",
     "astro": "astro"
   },

@@ -205,8 +205,8 @@ export default function JsonSchemaValidatorApp({ lang = 'en' }: { lang?: string 
 function JsonSchemaValidatorAppInner() {
   const t = useT();
   const formatNumber = useFormatNumber();
-  const [schemaDoc, schemaActions] = useTextDoc(JSON.stringify(SAMPLE_SCHEMA, null, 2));
-  const [dataDoc, dataActions] = useTextDoc(JSON.stringify(SAMPLE_DATA, null, 2));
+  const [schemaDoc, schemaActions] = useTextDoc(JSON.stringify(SAMPLE_SCHEMA, null, 2), { persistKey: 'schema:schema' });
+  const [dataDoc, dataActions] = useTextDoc(JSON.stringify(SAMPLE_DATA, null, 2), { persistKey: 'schema:data' });
   const [busy, setBusy] = useState<boolean>(false);
 
   const { message: toastMessage, show: showToast } = useToast(3000);

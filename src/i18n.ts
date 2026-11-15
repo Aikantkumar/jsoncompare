@@ -37,6 +37,13 @@ export function isDefaultLang(lang: string): boolean {
   return lang === DEFAULT_LANG;
 }
 
+export function localizedPath(lang: string, path: string): string {
+  if (isDefaultLang(lang)) return path;
+  const dir = langDir(lang);
+  if (path === '/') return dir;
+  return dir + path;
+}
+
 export function otherLangs(currentLang: string): Language[] {
   return LANG_LIST.filter((l) => l.code !== currentLang);
 }

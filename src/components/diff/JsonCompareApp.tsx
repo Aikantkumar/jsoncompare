@@ -334,8 +334,8 @@ export default function JsonCompareApp({ lang = 'en' }: { lang?: string } = {}) 
 function JsonCompareAppInner() {
   const t = useT();
   const formatNumber = useFormatNumber();
-  const [leftDoc, leftActions] = useTextDoc(SAMPLES.apiResponse.left);
-  const [rightDoc, rightActions] = useTextDoc(SAMPLES.apiResponse.right);
+  const [leftDoc, leftActions] = useTextDoc(SAMPLES.apiResponse.left, { persistKey: 'compare:left' });
+  const [rightDoc, rightActions] = useTextDoc(SAMPLES.apiResponse.right, { persistKey: 'compare:right' });
   const [activeView, setActiveView] = useState<AppView>('split');
 
   const [ignoreKeyOrder, setIgnoreKeyOrder] = useState<boolean>(true);
@@ -587,10 +587,6 @@ function JsonCompareAppInner() {
 
   const isLargeMode = leftDoc.isLarge || rightDoc.isLarge;
 
-  // Local edited flags (useTextDoc resets edited on loadFile; we track edits separately).
-  const [leftEdited, setLeftEdited] = useState<boolean>(false);
-  const [rightEdited, setRightEdited] = useState<boolean>(false);
-
   // ---- File handling ----
   const applyLeftFile = useCallback((result: { name: string; size: number; text: string; large: boolean }) => {
     leftActions.loadFile(result);
@@ -685,23 +681,19 @@ function JsonCompareAppInner() {
     const tmpEdited = leftDoc.edited;
     leftActions.setText(rightDoc.text, { markEdited: false });
     leftActions.setFilename(rightDoc.filename);
+    leftActions.setEdited(rightDoc.edited);
     rightActions.setText(tmpText, { markEdited: false });
     rightActions.setFilename(tmpFilename);
-    // Re-apply edited flags after setText (which marks edited by default).
-    setLeftEdited(tmpEdited);
-    setRightEdited(leftDoc.edited);
+    rightActions.setEdited(tmpEdited);
     showToast(t('compare.toastSwapped'));
   };
 
-  // Use local edited flags since useTextDoc resets edited on loadFile/setText default.
   const handleClearLeft = () => {
     leftActions.clear();
-    setLeftEdited(false);
     showToast(t('compare.toastClearedLeft'));
   };
   const handleClearRight = () => {
     rightActions.clear();
-    setRightEdited(false);
     showToast(t('compare.toastClearedRight'));
   };
 
@@ -721,12 +713,10 @@ function JsonCompareAppInner() {
       if (leftDoc.text.trim()) {
         const lp = JSON.parse(leftDoc.text);
         leftActions.setText(JSON.stringify(lp, null, 2));
-        setLeftEdited(true);
       }
       if (rightDoc.text.trim()) {
         const rp = JSON.parse(rightDoc.text);
         rightActions.setText(JSON.stringify(rp, null, 2));
-        setRightEdited(true);
       }
       showToast(t('compare.toastFormattedBoth'));
     } catch {
@@ -739,8 +729,6 @@ function JsonCompareAppInner() {
     const repairedRight = repairJsonString(rightDoc.text);
     leftActions.setText(repairedLeft);
     rightActions.setText(repairedRight);
-    setLeftEdited(true);
-    setRightEdited(true);
     showToast(t('compare.toastSmartRepairBoth'));
   };
 
@@ -937,44 +925,42 @@ function JsonCompareAppInner() {
 
               <div class="flex items-center gap-1 text-[11px]">
                 <span class="text-[#707072] dark:text-[#8e8e93]">{t('compare.samples')}</span>
-                <button
-                  onClick={() => {
-                    leftActions.setText(SAMPLES.apiResponse.left, { markEdited: false });
-                    rightActions.setText(SAMPLES.apiResponse.right, { markEdited: false });
-                    leftActions.setFilename(null);
-                    rightActions.setFilename(null);
-                    setLeftEdited(false);
-                    setRightEdited(false);
-                    showToast(t('compare.toastLoadedSampleApi'));
-                  }}
+                  <button
+                    onClick={() => {
+                      leftActions.setText(SAMPLES.apiResponse.left, { markEdited: false });
+                      rightActions.setText(SAMPLES.apiResponse.right, { markEdited: false });
+                      leftActions.setFilename(null);
+                      rightActions.setFilename(null);
+                      leftActions.setEdited(false);
+                      rightActions.setEdited(false);
+                      showToast(t('compare.toastLoadedSampleApi'));
+                    }}
                   class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
                 >
                   {t('compare.sampleApi')}
                 </button>
                 <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
-                <button
-                  onClick={() => {
-                    leftActions.setText(SAMPLES.keyOrder.left, { markEdited: false });
-                    rightActions.setText(SAMPLES.keyOrder.right, { markEdited: false });
-                    leftActions.setFilename(null);
-                    rightActions.setFilename(null);
-                    setLeftEdited(false);
-                    setRightEdited(false);
-                    showToast(t('compare.toastLoadedSampleKeyOrder'));
-                  }}
+                  <button
+                    onClick={() => {
+                      leftActions.setText(SAMPLES.keyOrder.left, { markEdited: false });
+                      rightActions.setText(SAMPLES.keyOrder.right, { markEdited: false });
+                      leftActions.setFilename(null);
+                      rightActions.setFilename(null);
+                      leftActions.setEdited(false);
+                      rightActions.setEdited(false);
+                      showToast(t('compare.toastLoadedSampleKeyOrder'));
+                    }}
                   class="hover:underline text-[#111111] dark:text-[#f0f0f2] cursor-pointer"
                 >
                   {t('compare.sampleKeyOrder')}
                 </button>
                 <span class="text-[#cacacb] dark:text-[#383d47]">|</span>
-                <button
-                  onClick={() => {
-                    leftActions.clear();
-                    rightActions.clear();
-                    setLeftEdited(false);
-                    setRightEdited(false);
-                    showToast(t('compare.toastClearedBoth'));
-                  }}
+                  <button
+                    onClick={() => {
+                      leftActions.clear();
+                      rightActions.clear();
+                      showToast(t('compare.toastClearedBoth'));
+                    }}
                   class="hover:underline text-[#d30005] dark:text-[#f87171] cursor-pointer"
                 >
                   {t('compare.sampleClear')}
@@ -1040,7 +1026,7 @@ function JsonCompareAppInner() {
                   title={t('compare.titleLeft')}
                   filename={leftDoc.filename}
                   lineCount={leftDoc.lineCount}
-                  edited={leftEdited}
+                  edited={leftDoc.edited}
                   accept={ACCEPT_JSON_TXT}
                   onFile={applyLeftFile}
                   onError={handleFileError}
@@ -1052,7 +1038,7 @@ function JsonCompareAppInner() {
                 >
                   <EditorTextarea
                     value={leftDoc.text}
-                    onInput={(v) => { leftActions.setText(v); setLeftEdited(true); }}
+                    onInput={(v) => { leftActions.setText(v); }}
                     placeholder={t('compare.placeholderLeft')}
                     ariaLabel={t('compare.ariaEditorLeft')}
                     fillHeight={workspaceFullscreen || normalHeightPx !== null}
@@ -1068,7 +1054,7 @@ function JsonCompareAppInner() {
                   title={t('compare.titleRight')}
                   filename={rightDoc.filename}
                   lineCount={rightDoc.lineCount}
-                  edited={rightEdited}
+                  edited={rightDoc.edited}
                   accept={ACCEPT_JSON_TXT}
                   onFile={applyRightFile}
                   onError={handleFileError}
@@ -1080,7 +1066,7 @@ function JsonCompareAppInner() {
                 >
                   <EditorTextarea
                     value={rightDoc.text}
-                    onInput={(v) => { rightActions.setText(v); setRightEdited(true); }}
+                    onInput={(v) => { rightActions.setText(v); }}
                     placeholder={t('compare.placeholderRight')}
                     ariaLabel={t('compare.ariaEditorRight')}
                     fillHeight={workspaceFullscreen || normalHeightPx !== null}

@@ -58,10 +58,12 @@ function JsonPatchGeneratorAppInner() {
   const t = useT();
   const formatNumber = useFormatNumber();
   const [sourceDoc, sourceActions] = useTextDoc(
-    JSON.stringify({ name: "ACME Corp", plan: "starter", seats: 5, active: true }, null, 2)
+    JSON.stringify({ name: "ACME Corp", plan: "starter", seats: 5, active: true }, null, 2),
+    { persistKey: 'patch:source' }
   );
   const [targetDoc, targetActions] = useTextDoc(
-    JSON.stringify({ name: "ACME Corp", plan: "enterprise", seats: 50, active: true, customDomain: "acme.com" }, null, 2)
+    JSON.stringify({ name: "ACME Corp", plan: "enterprise", seats: 50, active: true, customDomain: "acme.com" }, null, 2),
+    { persistKey: 'patch:target' }
   );
   const [busy, setBusy] = useState<boolean>(false);
   const [topRatio, setTopRatio] = useState<number>(getStoredTopRatio);

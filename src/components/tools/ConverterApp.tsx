@@ -49,7 +49,7 @@ function ConverterAppInner({ initialMode }: Props) {
   const t = useT();
   const formatNumber = useFormatNumber();
   const [mode, setMode] = useState<ConverterMode>(initialMode);
-  const [doc, actions] = useTextDoc(INITIAL_INPUT[initialMode]);
+  const [doc, actions] = useTextDoc(INITIAL_INPUT[initialMode], { persistKey: `converter:${mode}` });
   const [output, setOutput] = useState<string>('');
   const [outputName, setOutputName] = useState<string>('');
   const [error, setError] = useState<string>('');

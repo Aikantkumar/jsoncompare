@@ -8,15 +8,15 @@
 import { createContext } from 'preact';
 import { useContext, useCallback, useMemo } from 'preact/hooks';
 import { LANGUAGES, DEFAULT_LANG } from '../../i18n';
-import en from '../../locales/en';
-import es from '../../locales/es';
-import zh from '../../locales/zh';
-import ja from '../../locales/ja';
-import fr from '../../locales/fr';
-import de from '../../locales/de';
-import pt from '../../locales/pt';
-import ko from '../../locales/ko';
-import it from '../../locales/it';
+import { en } from '../../locales/en';
+import { es } from '../../locales/es';
+import { zh } from '../../locales/zh';
+import { ja } from '../../locales/ja';
+import { fr } from '../../locales/fr';
+import { de } from '../../locales/de';
+import { pt } from '../../locales/pt';
+import { ko } from '../../locales/ko';
+import { it } from '../../locales/it';
 
 export const LOCALES: Record<string, Record<string, string>> = {
   en,

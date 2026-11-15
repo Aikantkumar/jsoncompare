@@ -1,17 +1,12 @@
 ---
 interface Props {
   activeTab?: string;
+  lang?: string;
 }
 
-const { activeTab = "" } = Astro.props;
+const { activeTab = "", lang = DEFAULT_LANG } = Astro.props;
 
-import { LANGUAGES, DEFAULT_LANG } from '../i18n';
-
-const currentPath = Astro.url.pathname;
-const currentLangInfo = Object.values(LANGUAGES).find((l) => l.dir && currentPath.startsWith(`/${l.dir}/`));
-const currentLang = currentLangInfo?.code ?? DEFAULT_LANG;
-const currentDir = currentLangInfo?.dir ?? '';
-const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`), '') || '/' : currentPath;
+import { LANGUAGES, DEFAULT_LANG, localizedPath, langDir } from '../i18n';
 ---
 
 
@@ -24,7 +19,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
   >
     <!-- Brand -->
     <div class="flex items-center gap-6">
-      <a href="/" class="flex items-center gap-2.5 group">
+      <a href={localizedPath(lang, '/')} class="flex items-center gap-2.5 group">
         <span
           class="w-8 h-8 rounded-full bg-[#111111] dark:bg-[#f0f0f2] text-white dark:text-[#111111] flex items-center justify-center font-mono font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-all"
         >
@@ -63,7 +58,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
       class="hidden md:flex items-center gap-1 text-sm font-medium text-[#39393b] dark:text-[#b5b5b8]"
     >
       <a
-        href="/"
+        href={localizedPath(lang, '/')}
         class={`px-3 py-1.5 rounded-full transition-colors ${
           activeTab === "compare"
             ? "bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]"
@@ -99,7 +94,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
             class="w-64 bg-white dark:bg-[#14161b] rounded-2xl shadow-xl border border-[#e5e5e5] dark:border-[#272a30] p-2 space-y-0.5"
           >
             <a
-              href="/tools/json-formatter"
+              href={localizedPath(lang, '/tools/json-formatter')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -111,7 +106,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
               >
             </a>
             <a
-              href="/tools/json-validator"
+              href={localizedPath(lang, '/tools/json-validator')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -123,7 +118,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
               >
             </a>
             <a
-              href="/tools/json-minifier"
+              href={localizedPath(lang, '/tools/json-minifier')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -135,7 +130,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
               >
             </a>
             <a
-              href="/tools/json-patch-generator"
+              href={localizedPath(lang, '/tools/json-patch-generator')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -147,7 +142,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
               >
             </a>
             <a
-              href="/tools/json-to-typescript"
+              href={localizedPath(lang, '/tools/json-to-typescript')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -159,7 +154,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
               >
             </a>
             <a
-              href="/tools/json-escape-unescape"
+              href={localizedPath(lang, '/tools/json-escape-unescape')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -171,7 +166,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
               >
             </a>
             <a
-              href="/tools/json-schema-validator"
+              href={localizedPath(lang, '/tools/json-schema-validator')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -183,7 +178,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
               >
             </a>
             <a
-              href="/tools/json-sorter"
+              href={localizedPath(lang, '/tools/json-sorter')}
               class="block px-3 py-2 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] transition-colors"
             >
               <span
@@ -224,37 +219,37 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
             class="w-56 bg-white dark:bg-[#14161b] rounded-2xl shadow-xl border border-[#e5e5e5] dark:border-[#272a30] p-2 space-y-0.5"
           >
             <a
-              href="/convert/yaml-to-json"
+              href={localizedPath(lang, '/convert/yaml-to-json')}
               class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors"
             >
               YAML to JSON
             </a>
             <a
-              href="/convert/json-to-yaml"
+              href={localizedPath(lang, '/convert/json-to-yaml')}
               class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors"
             >
               JSON to YAML
             </a>
             <a
-              href="/convert/xml-to-json"
+              href={localizedPath(lang, '/convert/xml-to-json')}
               class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors"
             >
               XML to JSON
             </a>
             <a
-              href="/convert/json-to-xml"
+              href={localizedPath(lang, '/convert/json-to-xml')}
               class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors"
             >
               JSON to XML
             </a>
             <a
-              href="/convert/csv-to-json"
+              href={localizedPath(lang, '/convert/csv-to-json')}
               class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors"
             >
               CSV to JSON
             </a>
             <a
-              href="/convert/json-to-csv"
+              href={localizedPath(lang, '/convert/json-to-csv')}
               class="block px-3 py-1.5 rounded-xl text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#1d2027] text-[#111111] dark:text-[#f0f0f2] transition-colors"
             >
               JSON to CSV
@@ -264,7 +259,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
       </div>
 
       <a
-        href="/about"
+        href={localizedPath(lang, '/about')}
         class={`px-3 py-1.5 rounded-full transition-colors ${
           activeTab === "about"
             ? "bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]"
@@ -275,7 +270,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
       </a>
 
       <a
-        href="/contact"
+        href={localizedPath(lang, '/contact')}
         class={`px-3 py-1.5 rounded-full transition-colors ${
           activeTab === "contact"
             ? "bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]"
@@ -286,7 +281,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
       </a>
 
       <a
-        href="/faq"
+        href={localizedPath(lang, '/faq')}
         class={`px-3 py-1.5 rounded-full transition-colors ${
           activeTab === "faq"
             ? "bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]"
@@ -297,7 +292,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
       </a>
 
       <a
-        href="/privacy"
+        href={localizedPath(lang, '/privacy')}
         class={`px-3 py-1.5 rounded-full transition-colors ${
           activeTab === "privacy"
             ? "bg-[#111111] text-white dark:bg-[#f0f0f2] dark:text-[#111111]"
@@ -312,12 +307,10 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
       <!-- Language Switcher -->
       <select
         id="lang-switcher"
-        data-current-dir={currentDir}
-        data-base-path={basePath}
         class="text-xs text-[#39393b] dark:text-[#b5b5b8] bg-white dark:bg-[#16181d] border border-[#cacacb] dark:border-[#2b2d35] rounded-full px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#111111] dark:focus:ring-[#f0f0f2] cursor-pointer"
       >
         {Object.values(LANGUAGES).map((l) => (
-          <option value={l.dir ? `/${l.dir}` : ''} selected={l.code === currentLang}>
+          <option value={l.dir ? `/${l.dir}` : ''} selected={(l.dir ? `/${l.dir}` : '') === langDir(lang)}>
             {l.nativeName}
           </option>
         ))}
@@ -362,7 +355,7 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
       </button>
 
       <a
-        href="/"
+        href={localizedPath(lang, '/')}
         class="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-semibold bg-[#111111] text-white hover:bg-[#39393b] dark:bg-[#f0f0f2] dark:text-[#111111] dark:hover:bg-white transition-colors shadow-xs"
       >
         Diff Two JSONs
@@ -472,11 +465,27 @@ const basePath = currentDir ? currentPath.replace(new RegExp(`^/${currentDir}`),
   (function () {
     const select = document.getElementById('lang-switcher');
     if (!select) return;
-    const currentDir = select.getAttribute('data-current-dir') || '';
-    const basePath = select.getAttribute('data-base-path') || '/';
+    const prefixes = Array.from(select.options).map((option) => option.value);
+    const currentPath = window.location.pathname;
+
+    function stripCurrentPrefix(path) {
+      for (const prefix of prefixes) {
+        if (!prefix) continue;
+        if (path === prefix || path.startsWith(prefix + '/')) {
+          return path.slice(prefix.length) || '/';
+        }
+      }
+      return path;
+    }
+
     select.onchange = function () {
-      const dir = select.value;
-      window.location.href = (dir ? dir : '') + basePath;
+      const next = select.value;
+      const path = stripCurrentPrefix(currentPath);
+      const target = next ? next + (path === '/' ? '' : path) : path;
+      try {
+        localStorage.setItem('lang', next ? next.slice(1) : 'en');
+      } catch {}
+      window.location.href = target;
     };
   })();
 </script>

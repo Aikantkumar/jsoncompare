@@ -105,7 +105,8 @@ function JsonToTypeScriptAppInner() {
       },
       null,
       2
-    )
+    ),
+    { persistKey: 'ts:doc' }
   );
   const [rootInterfaceName, setRootInterfaceName] = useState<string>('UserResponse');
   const [busy, setBusy] = useState<boolean>(false);

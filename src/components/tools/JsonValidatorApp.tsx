@@ -48,7 +48,8 @@ function JsonValidatorAppInner() {
   const t = useT();
   const formatNumber = useFormatNumber();
   const [doc, actions] = useTextDoc(
-    `{\n  "service": "payments-api",\n  "status": "active",\n  "version": 2.4,\n  "endpoints": [\n    "/charge",\n    "/refund",\n  ] // note: trailing comma will test validation\n}`
+    `{\n  "service": "payments-api",\n  "status": "active",\n  "version": 2.4,\n  "endpoints": [\n    "/charge",\n    "/refund",\n  ] // note: trailing comma will test validation\n}`,
+    { persistKey: 'validator:doc' }
   );
   const [busy, setBusy] = useState<boolean>(false);
 

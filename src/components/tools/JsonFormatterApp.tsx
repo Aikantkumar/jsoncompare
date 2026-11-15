@@ -26,7 +26,8 @@ function JsonFormatterAppInner() {
   const t = useT();
   const formatNumber = useFormatNumber();
   const [doc, actions] = useTextDoc(
-    JSON.stringify({ title: "JSON Formatter", features: ["beautify", "sort keys", "custom indent"], options: { spaces: 2, compact: false } }, null, 2)
+    JSON.stringify({ title: "JSON Formatter", features: ["beautify", "sort keys", "custom indent"], options: { spaces: 2, compact: false } }, null, 2),
+    { persistKey: 'formatter:doc' }
   );
   const [indentSize, setIndentSize] = useState<number>(2);
   const [shouldSortKeys, setShouldSortKeys] = useState<boolean>(false);

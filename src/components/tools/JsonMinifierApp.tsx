@@ -41,7 +41,7 @@ function JsonMinifierAppInner() {
   2
 );
 
-  const [doc, actions] = useTextDoc(SAMPLE_INPUT);
+  const [doc, actions] = useTextDoc(SAMPLE_INPUT, { persistKey: 'minifier:doc' });
   const [busy, setBusy] = useState<boolean>(false);
   const [manualMinified, setManualMinified] = useState<string>('');
   const [error, setError] = useState<string | null>(null);

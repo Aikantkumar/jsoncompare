@@ -23,7 +23,8 @@ export default function JsonEscapeUnescapeApp({ lang = 'en' }: { lang?: string }
 function JsonEscapeUnescapeAppInner() {
   const t = useT();
   const [doc, actions] = useTextDoc(
-    '{"id": 101, "message": "Database connected successfully", "status": "OK"}'
+    '{"id": 101, "message": "Database connected successfully", "status": "OK"}',
+    { persistKey: 'escape:doc' }
   );
   const [output, setOutput] = useState<string>('');
 

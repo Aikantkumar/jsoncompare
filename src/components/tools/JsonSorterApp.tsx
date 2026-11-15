@@ -23,10 +23,31 @@ export default function JsonSorterApp({ lang = 'en' }: { lang?: string } = {}) {
   );
 }
 
+const SAMPLE_UNSORTED = {
+  zebra: "animal",
+  apple: "fruit",
+  mango: {
+    sweetness: 10,
+    origin: "India",
+    calories: 150,
+    vitamins: ["C", "A", "B6"]
+  },
+  banana: "fruit",
+  details: {
+    zoo: "San Diego",
+    age: 5,
+    location: {
+      zip: 92101,
+      country: "USA",
+      city: "San Diego"
+    }
+  }
+};
+
 function JsonSorterAppInner() {
   const t = useT();
   const formatNumber = useFormatNumber();
-  const [doc, actions] = useTextDoc(JSON.stringify(SAMPLE_UNSORTED, null, 2));
+  const [doc, actions] = useTextDoc(JSON.stringify(SAMPLE_UNSORTED, null, 2), { persistKey: 'sorter:doc' });
 
 type SortOrder = 'asc' | 'desc' | 'length-asc' | 'length-desc';
 
@@ -88,29 +109,7 @@ function sortKeysCustom(
   return result;
 }
 
-const SAMPLE_UNSORTED = {
-  zebra: "animal",
-  apple: "fruit",
-  mango: {
-    sweetness: 10,
-    origin: "India",
-    calories: 150,
-    vitamins: ["C", "A", "B6"]
-  },
-  banana: "fruit",
-  details: {
-    zoo: "San Diego",
-    age: 5,
-    location: {
-      zip: 92101,
-      country: "USA",
-      city: "San Diego"
-    }
-  }
-};
-
-const SAMPLE_UNSORTED = {
-  const [order, setOrder] = useState<SortOrder>('asc');
+const [order, setOrder] = useState<SortOrder>('asc');
   const [deep, setDeep] = useState<boolean>(true);
   const [sortArrays, setSortArrays] = useState<boolean>(false);
   const [indent, setIndent] = useState<number>(2);
